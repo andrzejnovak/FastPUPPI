@@ -40,36 +40,53 @@ class TauNTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
         virtual void beginRun(edm::Run const&, edm::EventSetup const& iSetup) override {}
         virtual void endRun(edm::Run const&, edm::EventSetup const& iSetup) override { } // framework wants this to be implemented
+        TLorentzVector visible(const reco::Candidate *d);
+        int decay(const reco::Candidate *d);  
+        float decayId(float id, int iPdgId);
 
         edm::EDGetTokenT<std::vector<l1t::PFTau>> L1PFTaus_;
         edm::EDGetTokenT<std::vector<reco::GenParticle>> genparticles_;
         float dr2Max_, minPtRatio_;
         TTree *tree_;
-        uint32_t run_, lumi_; uint64_t event_; uint64_t eventcount_;
+        uint32_t run_, lumi_; uint64_t event_; uint64_t eventcount_; float inputs_[80];
 
         struct McVars {
-            float pt, eta, phi, dr;
-            int   id;
+  	    float pt1, eta1, phi1, dr1; float id1;
             void makeBranches(TTree *tree) {
-                tree->Branch("genid", &id, "genid/I");
-                tree->Branch("gendr", &dr, "gendr/F");
-                tree->Branch("genpt", &pt, "genpt/F");
-                tree->Branch("geneta", &eta, "geneta/F");
-                tree->Branch("genphi", &phi, "genphi/F");
+                tree->Branch("gendr1", &dr1, "gendr1/F");
+                tree->Branch("genpt1", &pt1, "genpt1/F");
+                tree->Branch("geneta1", &eta1, "geneta1/F");
+                tree->Branch("genphi1", &phi1, "genphi1/F");
+		tree->Branch("genid1" , &id1 , "id1/F");
             }
             void clear() {
-                pt = 0; eta = 0; phi = 0; dr = -999; id = 0;
+                pt1 = 0; eta1 = 0; phi1 = 0; dr1 = -999; id1 = 0;
             }
 	  void fill(const reco::GenParticle &c) { 
             TLorentzVector lVec; 
-	    lVec.SetPtEtaPhiM(pt,eta,phi,0);
+	    lVec.SetPtEtaPhiM(pt1,eta1,phi1,0);
 	    TLorentzVector lNewVec;
 	    lNewVec.SetPtEtaPhiM(c.pt(),c.eta(),c.phi(),0);
 	    lVec += lNewVec;
-	    id  = c.pdgId();
-	    pt  = lVec.Pt(); 
-	    eta = lVec.Eta(); 
-	    phi = lVec.Phi();
+	    id1 = decayId(id1,c.pdgId());
+	    pt1  = lVec.Pt(); 
+	    eta1 = lVec.Eta(); 
+	    phi1 = lVec.Phi();
+	  }
+	  float decayId(float id, int iPdgId) {
+	    if((abs(iPdgId) == 22  || abs(iPdgId) == 130 || abs(iPdgId) == 310 || abs(iPdgId) == 111))  id = 2;
+	    if(id == 1 && (abs(iPdgId) == 211 || abs(iPdgId) == 321)) id = 3;
+	    if(id == 0 && (abs(iPdgId) == 211 || abs(iPdgId) == 321 )) id = 1;
+	    if(id == 0 && abs(iPdgId) == 11)  id = 11;
+	    if(id == 0 && abs(iPdgId) == 13)  id = 13; 
+	    return id;
+	  }
+	  void fill(TLorentzVector iVec,float iDR, float id) { 
+	    dr1  = iDR;
+	    pt1  = iVec.Pt(); 
+	    eta1 = iVec.Eta(); 
+	    phi1 = iVec.Phi();
+	    id1  = id;
 	  }
         } mc_;
 
@@ -117,6 +134,7 @@ TauNTuplizer::~TauNTuplizer() { }
 void  TauNTuplizer::beginJob() {
     mc_.makeBranches(tree_);
     for (auto & v : reco_) v.makeBranch(tree_);
+    tree_->Branch("m_inputs",&inputs_,"ml_inputs[80]/F");
     eventcount_=0;
 }
 void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -136,40 +154,108 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     l1t::PFTau dummy;
     std::vector<int> matchedGen;
+    std::vector<int> matchedTau;
+    std::vector<TLorentzVector> taus;
+    std::vector<float> tauid;
+    std::vector<const reco::GenParticle*> yigentaus;
+    std::vector<TLorentzVector> yitaus;
+    bool LeptonicDecay = false;
+    for (const reco::GenParticle &gen : *genparticles) {
+      if(fabs(gen.pdgId()) != 15) continue;
+      if(fabs(gen.status()) > 10) continue;
+      yigentaus.push_back(&gen);
+    } 
+    for(unsigned  i0 = 0; i0 < yigentaus.size(); i0++) {
+      int n = yigentaus[i0]->numberOfDaughters();
+      TLorentzVector lVec;
+      lVec.SetPtEtaPhiM(0,0,0,0);
+      float lDecayId = 0;
+      for(unsigned i1 = 0; i1 < unsigned(n); i1++) {
+	const reco::Candidate * d = yigentaus[i0]->daughter( i1 );
+	if(fabs(d->pdgId()) == 12 ||  fabs(d->pdgId()) == 14 || fabs(d->pdgId()) == 16) continue;
+	TLorentzVector pVec = visible(d);
+	int lId  = decay(d);
+	if(fabs(lId) == 11 ||  fabs(lId) == 13) LeptonicDecay = true;
+	
+	lVec += pVec;
+	lDecayId = decayId(lDecayId,lId);
+      }
+      if(!LeptonicDecay) {taus.push_back(lVec); tauid.push_back(lDecayId);}
+    }
     for (unsigned int i = 0, n = l1PFTaus->size(); i < n; ++i) {
         const auto & c = (*l1PFTaus)[i];
 	float dr2best = dr2Max_; 
-	int index = 0;
 	mc_.clear();
-	for (const reco::GenParticle &gen : *genparticles) {
-	  index++;
-	  if(!gen.isDirectPromptTauDecayProductFinalState()) continue;
-	  if(fabs(gen.pdgId()) > 10 && fabs(gen.pdgId()) < 17) continue;
-	  if (c.pt() <= minPtRatio_*gen.pt()) continue;
-	  float dr2 = deltaR2(c.eta(), c.phi(), gen.eta(), gen.phi());
-	  if (dr2 < dr2best) {
-	    //dr2best = dr2; 
-	    mc_.fill(gen);
-	    mc_.dr = std::sqrt(dr2best);
-	    matchedGen.push_back(index);
+	int pIndex=-1;
+	for(unsigned i0 = 0; i0 < taus.size(); i0++) { 
+	  bool pXMatch = false;
+	  for(unsigned i1 = 0; i1 < matchedTau.size(); i1++) if(int(i0) == matchedTau[i1]) pXMatch = true;
+	  if(pXMatch) continue;
+	  float dr2 = deltaR2(taus[i0].Eta(), taus[i0].Phi(), c.eta(), c.phi());
+	  if(dr2 < dr2best) {
+	    dr2best = dr2;
+	    mc_.fill(taus[i0],std::sqrt(dr2),tauid[i0]);
+	    pIndex = i0;
 	  }
 	}
 	for (auto & v : reco_) v.fill(c);
+	const float *nnVals = c.NNValues();
+	for(int i0 = 0; i0 < 80; i0++) inputs_[i0] = nnVals[i0]; 
+	matchedTau.push_back(pIndex);
 	tree_->Fill();
+	mc_.clear();
     }
-    int pCount=0;
-    for (const reco::GenParticle &gen : *genparticles) {
-      pCount++;
-      if(!gen.isDirectPromptTauDecayProductFinalState()) continue;
-      if(fabs(gen.pdgId()) > 10 && fabs(gen.pdgId()) < 17) continue;
+    //if(l1PFTaus->size() == 0) {
+    for(int i0 = 0; i0 < int(taus.size()); i0++) { 
       bool pMatch = false;
-      for(unsigned int i0 = 0; i0 < matchedGen.size(); i0++) if(matchedGen[i0] == pCount) pMatch = true;
+      for(unsigned i1 = 0; i1 < matchedTau.size(); i1++) if(int(i0) == matchedTau[i1]) pMatch = true;
       if(pMatch) continue;
-      mc_.fill(gen);
-      mc_.dr=-99;
+      float dr2 = 99;
+      mc_.fill(taus[i0],-1.*std::sqrt(dr2),tauid[i0]);
+      //pIndex = i0;
+      //pMatch++;
+      //}
       for (auto & v : reco_) v.fill(dummy);
       tree_->Fill();
+      mc_.clear();
     }
+}
+TLorentzVector TauNTuplizer::visible(const reco::Candidate *d) { 
+      TLorentzVector lVec;
+      lVec.SetPtEtaPhiM(0,0,0,0);
+      if(d->numberOfDaughters() == 0) { 
+	//std::cout << " Base Daughter --> " << d->pt() << " --" << d->pdgId() << " -- " << d->eta() << " -- " << d->status() << std::endl;
+	lVec.SetPtEtaPhiM(d->pt(),d->eta(),d->phi(),0);
+        return lVec;
+      } 
+      for(unsigned  i0 = 0; i0 < d->numberOfDaughters(); i0++) { 
+	const reco::Candidate * pD = d->daughter(i0);
+	if(fabs(d->pdgId()) == 12 ||  fabs(d->pdgId()) == 14 || fabs(d->pdgId()) == 16) continue;
+	TLorentzVector pVec = visible(pD);
+	lVec += pVec; 
+      }
+      return lVec;
+}
+int TauNTuplizer::decay(const reco::Candidate *d) { 
+  if(d->numberOfDaughters() == 0) { 
+	int lId = d->pdgId();
+        return lId;
+  } 
+  for(unsigned i0 = 0; i0 < d->numberOfDaughters(); i0++) { 
+    const reco::Candidate * pD = d->daughter(i0);
+    if(fabs(d->pdgId()) == 12 ||  fabs(d->pdgId()) == 14 || fabs(d->pdgId()) == 16) continue;
+    int lId = pD->pdgId();
+    return lId;
+  }
+  return -1;
+}
+float TauNTuplizer::decayId(float id, int iPdgId) { 
+  if((abs(iPdgId) == 22  || abs(iPdgId) == 130 || abs(iPdgId) == 310 || abs(iPdgId) == 111))  id = 2;
+  if(id == 1 && (abs(iPdgId) == 211 || abs(iPdgId) == 321)) id = 3;
+  if(id == 0 && (abs(iPdgId) == 211 || abs(iPdgId) == 321 )) id = 1;
+  if(id == 0 && abs(iPdgId) == 11)  id = 11;
+  if(id == 0 && abs(iPdgId) == 13)  id = 13;
+  return id;
 }
 
 //define this as a plug-in
