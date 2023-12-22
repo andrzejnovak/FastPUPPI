@@ -68,6 +68,10 @@ process.l1tLayer1Barrel.puAlgoParameters.nVtx = 1
 process.l1tLayer1HGCal.puAlgoParameters.nVtx = 1
 process.l1tLayer1HGCalNoTK.puAlgoParameters.nVtx = 1
 process.l1tLayer1HF.puAlgoParameters.nVtx = 1
+process.l1tLayer1Barrel.vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
+process.l1tLayer1HGCal.vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
+process.l1tLayer1HGCalNoTK.vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
+process.l1tLayer1HF.vtxCollection = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
 
 ntuple = cms.EDAnalyzer("TauNTuplizer",
                         src=cms.InputTag("l1tNNTauProducerPF","L1PFTausNN"),
