@@ -9,15 +9,31 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-
+print("XXX")
 process.source = cms.Source("PoolSource",
                            fileNames = cms.untracked.vstring(
                                #'/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/SingleNeutrino_PU200/inputs131X_1-23.root'
-                               '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_1.root',
-                               '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_3.root',
-                               '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_5.root',
-                               '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_7.root',
-                               '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_9.root',
+                            #    '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_1.root',
+                            #    '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_3.root',
+                            #    '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_5.root',
+                            #    '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_7.root',
+                            #    '/store/cmst3/group/l1tr/cerminar/14_0_X/fpinputs_131X/v2/DYToLL_M-50_PU200/inputs131X_9.root',
+                            #'file:inputs131X.root'
+			    # 'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/VBFHToTauTau_M-125_TuneCP5_14TeV-powheg-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210808/0000/inputs131X_1.root',
+			    # 'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/VBFHToTauTau_M-125_TuneCP5_14TeV-powheg-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210808/0000/inputs131X_2.root',
+			    # 'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/VBFHToTauTau_M-125_TuneCP5_14TeV-powheg-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210808/0000/inputs131X_3.root',
+			    # 'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/VBFHToTauTau_M-125_TuneCP5_14TeV-powheg-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210808/0000/inputs131X_4.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_11.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_13.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_14.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_15.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_16.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_17.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_19.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_24.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_37.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_38.root',
+'file:/afs/cern.ch/user/a/anovak/work/trig01/bigfiles/tauprob/inputs131/MinBias_TuneCP5_14TeV-pythia8/Phase2Spring23DIGIRECOMiniAOD-noPU_131X_mcRun4_realistic_v5-v1_runInputs131/240117_210742/0000/inputs131X_4.root ',
                            ),
                             inputCommands = cms.untracked.vstring("keep *", 
                                                                   "drop l1tPFClusters_*_*_*",

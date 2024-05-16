@@ -192,6 +192,7 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  for(unsigned i1 = 0; i1 < matchedTau.size(); i1++) if(int(i0) == matchedTau[i1]) pXMatch = true;
 	  if(pXMatch) continue;
 	  float dr2 = deltaR2(taus[i0].Eta(), taus[i0].Phi(), c.eta(), c.phi());
+    // std::cout << "XXXX:" << c << std::endl;
 	  if(dr2 < dr2best) {
 	    dr2best = dr2;
 	    mc_.fill(taus[i0],std::sqrt(dr2),tauid[i0]);
@@ -199,6 +200,9 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  }
 	}
 	for (auto & v : reco_) v.fill(c);
+  l1gt::Tau gtTau = c.getHWTauGT();
+  std::cout << "pt:" << gtTau.v3.pt  << std::endl;
+  std::cout << "iso:" << gtTau.isolation/1024.  << std::endl;
 	const float *nnVals = c.NNValues();
 	for(int i0 = 0; i0 < 80; i0++) inputs_[i0] = nnVals[i0]; 
 	matchedTau.push_back(pIndex);
@@ -223,10 +227,10 @@ void TauNTuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 TLorentzVector TauNTuplizer::visible(const reco::Candidate *d) { 
       TLorentzVector lVec;
       lVec.SetPtEtaPhiM(0,0,0,0);
-      if(d->numberOfDaughters() == 0) { 
-	//std::cout << " Base Daughter --> " << d->pt() << " --" << d->pdgId() << " -- " << d->eta() << " -- " << d->status() << std::endl;
-	lVec.SetPtEtaPhiM(d->pt(),d->eta(),d->phi(),0);
-        return lVec;
+      if (d->numberOfDaughters() == 0) { 
+        //std::cout << " Base Daughter --> " << d->pt() << " --" << d->pdgId() << " -- " << d->eta() << " -- " << d->status() << std::endl;
+        lVec.SetPtEtaPhiM(d->pt(),d->eta(),d->phi(),0);
+              return lVec;
       } 
       for(unsigned  i0 = 0; i0 < d->numberOfDaughters(); i0++) { 
 	const reco::Candidate * pD = d->daughter(i0);

@@ -276,7 +276,7 @@ void TauNTuplizerDouble::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  //if(pIndex != -1) matchedTau.push_back(pIndex);
 	  for (auto & v : reco_) v.fill(c);
 	  for (auto & v : reco_) v.fill(c1);
-	  const float *nnVals1  = c .NNValues();
+	  const float *nnVals1  = c.NNValues();
 	  const float *nnVals2 = c1.NNValues();
 	  for(int i0 = 0; i0 < 80; i0++) {
 	    if(c.pt() > c1.pt()) { 
@@ -292,6 +292,7 @@ void TauNTuplizerDouble::analyze(const edm::Event& iEvent, const edm::EventSetup
 	}
     }
     mc_.clear();
+	
     if(l1PFTaus->size() == 1) {
       for(int i0 = 0; i0 < int(taus.size()); i0++) { 
 	//bool pMatch = false;
