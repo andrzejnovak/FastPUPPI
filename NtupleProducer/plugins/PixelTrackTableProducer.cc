@@ -9,10 +9,13 @@
 //   <name>Tracks   : one row per track, hits of track i are rows [hitIdx, hitIdx + nHits) of <name>Hits
 //   <name>Hits     : one row per hit, with trkIdx pointing back to the track
 //   <name>Vertices : one row per pixel vertex; tracks carry vtxIdx (-1 if not used in any vertex)
+//   <name>Clusters : (optional, saveClusters) every pixel cluster in the event, with trkIdx of the
+//                    pixel track using it (-1 if none). ~1e5 rows per PU200 event: for studies only.
 //
 // Based on the pixel-track ntupling explored by Marc Huwiler (mhuwiler/cmssw:devPixelsForL1).
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -23,6 +26,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -46,9 +51,11 @@ private:
   const std::string name_;
   const double minPt_;
   const int precision_;
+  const bool saveClusters_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
   const edm::EDGetTokenT<std::vector<reco::Vertex>> verticesToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> clustersToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 };
@@ -57,6 +64,7 @@ PixelTrackTableProducer::PixelTrackTableProducer(const edm::ParameterSet& iConfi
     : name_(iConfig.getParameter<std::string>("name")),
       minPt_(iConfig.getParameter<double>("minPt")),
       precision_(iConfig.getParameter<int>("precision")),
+      saveClusters_(iConfig.getParameter<bool>("saveClusters")),
       tracksToken_(consumes(iConfig.getParameter<edm::InputTag>("tracks"))),
       verticesToken_(consumes(iConfig.getParameter<edm::InputTag>("vertices"))),
       beamSpotToken_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
@@ -65,6 +73,10 @@ PixelTrackTableProducer::PixelTrackTableProducer(const edm::ParameterSet& iConfi
   produces<nanoaod::FlatTable>("tracks");
   produces<nanoaod::FlatTable>("hits");
   produces<nanoaod::FlatTable>("vertices");
+  if (saveClusters_) {
+    clustersToken_ = consumes(iConfig.getParameter<edm::InputTag>("clusters"));
+    produces<nanoaod::FlatTable>("clusters");
+  }
 }
 
 void PixelTrackTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -100,6 +112,7 @@ void PixelTrackTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   std::vector<float> hx, hy, hz;
   std::vector<int> hTrk, hDetId, hSubdet, hLayer, hSizeX, hSizeY, hCharge;
 
+  std::unordered_map<unsigned int, int> clusterToTrk;  // cluster index in the DetSetVector -> track row
   const math::XYZPoint bs(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
   for (unsigned int it = 0, nt = tracks.size(); it < nt; ++it) {
     const auto& trk = tracks[it];
@@ -134,6 +147,7 @@ void PixelTrackTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
         const auto& clRef = hit->cluster();
         if (clRef.isNonnull() && clRef.isAvailable()) {
           const auto& cl = *clRef;
+          clusterToTrk.emplace(clRef.key(), iTrk);
           gp = det->surface().toGlobal(det->specificTopology().localPosition(MeasurementPoint(cl.x(), cl.y())));
           sizeX = cl.sizeX();
           sizeY = cl.sizeY();
@@ -201,6 +215,46 @@ void PixelTrackTableProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   iEvent.put(std::move(trkTab), "tracks");
   iEvent.put(std::move(hitTab), "hits");
   iEvent.put(std::move(vtxTab), "vertices");
+
+  if (saveClusters_) {
+    const auto& clusters = iEvent.get(clustersToken_);
+    std::vector<float> cx, cy, cz;
+    std::vector<int> cSubdet, cLayer, cSizeX, cSizeY, cAdc, cTrk;
+    const SiPixelCluster* first = clusters.data().empty() ? nullptr : &clusters.data().front();
+    for (const auto& detset : clusters) {
+      const DetId id(detset.detId());
+      const auto* det = dynamic_cast<const PixelGeomDetUnit*>(geom.idToDetUnit(id));
+      if (det == nullptr)
+        continue;
+      const int layer = topo.layer(id);
+      for (const auto& cl : detset) {
+        const GlobalPoint gp =
+            det->surface().toGlobal(det->specificTopology().localPosition(MeasurementPoint(cl.x(), cl.y())));
+        cx.push_back(gp.x());
+        cy.push_back(gp.y());
+        cz.push_back(gp.z());
+        cSubdet.push_back(id.subdetId());
+        cLayer.push_back(layer);
+        cSizeX.push_back(cl.sizeX());
+        cSizeY.push_back(cl.sizeY());
+        cAdc.push_back(cl.charge());
+        auto it = clusterToTrk.find(&cl - first);
+        cTrk.push_back(it == clusterToTrk.end() ? -1 : it->second);
+      }
+    }
+    auto clTab = std::make_unique<nanoaod::FlatTable>(cx.size(), name_ + "Clusters", false);
+    clTab->setDoc("all pixel clusters, positions from the centroid");
+    clTab->addColumn<float>("x", cx, "global x [cm]", precision_);
+    clTab->addColumn<float>("y", cy, "global y [cm]", precision_);
+    clTab->addColumn<float>("z", cz, "global z [cm]", precision_);
+    clTab->addColumn<int>("subdet", cSubdet, "1 = barrel (PXB), 2 = endcap (PXF)");
+    clTab->addColumn<int>("layer", cLayer, "barrel layer or endcap disk");
+    clTab->addColumn<int>("sizeX", cSizeX, "cluster size along x (rows)");
+    clTab->addColumn<int>("sizeY", cSizeY, "cluster size along y (columns)");
+    clTab->addColumn<int>("adc", cAdc, "cluster charge");
+    clTab->addColumn<int>("trkIdx", cTrk, "index of the pixel track using this cluster (-1 if none)");
+    iEvent.put(std::move(clTab), "clusters");
+  }
 }
 
 void PixelTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -210,6 +264,8 @@ void PixelTrackTableProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("vertices", edm::InputTag("hltPhase2PixelVertices"));
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<double>("minPt", 0.)->setComment("drop tracks below this pT");
+  desc.add<bool>("saveClusters", false)->setComment("also store every pixel cluster (large)");
+  desc.add<edm::InputTag>("clusters", edm::InputTag("siPixelClusters"));
   desc.add<int>("precision", -1)->setComment("mantissa bits for float columns (-1 = full float)");
   descriptions.add("pixelTrackTable", desc);
 }

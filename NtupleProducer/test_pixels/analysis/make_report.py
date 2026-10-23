@@ -9,6 +9,7 @@ import sys
 
 plotdir, outname = sys.argv[1], sys.argv[2]
 njobs = sys.argv[3] if len(sys.argv) > 3 else ""
+banner = open(sys.argv[4]).read() if len(sys.argv) > 4 else ""
 S = json.load(open(os.path.join(plotdir, "summary.json")))
 R = S["roc"]
 NG = R["L1 NN tagger (b/(b+uds+g))"]
@@ -102,12 +103,13 @@ ul.tight {{ margin: 0; padding-left: 20px; display: grid; gap: 6px }}
   <p class="lede" style="margin-top:14px">Can the Phase-2 pixel tracks, available at 40&nbsp;MHz in the L1 scouting stream, make L1 b-tagging much better than today's L1 NN jet tagger? Good b-tagging at L1 would let HH&rarr;4b triggers lower their jet thresholds, which today are set by rate. This page tracks the revived project (with Marc Huwiler), what was fixed, what now exists on our forks, and the first numbers.</p>
 </header>
 
+{banner}
 <section>
   <div class="ledger">
     <div><span class="k">Code</span><span class="v">17_0_X</span><span class="s">current FastPUPPI + <code>L1PF_17_0_X</code>, <code>CMSSW_17_0_0_pre2</code></span></div>
     <div><span class="k">Sample used here</span><span class="v">{S['n_sig_events']:,} + {S['n_bkg_events']:,}</span><span class="s">HH&rarr;4b + QCD flat events, PU 200 (Phase2Spring24)</span></div>
     <div><span class="k">Jets in the comparison</span><span class="v">{S['n_b_jets']:,} b / {S['n_light_jets']:,} light</span><span class="s">L1 SC4NG jets, 30&ndash;300 GeV, |&eta;|&lt;2.4</span></div>
-    <div><span class="k">b eff. at 10% light mistag</span><span class="v">{pct(NG['beff_at_10pct'])} &rarr; {pct(COMB['beff_at_10pct'])}</span><span class="s">L1 NN tagger &rarr; NN + pixel tracks</span></div>
+    <div><span class="k">b eff. at 10% light mistag</span><span class="v">{pct(NG['beff_at_10pct'])} &rarr; {pct(COMB['beff_at_10pct'])}</span><span class="s">L1 NN tagger (v2_0_0) &rarr; NN + pixel tracks</span></div>
   </div>
 </section>
 
@@ -203,7 +205,7 @@ ul.tight {{ margin: 0; padding-left: 20px; display: grid; gap: 6px }}
   <h2>Caveats</h2>
   <ul class="tight">
     <li><b>Small sample.</b> These are first numbers from {njobs} a short local production; the statistical uncertainty on the 1%-mistag points is large.</li>
-    <li><b>The NN tagger looks wrong here, not just weak.</b> It evaluates every jet in the comparison, but true b jets get mean &mu; and e scores of about 0.14 and 0.12, and its b-vs-light AUC is about 0.6. That points to a model/input mismatch in <code>l1tSC4NGJetProducer</code> (model <code>L1TSC4NGJetModel_v0</code>, extended-track PUPPI inputs) in <code>L1PF_17_0_X</code> on these samples, or to a labelling difference. Until the tagger authors confirm the setup, the gain over the NN baseline is not a quotable number; the pixel-only result does not depend on it.</li>
+    <li><b>NN baseline.</b> The current <code>L1PF_17_0_X</code> on <code>CMSSW_17_0_0_pre2</code> runs the first tagger model, <code>L1TSC4NGJetModel_v0</code>. It gave b-vs-light AUC &asymp;0.6 and large &mu;/e scores for b jets. The numbers here use model <code>v2_0_0</code> (the <code>CMSSW_17_0_0_pre7</code> default), with its input code backported (<code>andrzejnovak/cmssw:L1PF_17_0_X_NGJetModel_v2</code>). It runs as it would in CMSSW; it is not retrained on these samples. TrainTagger's b class excludes semileptonic b jets (they are trained as &mu;/e), while here every jet with a b hadron counts as b, so the NN is judged on a slightly harder b sample than it was trained for.</li>
     <li><b>The pixel tracks are HLT pixel tracks</b>, as stored in the Phase2Spring24 RAW. Whether the L1 scouting stream would have the same tracks at 40&nbsp;MHz is the hardware question this study is meant to motivate.</li>
     <li><b>Leading-vertex choice matters.</b> The stored <code>sumPt2</code> is dominated by badly measured high-p<sub>T</sub> pixel tracks and picks a pileup vertex in ~60% of events. The analysis caps track p<sub>T</sub> at 10&nbsp;GeV when choosing the vertex; with that, only ~9% of b jets have fewer than 2 usable tracks.</li>
     <li><b>Hit positions use the cluster centroid</b> without the Lorentz-drift correction (O(10&nbsp;&micro;m) bias). The track-level IP comes from the HLT fit and is not affected.</li>
@@ -215,7 +217,7 @@ ul.tight {{ margin: 0; padding-left: 20px; display: grid; gap: 6px }}
   <h2>Next steps</h2>
   <ul class="tight">
     <li>Scale up the production. A local run of 10 HH&rarr;4b + 10 QCD files (200 events each) is in progress on subMIT. OSPool jobs work technically (CMS el9 image, CMSSW tarball) but stall on wide-area reads of the 88&nbsp;GB HH&rarr;4b files, which only exist at CERN and UCL; a Rucio rule to <code>T2_US_MIT</code> would make the grid route practical.</li>
-    <li>Validate the NN tagger baseline with its authors, then add pixel-track and pixel-hit inputs to the TrainTagger training instead of a side BDT.</li>
+    <li>Confirm the v2_0_0 baseline with the tagger authors, then add pixel-track and pixel-hit inputs to the TrainTagger training instead of a side BDT.</li>
     <li>Use the hits themselves: hits not attached to any pixel track, and per-hit cluster shape, are not used yet.</li>
     <li>Share the branch with Marc and the smart-pixels group once the baseline is confirmed.</li>
   </ul>
@@ -224,5 +226,8 @@ ul.tight {{ margin: 0; padding-left: 20px; display: grid; gap: 6px }}
 <p class="foot">Produced from <code>/ceph/submit/data/user/n/novaka/l1pixels/</code> with <code>test_pixels/analysis/make_jets.py</code> and <code>plots.py</code>; plots are private work.</p>
 </div>
 """
+if banner:  # interim page still built from v0-tagger ntuples
+    html = html.replace("The numbers here use model <code>v2_0_0</code>", "The numbers on this version of the page still use v0; the regenerated page will use model <code>v2_0_0</code>")
+    html = html.replace("L1 NN tagger (v2_0_0) &rarr; NN + pixel tracks", "L1 NN tagger (v0, outdated) &rarr; NN + pixel tracks")
 open(outname, "w").write(html)
 print("wrote", outname)

@@ -6,6 +6,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 opts = VarParsing("analysis")
 opts.register("keepRaw", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "also keep pixel EDM collections")
 opts.register("pixels", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "add pixel-track tables")
+opts.register("saveClusters", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool, "store all pixel clusters")
 opts.register("skipEvents", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int, "events to skip")
 opts.register("out", "out.root", VarParsing.multiplicity.singleton, VarParsing.varType.string, "output file")
 opts.parseArguments()
@@ -16,4 +17,4 @@ process.source.skipEvents = __import__("FWCore.ParameterSet.Config", fromlist=["
 process.maxEvents.input = opts.maxEvents
 process.out.fileName = opts.out
 if opts.pixels:
-    cfg.addPixelTracks(keepRaw=opts.keepRaw)
+    cfg.addPixelTracks(keepRaw=opts.keepRaw, saveClusters=opts.saveClusters)
