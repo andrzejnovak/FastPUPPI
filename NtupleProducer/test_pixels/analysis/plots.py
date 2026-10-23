@@ -19,7 +19,11 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_curve, roc_auc_score
 
 plt.style.use(hep.style.CMS)
-LABEL = dict(label="Private work", data=False, com=14, rlabel="Phase-2, PU 200")
+TAG = "Phase-2 simulation, PU 200, 14 TeV · private work"
+
+
+def tag(ax):
+    ax.set_title(TAG, loc="left", fontsize=16, color="#444444")
 
 # categorical palette (colour-blind-safe)
 C = {"ng": "#5790fc", "pix": "#f89c20", "comb": "#e42536", "tc": "#964a8b", "b": "#e42536", "l": "#5790fc"}
@@ -101,7 +105,7 @@ def main():
         for d, lab, c in [(bj, "b jets (HH→4b)", C["b"]), (lj, "light jets (QCD)", C["l"])]:
             ax.hist(np.clip(d[var], bins[0], bins[-1] - 1e-3), bins=bins, weights=d["w"], histtype="step", lw=2.5, density=True, label=lab, color=c)
         ax.set_xlabel(xl); ax.set_ylabel("a.u."); ax.set_yscale("log"); ax.legend(fontsize=18)
-    hep.cms.label(ax=axs[0], **LABEL)
+    tag(axs[0])
     save(fig, out, "jet_pixel_features")
 
     fig, ax = plt.subplots(figsize=(9, 7))
@@ -109,7 +113,7 @@ def main():
     for d, lab, c in [(bj, "b jets (HH→4b)", C["b"]), (lj, "light jets (QCD)", C["l"])]:
         ax.hist(ng_b(d), bins=bins, weights=d["w"], histtype="step", lw=2.5, density=True, label=lab, color=c)
     ax.set_xlabel("L1 NN tagger  b / (b + uds + g)"); ax.set_ylabel("a.u."); ax.set_yscale("log"); ax.legend(fontsize=18)
-    hep.cms.label(ax=ax, **LABEL)
+    tag(ax)
     save(fig, out, "jet_ng_score")
 
     # ---------------- classifiers (train on even events, evaluate on odd events)
@@ -117,11 +121,12 @@ def main():
     y = np.concatenate([np.ones(len(bj["pt"])), np.zeros(len(lj["pt"]))])
     train = (allj["evt"] % 2) == 0
     test = ~train
-    models = {}
+    models, clfs = {}, {}
     for name, cols in [("pix", PIX + KIN), ("comb", NG + PIX + KIN), ("ngbdt", NG + KIN)]:
         clf = HistGradientBoostingClassifier(max_iter=300, learning_rate=0.1, max_leaf_nodes=31, random_state=1)
         clf.fit(mat(allj, cols)[train], y[train], sample_weight=allj["w"][train] / allj["w"][train][y[train] == 0].mean() * (y[train] == 0) + (y[train] == 1))
         models[name] = clf.predict_proba(mat(allj, cols)[test])[:, 1]
+        clfs[name] = (clf, cols)
     yt = y[test]
     tst = sel(allj, test)
     wt = tst["w"]
@@ -144,8 +149,21 @@ def main():
     ax.set_xlabel("b-jet efficiency"); ax.set_ylabel("light-jet mistag rate"); ax.grid(alpha=0.3)
     ax.legend(fontsize=14, loc="upper left")
     ax.text(0.98, 0.02, f"L1 jets {PT_MIN:.0f}<$p_T$<{PT_MAX:.0f} GeV, |η|<{ETA_MAX}\nlight jets reweighted to b-jet $p_T$, |η|", transform=ax.transAxes, ha="right", fontsize=15)
-    hep.cms.label(ax=ax, **LABEL)
+    tag(ax)
     save(fig, out, "roc")
+
+    # cross-check: same classifiers on b vs light jets inside HH4b events only (odd events), so pileup,
+    # event activity and sample production are identical for both classes
+    m = base_s & np.isin(sig["flav"], [0, 5]) & ((sig["evt"] % 2) == 1)
+    hs = sel(sig, m)
+    yy = hs["flav"] == 5
+    ww = np.ones(len(yy))
+    ww[~yy] = kin_weights(sel(hs, yy), sel(hs, ~yy))
+    summary["within_hh4b"] = {"n_b": int(yy.sum()), "n_l": int((~yy).sum()),
+                              "auc_ng": float(roc_auc_score(yy, ng_b(hs), sample_weight=ww)),
+                              "auc_ipsig1": float(roc_auc_score(yy, hs["ipsig1"], sample_weight=ww)),
+                              "auc_pix": float(roc_auc_score(yy, clfs["pix"][0].predict_proba(mat(hs, clfs["pix"][1]))[:, 1], sample_weight=ww)),
+                              "auc_comb": float(roc_auc_score(yy, clfs["comb"][0].predict_proba(mat(hs, clfs["comb"][1]))[:, 1], sample_weight=ww))}
 
     # ROC per pT bin: NN alone vs NN + pixel
     ptbins = [(30, 60), (60, 100), (100, 300)]
@@ -166,7 +184,7 @@ def main():
         ax.set_title(f"{lo:.0f} < $p_T$ < {hi:.0f} GeV", fontsize=20)
         ax.legend(fontsize=16, loc="upper left")
     axs[0].set_ylabel("light-jet mistag rate")
-    hep.cms.label(ax=axs[0], **LABEL)
+    tag(axs[0])
     save(fig, out, "roc_ptbins")
 
     # ---------------- HH->4b napkin math: >= N tags among the 4 leading L1 jets, per-jet mistag fixed
@@ -204,8 +222,8 @@ def main():
         summary["hh4b"][lab] = {"mistag": mistags.tolist(), "eff_ge3": effs3, "eff_4": effs4}
     ax.set_xscale("log"); ax.set_xlabel("per-jet light mistag rate (working point)")
     ax.set_ylabel("HH→4b event fraction"); ax.grid(alpha=0.3); ax.legend(fontsize=16)
-    ax.text(0.02, 0.97, f"4 leading L1 jets, $p_T$>{PT_MIN:.0f} GeV, |η|<{ETA_MAX}", transform=ax.transAxes, va="top", fontsize=15)
-    hep.cms.label(ax=ax, **LABEL)
+    ax.text(0.98, 0.03, f"4 leading L1 jets, $p_T$>{PT_MIN:.0f} GeV, |η|<{ETA_MAX}", transform=ax.transAxes, ha="right", fontsize=15)
+    tag(ax)
     save(fig, out, "hh4b_event_eff")
 
     # ---------------- hit map from one ntuple
@@ -219,7 +237,7 @@ def main():
         axs[0].set_xlabel("z [cm]"); axs[0].set_ylabel("r [cm]")
         axs[1].scatter(x, yy, s=0.3, alpha=0.4, color="#3f90da", rasterized=True)
         axs[1].set_xlabel("x [cm]"); axs[1].set_ylabel("y [cm]"); axs[1].set_aspect("equal")
-        hep.cms.label(ax=axs[0], **LABEL)
+        tag(axs[0])
         save(fig, out, "hit_map")
 
     with open(os.path.join(out, "summary.json"), "w") as f:
