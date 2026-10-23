@@ -151,6 +151,7 @@ process.out = cms.OutputModule("PoolOutputModule",
             "keep *_pixelTracks_*_*",
             "keep *_RecHits_*_*",
             "keep *_hltPhase2PixelTracks_*_*",
+            "keep *_siPixelClusters_*_HLT",  # persisted pixel-track hits have zeroed local positions; recompute from clusters
         ),
         compressionAlgorithm = cms.untracked.string('LZMA'),
         compressionLevel = cms.untracked.int32(4),

@@ -465,30 +465,19 @@ def addPixelInformation():
         )
     )
     #from PhysicsTools.NanoAOD.simpleFlatTableProducer_cfi import SimpleFlatTableProducer
+    # extension of the pixelRecHits table: global positions from the GlobalPositionProducer ValueMap
     process.pixelRecHitsGlobalPosTable = cms.EDProducer("SimpleTrackingRecHitAdditionalsProducer",
-        src = cms.InputTag("pixelTracks"),
-        cut = cms.string(""), #we should not filter after pruning
-        name = cms.string("pixelRecHitsGlobalPos"),
-        doc = cms.string("pixel RecHits global positions recomputed with GlobalRecHitProducer"),
-        singleton = cms.bool(False), # the number of entries is variable
-        extension = cms.bool(True), # this is the extension table for the AK8 constituents
-        #variables = cms.PSet(
-            #globalX = Var("x()", float, doc="x position in global coordinate system",precision=8),
-            #globalY = Var("globalPosition().y()", float, doc="y position in global coordinate system",precision=8),
-            #globalZ = Var("phi", float, doc="phi coordinate",precision=8),
-            #localX = Var("localPosition().x()", float, doc="x position in local coordinate system",precision=8),
-            #localY = Var("localPosition().y()", float, doc="y position in local coordinate system",precision=8),
-            #localZ = Var("localPosition().z()", float, doc="z position in local coordinate system",precision=8),
-            externalTypedVariables = cms.PSet(
-                x = cms.PSet(
-                    expr = cms.string("globalPosition().x()"),
-                    src = cms.InputTag("globalHitProducer"),  # the ValueMap<float>
-                    type = cms.string("float"),
-                    doc = cms.string("Global X position"),
-                    precision = cms.int32(10)
-                )
-           # )
-
+        src = cms.InputTag("hltPhase2PixelTracks"),
+        cut = cms.string(""),
+        name = cms.string("pixelRecHits"),
+        doc = cms.string("pixel RecHits global positions recomputed with GlobalPositionProducer"),
+        singleton = cms.bool(False),
+        extension = cms.bool(True),
+        variables = cms.PSet(),
+        externalTypedVariables = cms.PSet(
+            globalX = cms.PSet(expr = cms.string("x()"), src = cms.InputTag("globalHitProducer"), type = cms.string("float"), doc = cms.string("Global x position"), precision = cms.int32(10)),
+            globalY = cms.PSet(expr = cms.string("y()"), src = cms.InputTag("globalHitProducer"), type = cms.string("float"), doc = cms.string("Global y position"), precision = cms.int32(10)),
+            globalZ = cms.PSet(expr = cms.string("z()"), src = cms.InputTag("globalHitProducer"), type = cms.string("float"), doc = cms.string("Global z position"), precision = cms.int32(10)),
         ),
     )
     process.extraPFStuff.add(process.globalHitProducer,process.pixelRecHitsGlobalPosTable)
