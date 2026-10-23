@@ -17,6 +17,16 @@
 <use name="MagneticField/Records"/>
 <use name="PhysicsTools/NanoAOD"/>
 <use name="L1Trigger/L1THGCal"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/VertexReco"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 
 <!-- <use name="Utilities/General"/> -->
 <flags EDM_PLUGIN="1"/>

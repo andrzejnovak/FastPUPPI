@@ -882,4 +882,13 @@ def saveGenCands():
     process.p += process.gencandTable
 
 
+def addNGJetTags():
+    """Run the extended-tracking seeded-cone jets and the L1 NN jet tagger (SC4NG), and store the
+    tagged jets with one score column per class."""
+    from FastPUPPI.NtupleProducer.l1TaggedJetTable_cfi import l1TaggedJetTable
+    process.extraPFStuff.add(process.L1TPFJetsExtendedTask)
+    process.l1NGJetTable = l1TaggedJetTable.clone()
+    process.extraPFStuff.add(process.l1NGJetTable)
+
+
 # addDecodedCalo()
