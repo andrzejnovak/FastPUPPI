@@ -5,6 +5,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/L1TrackTrigger"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/NanoAOD"/>
@@ -19,6 +20,7 @@
 <use name="L1Trigger/L1THGCal"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>

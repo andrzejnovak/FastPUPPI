@@ -164,16 +164,17 @@ process.schedule = cms.Schedule([process.p,process.e])
 
 process.out.outputCommands += [ "drop *_l1tHGCalVFEProducer_*_*", ]
 
-def addPixelTracks(keepRaw=False):
+def addPixelTracks(keepRaw=False, clusters=False):
     """Store HLT pixel tracks, their hits (global positions from the cluster centroids) and the pixel
     vertices as flat tables. They are carried through to perfNano.root by runPerformanceNTuple.py.
+    clusters=True also stores every pixel cluster with |eta| < 2.5 (with the pixel track using it, if any).
     keepRaw=True also keeps the EDM collections (large: the cluster collection roughly doubles the file)."""
     from FastPUPPI.NtupleProducer.pixelTrackTable_cfi import pixelTrackTable
     # the source drops *_hlt*_*_HLT: re-keep the pixel tracks/vertices (and their hits/extras)
     # (they descend from dropped hlt products, so descendant-dropping must be off too)
     process.source.inputCommands += ["keep *_hltPhase2PixelTracks_*_HLT", "keep *_hltPhase2PixelVertices_*_HLT"]
     process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-    process.pixelTrackTable = pixelTrackTable.clone()
+    process.pixelTrackTable = pixelTrackTable.clone(storeClusters=clusters)  # clusters=True: all clusters, |eta| < 2.5
     process.p += process.pixelTrackTable
     process.out.outputCommands += ["keep *_pixelTrackTable_*_*"]
     if keepRaw:
