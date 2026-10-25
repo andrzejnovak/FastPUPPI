@@ -52,31 +52,44 @@ trig = {"menu": fl["menu"], "NN": fl[f"NN|menu|{ADD}"], "L1 pixel": fl[f"L1 pixe
         "perfect": fl[f"perfect|menu|{ADD}"]}
 
 
-# ---------- 1. cutflow: where SM HH->4b signal is lost ----------
+# ---------- 1. cutflow: L1 efficiency on all events vs on offline-selected events ----------
 def frac(sel, t=None, w=None):
     w = np.ones(len(sel)) if w is None else w
     m = sel & odd & (t if t is not None else True)
     return 100 * (w * m).sum() / (w * odd).sum()
 
 
-fig, axs = plt.subplots(1, 2, figsize=(11, 3.6), gridspec_kw={"width_ratios": [1, 1]})
-for ax, (title, sel, offl) in zip(axs, (("Trigger only (no offline selection)", fl["all"], False),
-                                         ("Analysis level: offline 4b + 3b selection", fl["offline_4b3b"], True))):
-    rows = ([("passes offline selection", frac(sel), "#d9d8d3")] if offl else []) + [
-        ("planned menu alone (current-style)", frac(sel, trig["menu"]), C["menu"]),
-        ("+ today's L1 NN seed (planned)", frac(sel, trig["NN"]), C["NN"]),
-        ("+ L1 tracks with pixel hits", frac(sel, trig["L1 pixel"]), C["L1 pixel"]),
-        ("+ perfect L1 b-tag (ceiling)", frac(sel, trig["perfect"]), "#cfcdc6")]
-    y = np.arange(len(rows))[::-1]
-    for yy, (lab, v, col) in zip(y, rows):
-        ax.barh(yy, v, color=col, height=0.62, edgecolor="white", linewidth=2)
-        ax.text(v + (0.6 if not offl else 0.06), yy, f"{v:.1f}%" if not offl else f"{v:.2f}%", va="center", color=INK, fontsize=9)
-    ax.set_yticks(y, [r[0] for r in rows], fontsize=9)
-    ax.set_xlim(0, 105 if not offl else 9.5)
-    ax.set_xlabel("% of all SM HH→4b events")
-    ax.set_title(title, fontsize=10, color=INK, loc="left")
-    ax.grid(axis="y", visible=False)
-fig.suptitle("SM HH→4b: most signal is lost offline, not in the trigger (seeds at +2.5 kHz on top of the planned menu)",
+def tint(c, f=0.6):
+    rgb = np.array(matplotlib.colors.to_rgb(c))
+    return tuple(rgb + (1 - rgb) * f)
+
+
+# Same seeds, two denominators: all SM events vs the 7.9% passing offline 4b + 3b. The trigger misses mostly soft events
+# the offline selection drops anyway, so its efficiency on the analysed events is much higher.
+f_off = frac(fl["offline_4b3b"])
+rows = [("planned menu alone\n(current-style)", "menu", C["menu"]), ("+ today's L1 NN seed\n(planned)", "NN", C["NN"]),
+        ("+ L1 tracks with\npixel hits", "L1 pixel", C["L1 pixel"]), ("+ perfect L1 b-tag\n(ceiling)", "perfect", "#6d6b64")]
+fig, ax = plt.subplots(figsize=(11, 4.4))
+for yy, (lab, k, col) in zip(np.arange(len(rows))[::-1], rows):
+    for dy, sel, c, scale in ((0.2, fl["all"], tint(col), 1.0), (-0.2, fl["offline_4b3b"], col, 100 / f_off)):
+        v = frac(sel, trig[k]) * scale
+        ax.barh(yy + dy, v, color=c, height=0.36, edgecolor="white", linewidth=1.5)
+        txt = f"{v:.1f}%"
+        if k in ("L1 pixel", "perfect"):
+            txt += f"   ×{v / (frac(sel, trig['NN']) * scale):.2f} vs NN"
+        ax.text(v + 0.8, yy + dy, txt, va="center", fontsize=9, color=INK if dy < 0 else INK2,
+                fontweight="bold" if dy < 0 else "normal")
+ax.set_yticks(np.arange(len(rows))[::-1], [r[0] for r in rows], fontsize=9)
+ax.set_xlim(0, 118)
+ax.set_xticks(range(0, 101, 20))
+ax.set_axisbelow(True)
+ax.set_xlabel("fraction kept by L1 [%]")
+ax.grid(axis="y", visible=False)
+ax.legend(handles=[matplotlib.patches.Patch(color=tint(C["menu"]), label="of all SM HH→4b events"),
+                   matplotlib.patches.Patch(color=C["menu"],
+                                            label=f"of events passing the offline 4b + 3b selection ({f_off:.1f}% of all)")],
+          loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2, fontsize=9, handlelength=1.6)
+fig.suptitle(f"SM HH→4b kept by L1: same seeds, two denominators (seeds at +{ADD} kHz on top of the planned menu)",
              fontsize=10.5, color=INK, x=0.01, ha="left")
 fig.tight_layout()
 fig.savefig(f"{OUT}/cutflow.png", dpi=150)

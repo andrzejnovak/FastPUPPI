@@ -88,7 +88,7 @@ html = f"""<!doctype html>
 <!-- ============ TAB 1: HH->4b ============ -->
 <section class="panel" role="tabpanel" id="p-hh" aria-labelledby="t-hh">
   <div class="tiles">
-    <div><span class="k">Trigger level, SM</span><span class="v">69.5% &rarr; 77.8%</span><span class="s">of all HH&rarr;4b events kept: NN seed &rarr; pixel seed</span></div>
+    <div><span class="k">Trigger level, SM</span><span class="v">69.5% &rarr; 77.8%</span><span class="s">of all HH&rarr;4b events kept, NN seed &rarr; pixel seed; of offline-selected events: 92.6% &rarr; 97.5%</span></div>
     <div><span class="k">Analysis level, SM</span><span class="v">&times;1.05&ndash;1.11</span><span class="s">equivalent luminosity (offline 4b + 3b); perfect L1 b-tag: &times;1.08</span></div>
     <div><span class="k">Analysis level, &kappa;<sub>&lambda;</sub> = 5</span><span class="v">&times;1.2&ndash;1.5</span><span class="s">soft events the planned menu misses</span></div>
   </div>
@@ -99,8 +99,8 @@ html = f"""<!doctype html>
     <tr><td><b>Potential</b></td><td>same seed, b score from L1 tracks + pixel hits (tab 3)</td><td class="n">+2.5 kHz</td></tr>
     <tr><td class="muted">Ceiling</td><td class="muted">perfect L1 b-tag</td><td class="n muted">+2.5 kHz</td></tr>
   </table></div>
-  <figure>{img("cutflow.png", "Fraction of all SM HH to 4b events kept at each trigger level, without and with the offline 4b plus 3b selection")}
-    <figcaption><b>The trigger is not the bottleneck for SM.</b> Only 7.9% of events pass the offline selection; the planned seeds already keep 93% of those. Even a perfect L1 b-tag adds just 0.6% of all events.</figcaption></figure>
+  <figure>{img("cutflow.png", "Fraction kept by each L1 trigger level, of all SM HH to 4b events and of the events passing the offline 4b plus 3b selection")}
+    <figcaption><b>The trigger is not the bottleneck for SM.</b> Light bars: share of all events L1 keeps. Dark bars: share of the 7.9% that pass the offline selection. The dark bars are higher because events L1 misses are mostly soft ones the offline selection drops anyway. On the analysed events the planned seeds already keep 92.6%, so even a perfect L1 b-tag adds at most &times;1.08.</figcaption></figure>
   <figure>{img("mhh_categories.png", "Generator m_HH of SM and kappa lambda 5 events, split by which trigger level keeps them, at trigger level and after offline selection")}
     <figcaption><b>What is missed is soft.</b> The gain sits at low m<sub>HH</sub>, which dominates for large &kappa;<sub>&lambda;</sub>. &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 is reweighted from the SM sample; its lowest bins rest on few events.</figcaption></figure>
   <details class="more"><summary>Selection and caveats</summary>
@@ -156,8 +156,8 @@ html = f"""<!doctype html>
     <div><span class="n">3 · REFIT</span><b>d0, z0 from pixels</b><span>d0 within 35 &micro;m of HLT; 87% hit purity</span></div>
     <div><span class="n">4 · TAG</span><b>Feed the tagger</b><span>8-number displacement summary per jet next to the NN scores</span></div>
   </div>
-  <figure>{img("event_display.png", "Event display: an L1 track in a b jet extended into the pixel layers, picking the correct hits among pileup clusters")}
-    <figcaption>One track in a b jet: the extension picks the same 4 hits as HLT pixel tracking, among 56 pileup clusters in its window.</figcaption></figure>
+  <figure>{img("event_display.png", "Event display in four steps: the tracker in 3D; the Outer Tracker L1 track in a transverse slice, extrapolated into the pixel layers; the search windows in the four pixel layers with candidate clusters; the picked hits and the pixel refit with d0 of 498 micrometres")}
+    <figcaption>One 2.3&nbsp;GeV track in a 70&nbsp;GeV b jet, zooming in. <b>1</b> tracker; <b>2</b> the Outer Tracker L1 track, extrapolated into the pixels assuming it comes from the beam line; <b>3</b> a &plusmn;1.5&nbsp;mm window per pixel layer holds 29 candidates; <b>4</b> the best-fitting combination is the same 4 hits as the HLT pixel track, and the refit puts the track 498&nbsp;&micro;m from the beam line (HLT: 532&nbsp;&micro;m).</figcaption></figure>
   <div class="figrow">
     <figure>{img("d0_resolution.png", "Impact parameter residuals with respect to HLT pixel tracks for Outer-Tracker-only displaced L1 tracks and for L1 tracks with pixel hits")}
       <figcaption>The Outer Tracker alone cannot see b displacements (545&nbsp;&micro;m); pixel hits bring it to 35&nbsp;&micro;m.</figcaption></figure>

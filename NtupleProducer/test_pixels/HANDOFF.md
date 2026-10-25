@@ -27,9 +27,12 @@ HLT emulation (can only lower the gain); a real b-jet regression; κλ sensitivi
 
 - Four-tab summary: `analysis/page/build_tabs.py` → `tabs.html`; run it in `/work/submit/novaka/l1pixels/pilot_page/`
   (reads `index.html` there for styles and diagrams, and `../analysis/plots_page/*.png` from `make_page_plots.py`).
-  Built copy: `/work/submit/novaka/l1pixels/pilot_page/tabs.html`. **Not yet published** (artifact tool was off).
-- Long-form pilot page: `analysis/page/index.html` (local v16 content); published v15 at
-  https://claude.ai/artifact/NFjQ7pzKxoXA1qj6SThpJr. Older: project page 9q5PSiwbxrxW7XKmDVXA7v, info budget
+  Built copy: `/work/submit/novaka/l1pixels/pilot_page/tabs.html`; published at
+  https://claude.ai/artifact/MNbp8sYBCxz1SHwPvfdN3h (private; share from the page's Share menu).
+  `analysis/event_display.py <HH4b ntuple> plots_page/event_display.png` makes the tab-3 display
+  (local_v3/perfNano_HH4b_0.root picks event 1, track 27).
+- Long-form pilot page: `analysis/page/index.html`, published as v16 at
+  https://claude.ai/artifact/NFjQ7pzKxoXA1qj6SThpJr (shared with the organization). Older: project page 9q5PSiwbxrxW7XKmDVXA7v, info budget
   Xyx1BCt4asM2djsQNvVxvL.
 
 ## Where things are (subMIT)
