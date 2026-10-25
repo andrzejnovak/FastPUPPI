@@ -1,0 +1,97 @@
+{
+ "events": 20,
+ "mean_bits_per_event": 24032473.749999974,
+ "readout_Tbps_at_750kHz": 18.02435531249998,
+ "bits_not_in_map_frac": 0.07222089860807616,
+ "links_with_hits": 1234,
+ "links_in_map": 1342,
+ "link_occupancy_median": 1.5315297154017857,
+ "link_occupancy_p90": 1.9547134486607143,
+ "link_occupancy_max": 2.268666294642857,
+ "spare_Tbps_at_750kHz": -5.665980175,
+ "chip_bits_per_event_median": 1114.525,
+ "chip_bits_per_event_p99": 7756.653499999999,
+ "chip_Gbps_at_750kHz_max": 8.197987499999998,
+ "by_region": {
+  "TBPX L1": {
+   "modules": 216,
+   "mean_bits_per_module": 8035.402083333333,
+   "Gbps_per_module_at_750kHz": 6.0265515625
+  },
+  "TBPX L2": {
+   "modules": 216,
+   "mean_bits_per_module": 5775.006944444444,
+   "Gbps_per_module_at_750kHz": 4.331255208333333
+  },
+  "TBPX L3": {
+   "modules": 180,
+   "mean_bits_per_module": 5324.953888888888,
+   "Gbps_per_module_at_750kHz": 3.993715416666666
+  },
+  "TBPX L4": {
+   "modules": 252,
+   "mean_bits_per_module": 3364.517261904762,
+   "Gbps_per_module_at_750kHz": 2.5233879464285716
+  },
+  "TEPX D10": {
+   "modules": 352,
+   "mean_bits_per_module": 5081.099857954546,
+   "Gbps_per_module_at_750kHz": 3.8108248934659095
+  },
+  "TEPX D11": {
+   "modules": 352,
+   "mean_bits_per_module": 5341.048295454545,
+   "Gbps_per_module_at_750kHz": 4.005786221590909
+  },
+  "TEPX D12": {
+   "modules": 352,
+   "mean_bits_per_module": 5599.8386363636355,
+   "Gbps_per_module_at_750kHz": 4.199878977272727
+  },
+  "TEPX D9": {
+   "modules": 352,
+   "mean_bits_per_module": 4865.755823863636,
+   "Gbps_per_module_at_750kHz": 3.6493168678977264
+  },
+  "TFPX D1": {
+   "modules": 216,
+   "mean_bits_per_module": 6056.976157407406,
+   "Gbps_per_module_at_750kHz": 4.542732118055555
+  },
+  "TFPX D2": {
+   "modules": 216,
+   "mean_bits_per_module": 6350.933101851851,
+   "Gbps_per_module_at_750kHz": 4.763199826388888
+  },
+  "TFPX D3": {
+   "modules": 216,
+   "mean_bits_per_module": 6578.778703703704,
+   "Gbps_per_module_at_750kHz": 4.934084027777778
+  },
+  "TFPX D4": {
+   "modules": 216,
+   "mean_bits_per_module": 6791.900000000001,
+   "Gbps_per_module_at_750kHz": 5.093925
+  },
+  "TFPX D5": {
+   "modules": 216,
+   "mean_bits_per_module": 7015.25625,
+   "Gbps_per_module_at_750kHz": 5.2614421875
+  },
+  "TFPX D6": {
+   "modules": 216,
+   "mean_bits_per_module": 7195.301851851852,
+   "Gbps_per_module_at_750kHz": 5.396476388888889
+  },
+  "TFPX D7": {
+   "modules": 216,
+   "mean_bits_per_module": 7417.142592592593,
+   "Gbps_per_module_at_750kHz": 5.5628569444444445
+  },
+  "TFPX D8": {
+   "modules": 216,
+   "mean_bits_per_module": 7642.738888888889,
+   "Gbps_per_module_at_750kHz": 5.732054166666667
+  }
+ }
+}

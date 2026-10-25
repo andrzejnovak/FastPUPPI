@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the four-tab summary page (tabs.html) from the long pilot page (styles and diagrams) and plots_page/ PNGs.
+"""Build the tabbed summary page (tabs.html) from the long pilot page (styles and diagrams) and plots_page/ PNGs.
 
     python3 build_tabs.py
 """
@@ -82,6 +82,7 @@ html = f"""<!doctype html>
   <button role="tab" id="t-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">2 · Information flow</button>
   <button role="tab" id="t-tag" aria-controls="p-tag" aria-selected="false" tabindex="-1">3 · Tagging</button>
   <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">4 · Rate</button>
+  <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">5 · Code</button>
 </div>
 </div>
 
@@ -186,7 +187,67 @@ html = f"""<!doctype html>
     <figcaption><b>Same signal, much less rate.</b> The rate freed could go to other triggers. Lowest-rate points rest on few minimum-bias events (order of magnitude only).</figcaption></figure>
 </section>
 
-<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: <code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code> (analysis in <code>l1pixels/analysis</code>). Long-form notes: the pilot page.</p>
+<!-- ============ TAB 5: code ============ -->
+<section class="panel" role="tabpanel" id="p-code" aria-labelledby="t-code" hidden>
+  <div class="col">
+    <p style="margin:0">Everything is on the branch <code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code>, in <code>NtupleProducer/test_pixels/</code>; paths below are relative to it. Start with <code>HANDOFF.md</code> there. The working copies on subMIT are in <code>/work/submit/novaka/l1pixels/</code> (<code>analysis/</code> mirrors <code>test_pixels/analysis/</code>; <code>offline/</code> is <code>test_pixels/analysis/offline/</code>). Scripts carry absolute <code>/work</code> and <code>/ceph</code> paths; anything longer than a minute runs on Slurm (<code>--partition=submit</code>), not on the login node.</p>
+  </div>
+  <pre><span class="c"># environment: CMSSW python with uproot, awkward, matplotlib, sklearn</span>
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd /work/submit/novaka/l1pixels/hitdev/CMSSW_17_0_0_pre2/src &amp;&amp; cmsenv     <span class="c"># analysis</span>
+cd /work/submit/novaka/l1pixels/ngv2/CMSSW_17_0_0_pre2/src &amp;&amp; cmsenv      <span class="c"># ntuple production</span>
+cd /work/submit/novaka/l1pixels/analysis                                   <span class="c"># run analysis scripts from here</span></pre>
+
+  <div class="col"><h3>Every number on this page, and where it comes from</h3></div>
+  <div class="tablewrap"><table>
+    <tr><th>Result</th><th>Script</th><th>Output</th></tr>
+    <tr><td>Tab 1: L1 kept, all events vs offline-selected</td><td><code>analysis/direct_curves.py</code> (seeds at +2.5&nbsp;kHz, perfect tag) on <code>offline/offline_sel.py</code> flags</td><td><code>curves.json</code>, <code>curves_flags.npz</code>, <code>offline_flags2.npz</code></td></tr>
+    <tr><td>Tab 1: equivalent luminosity, &kappa;<sub>&lambda;</sub> split, m<sub>HH</sub> categories</td><td><code>analysis/kl_direct.py</code> (<code>SEL=offline_flags2.npz:resolved_4b</code>), <code>kl_reweight.py</code></td><td><code>kl_direct2.json</code>, <code>klreweight/nano_mhh_kl*.npz</code></td></tr>
+    <tr><td>Tab 1: offline selection (UParT, b response, pairing)</td><td><code>offline/dump_offline.py</code> (MINIAOD), <code>offline_sel.py</code></td><td><code>offline/b_response.json</code>, <code>offline_flags2.npz</code></td></tr>
+    <tr><td>Tab 2: bit budget</td><td><code>analysis/bits_budget.py</code></td><td><code>bits_mb.json</code></td></tr>
+    <tr><td>Tab 3: hit association, purity, d0 resolution</td><td><code>analysis/l1ext.py</code> (the extension and refit), <code>l1ext_validate.py</code></td><td><code>l1ext_val/scan_0.json</code></td></tr>
+    <tr><td>Tab 3: tagging chain ROC</td><td><code>analysis/make_l1ext_lists.py</code> (<code>MODE=otonly</code> for OT-only), <code>make_lists.py</code> (HLT pixel tracks), <code>tag_compare.py</code></td><td><code>lists_l1ext_*.npz</code>, <code>tag_chain.json</code></td></tr>
+    <tr><td>Tab 3: event display</td><td><code>analysis/event_display.py &lt;HH4b ntuple&gt; &lt;png&gt;</code></td><td><code>plots_page/event_display.png</code></td></tr>
+    <tr><td>Tab 4: efficiency vs rate</td><td><code>analysis/direct_rate.py</code>, <code>direct_curves.py</code></td><td><code>direct_rate2.json</code>, <code>direct_rate_l1ext.json</code>, <code>curves.json</code></td></tr>
+    <tr><td>All plots; this page</td><td><code>analysis/make_page_plots.py</code>; <code>analysis/page/build_tabs.py</code> (run in <code>pilot_page/</code>, reads <code>index.html</code> for styles and diagrams)</td><td><code>plots_page/*.png</code>, <code>tabs.html</code></td></tr>
+  </table></div>
+
+  <div class="col"><h3>Pipeline</h3></div>
+  <div class="tablewrap"><table>
+    <tr><th>Step</th><th>Code</th><th>Slurm runner</th></tr>
+    <tr><td>Pixel tables in the ntuples: HLT pixel tracks and hits, all clusters, L1 tracks, L1 vertex</td><td><code>../plugins/PixelTrackTableProducer.cc</code>, <code>../python/runInputs151X.py</code> (<code>addPixelTracks</code>)</td><td>&ndash;</td></tr>
+    <tr><td>Ntuples: input step, then FastPUPPI + tagger</td><td><code>step1_cfg.py clusters=True</code>, <code>step2_cfg.py extended=True</code></td><td><code>production/local/slurm_array_v3.sh</code></td></tr>
+    <tr><td>Minimum-bias pre-selection (stored L1 HT), targeted re-simulation</td><td><code>production/mbsel/scan_ht.py</code>, <code>select_new.py</code></td><td><code>slurm_scan.sh</code>, <code>run_mbnew.sh</code></td></tr>
+    <tr><td>Per-jet input lists</td><td><code>analysis/make_lists.py</code>, <code>make_l1ext_lists.py</code>, <code>merge_lists.py</code></td><td><code>run_direct2.sh</code>, <code>run_l1ext_lists.sh</code>, <code>run_ot_lists.sh</code></td></tr>
+    <tr><td>Association settings scan</td><td><code>analysis/l1ext_validate.py</code></td><td><code>run_l1ext_scan.sh</code></td></tr>
+    <tr><td>Direct rate test, &kappa;<sub>&lambda;</sub></td><td><code>analysis/direct_rate.py</code>, <code>kl_direct.py</code></td><td><code>run_l1ext_direct.sh</code>, <code>run_offline2.sh</code></td></tr>
+    <tr><td>Efficiency vs rate</td><td><code>analysis/direct_curves.py</code></td><td><code>run_curves.sh</code></td></tr>
+    <tr><td>Offline jets and selection</td><td><code>offline/dump_offline.py</code>, <code>offline_sel.py</code></td><td><code>offline/slurm_offline.sh</code></td></tr>
+    <tr><td>Tagging chain</td><td><code>analysis/tag_compare.py</code></td><td><code>run_tagcmp.sh</code></td></tr>
+    <tr><td>Bit budget</td><td><code>analysis/bits_budget.py</code></td><td><code>run_bits.sh</code></td></tr>
+    <tr><td class="muted">Earlier steps (seed scan, learning curves, hit regression, minimum-bias mistag)</td><td class="muted"><code>l1_seed.py</code>, <code>train_sets.py</code>, <code>regress_hits.py</code>, <code>mb_mistag.py</code></td><td class="muted">their <code>run_*.sh</code></td></tr>
+  </table></div>
+
+  <div class="col"><h3>Data on subMIT</h3></div>
+  <div class="tablewrap"><table>
+    <tr><th>What</th><th>Where</th></tr>
+    <tr><td>Ntuples with clusters, L1 tracks, vertex, PUPPI candidates (HH&rarr;4b, QCD; 21k events each)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/local_v3/</code></td></tr>
+    <tr><td>Minimum bias with pixels (120,731 high-HT events of 1,999,360)</td><td><code>.../l1pixels/local_mbsel_ext/</code> (official, L1 HT &gt; 90) + <code>.../local_mbnew/</code> (stored HT &gt; 60)</td></tr>
+    <tr><td>Offline jets from MINIAOD</td><td><code>.../l1pixels/offline/</code></td></tr>
+    <tr><td>Generator m<sub>HH</sub>; Run-3 &kappa;<sub>&lambda;</sub> shapes</td><td><code>.../l1pixels/genmhh/</code>; <code>analysis/klreweight/</code></td></tr>
+    <tr><td>Input RAW (needs a grid proxy)</td><td>Phase2Spring24 GEN-SIM-DIGI-RAW-MINIAOD via xrootd, lists in <code>l1pixels/local/jobs_v3.txt</code></td></tr>
+  </table></div>
+
+  <div class="col"><h3>Other branches</h3>
+    <ul class="tight">
+      <li>L1 jet tagger v2_0_0 backported to 17_0_0_pre2: <code>andrzejnovak/cmssw:L1PF_17_0_X_NGJetModel_v2</code> (the v0 model in <code>L1PF_17_0_X</code> is bad).</li>
+      <li>Earlier pixel-track tables (2025, hit positions broken): Marc Huwiler&#39;s <code>devPixelsForL1</code> branches.</li>
+    </ul>
+  </div>
+  <div class="callout warn"><b>Gotchas.</b> L1 track curvature sign: <code>l1ext.CURV_SIGN = +1</code> (&minus;1 gives 31% hit purity). Outer-Tracker displaced-track d0 has the opposite sign to the CMS d<sub>xy</sub> convention (flipped in <code>MODE=otonly</code>); keep |d0|&nbsp;&lt;&nbsp;1&nbsp;cm there. Offline PUPPI b jets need the response correction (0.73 at 25&nbsp;GeV to 0.96 at 150&nbsp;GeV) or the Higgs candidates peak near 105&nbsp;GeV. The stored L1 HT in minimum-bias RAW runs low against our emulation, so rate scans use HT cuts &ge;&nbsp;150&nbsp;GeV. <code>direct_rate.py</code> picks thresholds on even events and quotes odd ones; the minimum-bias weight uses <code>MB_TOTAL=1999360</code>.</div>
+</section>
+
+<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 5. Long-form notes: the pilot page.</p>
 </div>
 
 <script>

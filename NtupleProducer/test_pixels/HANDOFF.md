@@ -70,6 +70,16 @@ All scripts carry absolute `/work`, `/ceph` paths; run from `analysis/` with
 Earlier pilot steps (seed scan, learning curves, hit regression, MB mistag) are in `l1_seed.py`, `train_sets.py`,
 `regress_hits.py`, `mb_mistag.py` and their `run_*.sh`.
 
+## Pixel link archaeology (preliminary)
+
+`itlinks/`: `run_bits.sh` (Slurm) runs CMSSW's chip-output emulator (`Phase2ITQCoreProducer`, `bitstream_cfg.py`) on
+PU 200 RAW digis, `dump_bits.py` stores bits per chip, `occupancy.py` maps them to lpGBT links with the tkLayout cabling
+map (`CMSSWCablingMap__OT800_IT700.csv`) → `occupancy.json`. Findings: 2.4e7 bits per crossing (~130 b per cluster,
+3× the bit-budget assumption); a request returns a whole chip (median 1.1 kbit, p99 ~8 kbit: ~1–6 µs on one
+1.28 Gb/s e-link); the real e-link configuration is not in CMSSW (a naive 8.96 Gb/s/lpGBT model gives >100%
+occupancy). Prompt L1 tracks carry d0 = 0 (13-b field empty); the NG tagger runs on the extended (displaced-track)
+chain, so a pixel-refit d0 could fill the existing field.
+
 ## Gotchas
 
 - L1 track curvature sign: `l1ext.CURV_SIGN = +1` (−1 gives 31% purity). Displaced-track d0 has the opposite sign to
