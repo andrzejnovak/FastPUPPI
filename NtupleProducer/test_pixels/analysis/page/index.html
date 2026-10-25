@@ -1,0 +1,580 @@
+<title>HH→4b L1 b-Tag Pilot</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: decision brief first (verdict, numbers, evidence), then open questions, then a handoff manual. One ~74ch reading column; figures and tables run full width. */
+:root {
+  --bg: #f4f5f8; --surface: #ffffff; --ink: #171b2b; --muted: #59607a; --rule: #d7dae5;
+  --accent: #3546a3; --accent-soft: #e5e8f6; --good: #1d7a46; --warn: #9a5b00; --hl: #eef1fb;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --plot-bg: #fcfcfb;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11131c; --surface: #191c28; --ink: #e5e7f0; --muted: #9ba1b8; --rule: #2c3042;
+  --accent: #9fb0ff; --accent-soft: #232a4a; --good: #5fcf8e; --warn: #f0b05a; --hl: #1d2238; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11131c; --surface: #191c28; --ink: #e5e7f0; --muted: #9ba1b8; --rule: #2c3042;
+  --accent: #9fb0ff; --accent-soft: #232a4a; --good: #5fcf8e; --warn: #f0b05a; --hl: #1d2238; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 400 17px/1.55 var(--body) }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 80px; display: grid; gap: 48px }
+.col { max-width: 74ch; min-width: 0 }
+h1 { font: 800 clamp(30px, 5vw, 46px)/1.05 var(--display); letter-spacing: -0.01em; margin: 0; text-wrap: balance }
+h2 { font: 700 25px/1.2 var(--display); margin: 0 0 10px; text-wrap: balance }
+h3 { font: 700 18px/1.3 var(--display); margin: 18px 0 6px }
+p { margin: 0 0 12px }
+.eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px }
+.lede { font-size: 19px }
+.muted { color: var(--muted) }
+code, .mono { font-family: var(--mono); font-size: .85em }
+code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere }
+a { color: var(--accent) }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+section { display: grid; gap: 10px; min-width: 0 }
+.verdict { background: var(--surface); border: 1px solid var(--rule); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; padding: 18px 20px; display: grid; gap: 8px }
+.verdict .k { font: 600 11px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+.verdict .v { font: 700 22px/1.25 var(--display); text-wrap: balance }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden }
+.tiles > div { background: var(--surface); padding: 14px 16px; display: grid; gap: 4px; align-content: start; min-width: 0 }
+.tiles .k { font: 600 11px/1.25 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted) }
+.tiles .v { font: 700 24px/1.15 var(--display); font-variant-numeric: tabular-nums }
+.tiles .s { font-size: 14.5px; color: var(--muted) }
+.tablewrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 15px }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top }
+th { font: 600 11.5px/1.3 var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+td.n, th.n { text-align: right; white-space: nowrap }
+tr:last-child td { border-bottom: 0 }
+tr.hl td { background: var(--hl) }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0 }
+figure img { background: var(--plot-bg); border: 1px solid var(--rule); border-radius: 6px; width: 100%; height: auto; padding: 6px }
+figcaption { font-size: 15px; color: var(--muted); max-width: 80ch }
+.figrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; align-items: start }
+ul.tight, ol.steps { margin: 0; padding-left: 22px; display: grid; gap: 8px }
+ol.steps > li { padding-left: 4px }
+ol.steps .why { color: var(--muted); font-size: 15.5px }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); padding: 14px 18px; border-radius: 0 8px 8px 0 }
+.callout.warn { border-left-color: var(--warn) }
+pre { margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font: 400 13.5px/1.6 var(--mono); color: var(--ink) }
+pre .c { color: var(--muted) }
+.pill { display: inline-block; font: 600 10.5px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 7px; border-radius: 999px; border: 1px solid currentColor; vertical-align: 2px; white-space: nowrap }
+.pill.warn { color: var(--warn) } .pill.good { color: var(--good) }
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 10px }
+svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var(--ink); font-family: var(--body) }
+.dg-box { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2 }
+.dg-box.dg-key { stroke: var(--ink); stroke-width: 2 }
+.dg-box.dg-off { fill: none; stroke-dasharray: 5 4 }
+.dg-box.dg-new { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2 }
+.dg-t { font-size: 12.5px; font-weight: 700; fill: var(--ink) }
+.dg-s { font-size: 10.5px; fill: var(--muted) }
+.dg-h { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .08em; fill: var(--muted) }
+.dg-grid { stroke: var(--rule); stroke-width: 1 }
+.dg-a { fill: none; stroke: var(--ink); stroke-width: 1.4 }
+.dg-a.dg-off { stroke: var(--muted); stroke-dasharray: 5 4 }
+.dg-a.dg-new { stroke: var(--accent); stroke-width: 2 }
+.dg-ah { fill: var(--ink) } .dg-ah.dg-new { fill: var(--accent) }
+.dg-l { font-size: 10.5px; fill: var(--muted) } .dg-l.dg-new { fill: var(--accent); font-weight: 600 }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted) }
+.legend span { display: inline-flex; align-items: center; gap: 7px }
+.sw { display: inline-block; width: 22px; height: 12px; border-radius: 3px; border: 1.5px solid var(--muted); background: var(--surface) }
+.sw.off { border-style: dashed; background: none }
+.sw.new { border: 2px solid var(--accent); background: var(--accent-soft) }
+.pill.base { color: var(--muted) } .pill.other { color: var(--warn) } .pill.ours { color: var(--accent); background: var(--accent-soft) }
+.gloss { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 16px }
+.gloss summary { cursor: pointer; font-weight: 600 }
+.gloss dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 10px 0 4px }
+.gloss dt { font-weight: 700 } .gloss dd { margin: 0; color: var(--muted) }
+@media (max-width: 560px) { .gloss dl { grid-template-columns: 1fr } .gloss dd { margin-bottom: 6px } }
+.foot { font-size: 14px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 16px }
+</style>
+
+<div class="wrap">
+
+<header class="col">
+  <div class="eyebrow">Pilot study · Phase-2 L1 trigger · October 2026</div>
+  <h1>HH&rarr;4b L1 b-Tag Pilot</h1>
+  <p class="lede" style="margin-top:14px">Is better b-tagging at Level-1 worth pursuing for HH&rarr;4b, for example by bringing pixel-detector information into the L1 jet tagger? This page first walks through what L1 sees today (Run&nbsp;3), what the Phase-2 upgrade plans, and what adding pixel information would take. Then it presents the sensitivity study.</p>
+  <p class="muted" style="margin:0">Short answer, now measured directly against minimum-bias rate: on top of the planned Phase-2 menu seeds, pixel information is worth &times;1.06&ndash;1.11 the HL-LHC luminosity for SM HH&rarr;4b, &times;1.07&ndash;1.15 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;0 and &times;1.11&ndash;1.24 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5. As a standalone seed it is worth &times;1.12&ndash;1.25 for SM, but the menu already catches most of those events. The gain survives a realistic L1 path (L1 tracks extended into the pixel layers do as well as HLT pixel tracks). After an analysis-level selection (4b + 3b) the SM gain is &times;1.05&ndash;1.11, at the stop line set beforehand: the standard chain loses most of the signal offline, not in the trigger. &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 keeps &times;1.2&ndash;1.5. The case rests on the self-coupling (low m<sub>HH</sub>) and on other channels. <a href="#headline">Jump to the headline</a>, <a href="#results">the results</a> or <a href="#plan">the plan</a>.</p>
+</header>
+
+<section class="col">
+  <div class="eyebrow">In plain words</div>
+  <h2>The idea, the three questions, and where we are</h2>
+  <p><b>The idea.</b> b-quark jets contain particles that fly a few millimetres before decaying, so some of their tracks do not point back exactly to the collision. The pixel detector, closest to the beam, measures this displacement far more precisely than the outer tracker that L1 uses today. The Level-1 trigger (L1), which decides in microseconds which collisions to keep, never looks at the pixels. If L1 could, it might recognise b-jets much better and keep more HH&rarr;4b events.</p>
+  <ol class="steps">
+    <li><b>Would better b-jet identification at L1 help HH&rarr;4b?</b> L1 has a fixed rate budget. Rejecting more fake b-jets lets the energy threshold come down, and HH&rarr;4b events are fairly low-energy, so a lower threshold keeps more of them. Measured against the trigger seeds CMS already plans, and for events an analysis would actually select, it is worth only 5&ndash;10% of luminosity for the Standard Model (&times;1.05&ndash;1.11): most signal is lost offline, not in the trigger. It is worth 20&ndash;50% for a larger Higgs self-coupling (&kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5), whose events are softer. <span class="pill good">Answered</span></li>
+    <li><b>Do pixel hits actually improve b-jet identification?</b> Yes: the L1 tagger keeps about half of b-jets at a 1% fake rate instead of 15%. This holds not only with the pixel tracks the software trigger (HLT) reconstructs, but also when each L1 track is simply extended into the pixel layers by picking up the nearest pixel hits, which is something L1 could plausibly do. <span class="pill good">Answered</span></li>
+    <li><b>Could L1 realistically get that information?</b> Reading all pixels every collision is far too much data. The idea here is to ask for pixel hits only around the few jets L1 has already found, in about 1% of collisions. Turning those hits into useful information works in software (extending L1 tracks into the pixel layers keeps the full gain). Open: can the pixel electronics answer such a request in time, and does the fit fit into the firmware and latency budget? <span class="pill warn">Open</span></li>
+  </ol>
+  <p><b>Status in one line:</b> pixels give a much better L1 b-tagger, also in a realistic L1-style emulation (2); for Standard-Model HH&rarr;4b the trigger gain after an analysis selection is small (1), so the case rests on the self-coupling and other channels; whether the electronics can deliver the hits in time is the open hardware question (3).</p>
+  <details class="gloss">
+    <summary>Terms used on this page</summary>
+    <dl>
+      <dt>L1 / HLT</dt><dd>The two trigger stages. L1 is custom hardware (FPGAs) deciding within 12.5&nbsp;&micro;s for every collision; the HLT is software running on the events L1 keeps.</dd>
+      <dt>Correlator</dt><dd>The part of L1 that combines tracks and calorimeter deposits into particles, then jets. Layer-2 is where jets are built and tagged.</dd>
+      <dt>Tagger, tag score</dt><dd>A small neural network in L1 that gives each jet a probability of being a b-jet (and other types).</dd>
+      <dt>Mistag rate</dt><dd>How often a non-b jet is wrongly tagged as b. Lower mistag means fewer fake triggers, which is what buys a lower threshold.</dd>
+      <dt>Per-jet summary</dt><dd>Eight numbers that describe how displaced a jet's pixel tracks are (for example, how displaced the most displaced track is). It is one compact way to hand pixel information to the tagger; whether L1 hardware could compute it is part of question 3.</dd>
+      <dt>RoI readout</dt><dd>Region-of-interest readout: asking for the pixel hits only inside the cones of jets L1 has already found.</dd>
+    </dl>
+  </details>
+</section>
+
+<section id="headline">
+  <div class="col">
+    <div class="eyebrow">The headline</div>
+    <h2>What pixel information at L1 would be worth for HH&rarr;4b</h2>
+    <p class="lede" style="margin:0">Measured directly, with the pixel tagger run on minimum-bias events: added on top of the planned menu seeds, a 2.5&nbsp;kHz b-tagged HT seed catches 93.8% of fiducial SM HH&rarr;4b events with pixel information, against 88.9% with today&#39;s L1 NN, which is <b>&times;1.06&ndash;1.11 the HL-LHC luminosity for SM</b>. For &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, where the menu alone catches only 48%, it is 75% against 68%: <b>&times;1.11&ndash;1.24</b>.</p>
+    <p style="margin:10px 0 0">The planned menu (QuadJet+HT and HT, 20&nbsp;kHz together) already catches 79% of fiducial SM events, so most of what a better tagger finds as a standalone seed is already kept. The gain left is the 11% the menu and an NN seed still miss, of which pixels recover about 45%.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Direct test (odd half of events)</th><th class="n">Menu alone</th><th class="n">Menu + NN seed</th><th class="n">Menu + pixel seed</th><th class="n">Equivalent luminosity</th><th class="n">Standalone 10&nbsp;kHz: NN &rarr; pixel</th></tr>
+    <tr><td>SM (&kappa;<sub>&lambda;</sub> = 1)</td><td class="n">78.7%</td><td class="n">88.9%</td><td class="n"><b>93.8%</b></td><td class="n"><b>&times;1.06&ndash;1.11</b></td><td class="n">74.8% &rarr; 83.8% (&times;1.12&ndash;1.25)</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 0</td><td class="n">72.4%</td><td class="n">85.0%</td><td class="n">91.0%</td><td class="n">&times;1.07&ndash;1.15</td><td class="n">71.0% &rarr; 82.4% (&times;1.16&ndash;1.35)</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 2.45</td><td class="n">78.3%</td><td class="n">87.0%</td><td class="n">90.0%</td><td class="n">&times;1.03&ndash;1.07</td><td class="n">72.3% &rarr; 81.8% (&times;1.13&ndash;1.28)</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 5</td><td class="n">47.9%</td><td class="n">67.6%</td><td class="n"><b>75.2%</b></td><td class="n"><b>&times;1.11&ndash;1.24</b></td><td class="n">52.7% &rarr; 74.2% (&times;1.41&ndash;1.99)</td></tr>
+  </table></div>
+  <div class="col">
+    <p class="muted" style="margin:6px 0 0">Menu + seed columns: about 2.5&nbsp;kHz added to the menu (measured on the evaluation half: 2.3&nbsp;kHz for the NN seed, 2.4&nbsp;kHz for the pixel seed). At about 5&nbsp;kHz added, SM gives 91.1% &rarr; 94.9% (&times;1.04&ndash;1.09); at 10&nbsp;kHz, 93.4% &rarr; 96.5% (&times;1.03&ndash;1.07). The tighter the added rate, the more pixels are worth. Statistical error on the pixel&minus;NN difference: &plusmn;0.5 points for SM, &plusmn;4 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 (paired, signal side). Pixel tagger: BDT on the NN scores plus the 8-number pixel summary; using only pixel tracks above 2&nbsp;GeV gives the same result. Thresholds chosen on even events, evaluated on odd. Minimum bias: all 2.0M events of the Phase-2 MinBias sample were scanned, and 120,731 high-HT events were re-simulated with pixel information (preselection checked to keep &ge;99.6% of events passing b-tagged seeds above HT&nbsp;150&nbsp;GeV). Each added-rate point rests on about 75 minimum-bias events (&plusmn;12% on the rate), each standalone point on 140&ndash;650.</p>
+  </div>
+  <div class="col" style="margin-top:14px">
+    <h3>Without HLT pixel tracks: L1 tracks extended into the pixel layers</h3>
+    <p style="margin:0">Everything above used HLT pixel tracks, which L1 will not have. The realistic version: each L1 track (Outer Tracker, p<sub>T</sub>&nbsp;&gt;&nbsp;2&nbsp;GeV) is extrapolated into the 4 barrel layers and 6 disks, candidate clusters are taken in a window around the prediction from all ~58k pixel clusters of the PU&nbsp;200 event, and the combination that best fits a helix with the L1 curvature gives a refit d0 and z0 (<code>l1ext.py</code>; no truth used). Against HLT pixel tracks, 87% of picked hits are the right ones, 75% of tracks get every hit right, and d0 agrees within 36&nbsp;&micro;m (HLT d0 errors are ~100&nbsp;&micro;m). <b>The gain survives</b>:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>L1-extended pixel tagger</th><th class="n">b-eff at 1% / 10% light mistag</th><th class="n">Menu + 2.5&nbsp;kHz, SM</th><th class="n">Equivalent luminosity SM</th><th class="n">&kappa;<sub>&lambda;</sub> = 5</th></tr>
+    <tr><td>Today&#39;s L1 NN</td><td class="n">15% / 36%</td><td class="n">88.9%</td><td class="n">&ndash;</td><td class="n">67.6%</td></tr>
+    <tr><td>HLT pixel tracks (best case)</td><td class="n">50% / 76%</td><td class="n">93.8%</td><td class="n">&times;1.06&ndash;1.11</td><td class="n">75.2% (&times;1.11&ndash;1.24)</td></tr>
+    <tr><td><b>L1 tracks + pixel hits (realistic)</b></td><td class="n">47% / 78%</td><td class="n"><b>94.5%</b></td><td class="n"><b>&times;1.06&ndash;1.13</b></td><td class="n">89.3% (&times;1.32&ndash;1.75, &plusmn;5 points)</td></tr>
+  </table></div>
+  <div class="col">
+    <p class="muted" style="margin:6px 0 0">Generator fiducial events, odd half, same minimum bias (2.0M events) and procedure as the direct test. Per-jet tagging is the same as with HLT pixel tracks; at the seed level the L1-extended version is slightly better, consistent with the earlier finding that tracks above 2&nbsp;GeV fake less in minimum bias. Not yet emulated: firmware arithmetic, timing, and the regional readout itself.</p>
+  </div>
+  <div class="col" style="margin-top:14px">
+    <h3>After an analysis-level selection: where the signal is lost</h3>
+    <p style="margin:0">The question for an analysis is how many signal events are lost <i>only</i> because of the trigger. Offline PUPPI jets from the same events with UParT b-tagging (medium working point at 1% light mistag, measured on QCD; 84% on real b jets): at least 4 jets with p<sub>T</sub>&nbsp;&gt;&nbsp;30&nbsp;GeV, |&eta;|&nbsp;&lt;&nbsp;2.5; the four highest-b-score jets corrected for the measured b-jet response (a stand-in for b-jet energy regression; the response is 0.73 at 25&nbsp;GeV and 0.96 above 150&nbsp;GeV), paired into two Higgs candidates, and a 30&nbsp;GeV mass window around (125,&nbsp;120). 4b: all four medium-tagged; 3b: three medium and one loose. No HLT emulation. Fractions of <b>all</b> SM HH&rarr;4b events:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>SM HH&rarr;4b, % of all events</th><th class="n">Passes offline</th><th class="n">&amp; planned menu</th><th class="n">&amp; menu + NN seed</th><th class="n">&amp; menu + L1-extended pixel seed</th><th class="n">Gain (equivalent luminosity)</th></tr>
+    <tr><td>Trigger only (no offline selection)</td><td class="n">100%</td><td class="n">59.6%</td><td class="n">69.5%</td><td class="n">77.8%</td><td class="n">&times;1.12 in events</td></tr>
+    <tr><td>Resolved 4b</td><td class="n">5.2%</td><td class="n">4.53%</td><td class="n">4.91%</td><td class="n"><b>5.14%</b></td><td class="n"><b>&times;1.05&ndash;1.10</b></td></tr>
+    <tr><td>3b category</td><td class="n">2.7%</td><td class="n">2.13%</td><td class="n">2.44%</td><td class="n">2.60%</td><td class="n">&times;1.07&ndash;1.14</td></tr>
+    <tr><td>4b + 3b</td><td class="n">7.9%</td><td class="n">6.65%</td><td class="n">7.35%</td><td class="n"><b>7.74%</b></td><td class="n"><b>&times;1.05&ndash;1.11</b></td></tr>
+  </table></div>
+  <div class="col">
+    <p style="margin:10px 0 0"><b>How to read it.</b> The standard chain is far from efficient: only about 8% of SM HH&rarr;4b events survive this selection, but nearly all of the loss is offline (four jets in acceptance, four b-tags, correct pairing), not in the trigger. Of the selected events, the planned menu keeps 84%, adding today&#39;s NN seed 93%, and the pixel seed 97.5%. A better L1 tagger can only recover the selected events the trigger misses; for SM that is about 5% more events. It catches 8% more of <i>all</i> signal events at trigger level, but most of those are soft events that the offline selection does not keep.</p>
+    <p class="muted" style="margin:8px 0 0">About 830 selected SM events in the evaluation half; error on the pixel/NN ratio &plusmn;0.009. HLT pixel tracks give the same as the L1 extension (97.5%). For &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, whose selected events are softer, the planned menu keeps only 68% of resolved-4b events and the gain is &times;1.24&ndash;1.55 (&plusmn;6 points on the efficiency). Without the b-response correction the Higgs candidates peak near 105&nbsp;GeV and the window keeps 31% instead of 42% of 4b events; the gain is similar (&times;1.03&ndash;1.07). Still approximate: no real regression (resolution unchanged), simple pairing, no HLT, which can only lower the gain.</p>
+  </div>
+  <div class="col" style="margin-top:14px">
+    <h3>The standalone picture (idealised scan)</h3>
+    <p style="margin:0">Before the direct test, the gain was estimated by placing taggers with given fake rates on a seed scan. The direct test confirms that estimate for the standalone seed (83.8% measured against 84.3% predicted for SM at 10&nbsp;kHz). The figure shows how the standalone gain grows as the rate gets tighter.</p>
+  </div>
+  <figure>
+    <img src="headline_equiv_lumi.png" alt="Equivalent HL-LHC luminosity for HH to 4b versus the L1 rate given to the seed, for a pixel tagger with measured fake rates and for an ideal tagger, for SM and kappa lambda equals 5">
+    <figcaption>Equivalent luminosity relative to today&#39;s L1 NN seed, both seeds at the same L1 rate. Blue: pixel tagger at the fake rates measured on minimum-bias jets. Orange: ideal tagger (&epsilon;<sub>b</sub> 0.7 at 1% fakes), the ceiling. Grey band: what the Phase-2 menu gives HH&rarr;4b-style seeds (QuadJet+HT 9&nbsp;kHz, HT 11&nbsp;kHz, the TDR&#39;s HH&rarr;4b example 6.6&nbsp;kHz). The tighter the rate, the more a better tagger is worth.</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th>At 10 kHz (generator fiducial proxy)</th><th class="n">Today&#39;s L1 NN</th><th class="n">Pixel tagger (measured fakes)</th><th class="n">Ideal tagger</th></tr>
+    <tr><td>SM (&kappa;<sub>&lambda;</sub> = 1)</td><td class="n">75.3%</td><td class="n"><b>84.3%</b> &rarr; &times;1.12&ndash;1.25</td><td class="n">96.0% &rarr; &times;1.28&ndash;1.63</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 0</td><td class="n">72.3%</td><td class="n">81.7% &rarr; &times;1.13&ndash;1.28</td><td class="n">95.1% &rarr; &times;1.32&ndash;1.73</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 2.45</td><td class="n">70.8%</td><td class="n">81.6% &rarr; &times;1.15&ndash;1.33</td><td class="n">94.6% &rarr; &times;1.33&ndash;1.78</td></tr>
+    <tr><td>&kappa;<sub>&lambda;</sub> = 5</td><td class="n">55.9%</td><td class="n"><b>69.4%</b> &rarr; &times;1.24&ndash;1.54</td><td class="n">89.9% &rarr; &times;1.61&ndash;2.59</td></tr>
+  </table></div>
+  <div class="col" style="margin-top:6px">
+    <h3>How to read it</h3>
+    <ul class="tight">
+      <li><b>Why equivalent luminosity.</b> The design spends no extra trigger rate; it changes what fits in the same rate. So the currency is how much more data the analysis would need to match it. If the background in the offline 4b region gains from the better trigger like the signal (it is mostly real b-jets), significance&sup2; scales with luminosity &times; trigger efficiency and the factor is the efficiency ratio (lower number). If the background did not gain, it would be the ratio squared (upper number).</li>
+      <li><b>Scale.</b> &times;1.12 on 3000&nbsp;fb<sup>&minus;1</sup> is like adding about 360&nbsp;fb<sup>&minus;1</sup>, roughly a year of HL-LHC running, for this channel.</li>
+      <li><b>The pixel tagger</b> uses the fake rate measured on minimum-bias jets (2.5% at 50% b-efficiency, 5% at 60%), placed on the idealised seed scan; this lands at 86% for SM at 14&nbsp;kHz.</li>
+    </ul>
+    <h3>What is not in it yet</h3>
+    <ul class="tight">
+      <li>HLT and offline selection, beyond the generator fiducial proxy; an analysis-level background model.</li>
+      <li>Hardware losses: pixel information was taken from HLT pixel tracks, with no latency, truncation or readout effects.</li>
+    </ul>
+  </div>
+  <div class="verdict" style="margin-top:6px">
+    <span class="k">Is it worth it?</span>
+    <span class="v">Not a dead end, but on HH&rarr;4b alone the realistic gain is modest for the hardware it needs.</span>
+    <p style="margin:0">The direct test, combined with the planned menu, gives +6&ndash;11% equivalent luminosity for SM HH&rarr;4b and +11&ndash;24% for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, against a new regional pixel readout path inside the L1 latency that also has to preserve the normal readout. Two of the open risks are now checked. A realistic L1 path (L1 tracks extended into the pixel layers, no HLT tracking) keeps the full gain. An analysis-level selection (4b + 3b) brings the SM gain to &times;1.05&ndash;1.11, at the stop line (&times;1.05): most signal is lost offline (acceptance, b-tagging, pairing), and the selected events are already 93% triggered with today&#39;s NN seed; &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 keeps &times;1.2&ndash;1.5, because the planned menu misses a third of those even after selection. So for SM HH&rarr;4b alone this does not justify the hardware; the case has to come from the self-coupling measurement (low m<sub>HH</sub>) and (3) the same pixel information helping other triggers that need displacement: b-rich channels (HH&rarr;bb&tau;&tau;, ttH(bb)), charm, and displaced and long-lived-particle triggers. <b>Stop criteria:</b> if the &kappa;<sub>&lambda;</sub> sensitivity gain (from a fit to the m<sub>HH</sub> shape, not just efficiency) and the other channels do not add significantly, this is a dead end for Phase-2.</p>
+  </div>
+</section>
+
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Stage 1 · Run 3 today</div>
+    <h2>What L1 sees in Run 3: calorimeters and muons only</h2>
+    <p>The Run-3 L1 trigger decides within about 4&nbsp;&micro;s, from calorimeter and muon information, whether to read out an event, at up to about 110&nbsp;kHz. The tracker is not part of the decision: its hits are buffered and read out only after an L1 accept, so the first b-tagging happens at the HLT.</p>
+  </div>
+  <figure>
+    <div class="diagram"><svg class="dg" viewBox="0 0 1104 262" role="img" aria-label="Run 3 L1: calorimeter and muon trigger feed the Global Trigger; the tracker is read out only after an L1 accept and is not used in the L1 decision."><defs><marker id="ah-r3" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-r3-n" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah dg-new" d="M0,0 L10,5 L0,10 z"/></marker></defs><text class="dg-h" x="77.0" y="14" text-anchor="middle">DETECTOR</text><text class="dg-h" x="233.0" y="14" text-anchor="middle"></text><text class="dg-h" x="389.0" y="14" text-anchor="middle">TRIGGER PROCESSING</text><text class="dg-h" x="545.0" y="14" text-anchor="middle"></text><text class="dg-h" x="701.0" y="14" text-anchor="middle"></text><text class="dg-h" x="857.0" y="14" text-anchor="middle">GLOBAL TRIGGER</text><text class="dg-h" x="1013.0" y="14" text-anchor="middle">OUTPUT</text><rect class="dg-box " x="10" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="47" text-anchor="middle">Calorimeters</text><text class="dg-s" x="77.0" y="62" text-anchor="middle">towers 0.087×0.087</text><rect class="dg-box " x="166" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="47" text-anchor="middle">Calo Layer-1</text><text class="dg-s" x="233.0" y="62" text-anchor="middle">regional, 18 cards</text><rect class="dg-box " x="322" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="389.0" y="47" text-anchor="middle">Calo Layer-2</text><text class="dg-s" x="389.0" y="62" text-anchor="middle">time-multiplexed</text><text class="dg-s" x="389.0" y="74" text-anchor="middle">TM 9: whole event</text><rect class="dg-box " x="478" y="28" width="290" height="52" rx="6"/><text class="dg-t" x="623.0" y="59" text-anchor="middle">jets, HT, e/γ, τ</text><rect class="dg-box " x="10" y="110" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="129" text-anchor="middle">Muon systems</text><text class="dg-s" x="77.0" y="144" text-anchor="middle">DT, CSC, RPC, GEM</text><rect class="dg-box " x="166" y="110" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="129" text-anchor="middle">Muon track finders</text><text class="dg-s" x="233.0" y="144" text-anchor="middle">BMTF, OMTF, EMTF</text><rect class="dg-box " x="322" y="110" width="134" height="52" rx="6"/><text class="dg-t" x="389.0" y="129" text-anchor="middle">μGMT</text><text class="dg-s" x="389.0" y="144" text-anchor="middle">muon sorting</text><rect class="dg-box " x="790" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="857.0" y="47" text-anchor="middle">μGT</text><text class="dg-s" x="857.0" y="62" text-anchor="middle">~460 seeds</text><text class="dg-s" x="857.0" y="74" text-anchor="middle">HTT280 &amp; QuadJet</text><rect class="dg-box dg-key" x="946" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="47" text-anchor="middle">L1 accept</text><text class="dg-s" x="1013.0" y="62" text-anchor="middle">≤ 110 kHz</text><rect class="dg-box dg-off" x="10" y="200" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="219" text-anchor="middle">Tracker</text><text class="dg-s" x="77.0" y="234" text-anchor="middle">pixels + strips</text><rect class="dg-box dg-off" x="946" y="200" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="219" text-anchor="middle">Readout → HLT</text><text class="dg-s" x="1013.0" y="234" text-anchor="middle">tracking, PNet b-tag</text><polyline class="dg-a " points="144.0,54.0 164.0,54.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="300.0,54.0 320.0,54.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="456.0,54.0 476.0,54.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="768.0,54.0 788.0,54.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="144.0,136.0 164.0,136.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="300.0,136.0 320.0,136.0" marker-end="url(#ah-r3)"/><polyline class="dg-a " points="456.0,136.0 857.0,136.0 857.0,82.0" marker-end="url(#ah-r3)"/><text class="dg-l " x="614" y="130.0" text-anchor="middle">muons</text><polyline class="dg-a " points="924.0,54.0 944.0,54.0" marker-end="url(#ah-r3)"/><polyline class="dg-a dg-off" points="144.0,226.0 944.0,226.0" marker-end="url(#ah-r3)"/><text class="dg-l dg-off" x="544.0" y="220.0" text-anchor="middle">hits buffered, read out only after L1 accept</text><polyline class="dg-a " points="1013.0,80.0 1013.0,198.0" marker-end="url(#ah-r3)"/></svg></div>
+    <div class="legend"><span><i class="sw base"></i>Used in the Run-3 L1 decision</span><span><i class="sw off"></i>Read out only after L1 accept</span></div>
+    <figcaption>Run-3 L1 data flow. The calorimeter trigger is time-multiplexed: Layer-1 cards each process a region, then each Layer-2 card receives the whole event every 9th bunch crossing (TM&nbsp;9), so jets and HT are built without region boundaries. Dashed: not used for the L1 decision.</figcaption>
+  </figure>
+  <div class="col">
+    <h3>HH&rarr;4b-relevant seeds in the 2025 menu</h3>
+    <p>From <code>L1Menu_Collisions2025_v1_3_0</code> (all unprescaled). None uses flavour information; the HH&rarr;4b triggers rely on HT plus four-jet thresholds at L1, then two b tags (ParticleNet) at the HLT.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>L1 seed</th><th>Requirement</th></tr>
+    <tr><td><code>L1_HTT280er_QuadJet_70_55_40_35_er2p5</code></td><td>HT &gt; 280&nbsp;GeV and four jets above 70, 55, 40, 35&nbsp;GeV, |&eta;|&lt;2.5</td></tr>
+    <tr><td><code>L1_HTT320er_QuadJet_70_55_40_40_er2p5</code></td><td>HT &gt; 320&nbsp;GeV and four jets above 70, 55, 40, 40&nbsp;GeV</td></tr>
+    <tr><td><code>L1_HTT320er_QuadJet_80_60_er2p1_45_40_er2p3</code></td><td>HT &gt; 320&nbsp;GeV, two central jets above 80, 60 and two above 45, 40&nbsp;GeV</td></tr>
+    <tr><td><code>L1_HTT280er</code></td><td>HT &gt; 280&nbsp;GeV alone</td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">At the HLT, the 2022 resolved HH&rarr;4b trigger required four jets above 70/50/40/35&nbsp;GeV with two b tags at about 60&nbsp;Hz; the 2023 ParkingHH stream lowered all four to 30&nbsp;GeV at up to 150&nbsp;Hz (<a href="https://arxiv.org/abs/2604.27044">arXiv:2604.27044</a>).</p>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Stage 2 · Phase-2 plan</div>
+    <h2>Phase-2 L1 adds tracks, particle flow and a jet tagger</h2>
+    <p>The Phase-2 L1 trigger runs at up to 750&nbsp;kHz with 12.5&nbsp;&micro;s latency. The new ingredient is tracking: Outer Tracker modules pair two sensors and keep only "stubs" from tracks above about 2&nbsp;GeV, which leave the detector at 40&nbsp;MHz. The correlator combines tracks with calorimeter clusters into particle-flow and PUPPI candidates, builds jets, and runs a neural-network jet tagger.</p>
+  </div>
+  <figure>
+    <div class="diagram"><svg class="dg" viewBox="0 0 1104 350" role="img" aria-label="Phase-2 L1 baseline: Outer Tracker stubs give L1 tracks, the correlator builds PUPPI candidates, jets and NN tag scores that reach the Global Trigger; the pixel Inner Tracker is read out only after an L1 accept."><defs><marker id="ah-p2" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-p2-n" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah dg-new" d="M0,0 L10,5 L0,10 z"/></marker></defs><text class="dg-h" x="77.0" y="14" text-anchor="middle">DETECTOR</text><text class="dg-h" x="233.0" y="14" text-anchor="middle">BACK-END</text><text class="dg-h" x="389.0" y="14" text-anchor="middle">TRACK FINDING</text><text class="dg-h" x="545.0" y="14" text-anchor="middle">CORRELATOR L1</text><text class="dg-h" x="701.0" y="14" text-anchor="middle">CORRELATOR L2</text><text class="dg-h" x="857.0" y="14" text-anchor="middle">GLOBAL TRIGGER</text><text class="dg-h" x="1013.0" y="14" text-anchor="middle">OUTPUT</text><rect class="dg-box " x="10" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="47" text-anchor="middle">Calorimeters</text><text class="dg-s" x="77.0" y="62" text-anchor="middle">crystals, HCAL, HGCAL</text><rect class="dg-box " x="166" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="47" text-anchor="middle">Calo trigger</text><text class="dg-s" x="233.0" y="62" text-anchor="middle">clusters, TM18</text><rect class="dg-box " x="10" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="127" text-anchor="middle">Outer Tracker</text><text class="dg-s" x="77.0" y="142" text-anchor="middle">pT stubs @ 40 MHz</text><rect class="dg-box " x="166" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="127" text-anchor="middle">216 DTCs</text><text class="dg-s" x="233.0" y="142" text-anchor="middle">9 φ regions × 24</text><rect class="dg-box " x="322" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="389.0" y="127" text-anchor="middle">Track finder</text><text class="dg-s" x="389.0" y="142" text-anchor="middle">TM18, pT &gt; 2 GeV</text><rect class="dg-box " x="478" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="545.0" y="47" text-anchor="middle">PF + PUPPI</text><text class="dg-s" x="545.0" y="62" text-anchor="middle">regional (η, φ) sectors</text><text class="dg-s" x="545.0" y="74" text-anchor="middle">TM6</text><rect class="dg-box " x="634" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="701.0" y="47" text-anchor="middle">Jets + NN tagger</text><text class="dg-s" x="701.0" y="62" text-anchor="middle">seeded cone R=0.4</text><text class="dg-s" x="701.0" y="74" text-anchor="middle">16 cands × 20 feats</text><rect class="dg-box " x="790" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="857.0" y="47" text-anchor="middle">Global Trigger</text><text class="dg-s" x="857.0" y="62" text-anchor="middle">jet word 128 b</text><text class="dg-s" x="857.0" y="74" text-anchor="middle">incl. 8 tag scores</text><rect class="dg-box dg-key" x="946" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="47" text-anchor="middle">L1 accept</text><text class="dg-s" x="1013.0" y="62" text-anchor="middle">≤ 750 kHz</text><rect class="dg-box " x="946" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="127" text-anchor="middle">40 MHz scouting</text><text class="dg-s" x="1013.0" y="142" text-anchor="middle">L1 objects, every BX</text><rect class="dg-box " x="10" y="188" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="219" text-anchor="middle">Muon systems</text><rect class="dg-box " x="166" y="188" width="290" height="52" rx="6"/><text class="dg-t" x="311.0" y="219" text-anchor="middle">Muon track finders</text><rect class="dg-box dg-off" x="10" y="288" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="307" text-anchor="middle">Inner Tracker</text><text class="dg-s" x="77.0" y="322" text-anchor="middle">pixel hits buffered</text><text class="dg-s" x="77.0" y="334" text-anchor="middle">for 12.5 μs latency</text><rect class="dg-box dg-off" x="946" y="288" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="307" text-anchor="middle">Readout → HLT</text><text class="dg-s" x="1013.0" y="322" text-anchor="middle">pixel tracks, PNet</text><polyline class="dg-a " points="144.0,54.0 164.0,54.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="300.0,54.0 476.0,54.0" marker-end="url(#ah-p2)"/><text class="dg-l " x="388.0" y="48.0" text-anchor="middle">clusters</text><polyline class="dg-a " points="144.0,134.0 164.0,134.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="300.0,134.0 320.0,134.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="456.0,134.0 545.0,134.0 545.0,82.0" marker-end="url(#ah-p2)"/><text class="dg-l " x="500.5" y="128.0" text-anchor="middle">tracks</text><polyline class="dg-a " points="612.0,54.0 632.0,54.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="768.0,54.0 788.0,54.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="924.0,54.0 944.0,54.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="857.0,80.0 857.0,134.0 944.0,134.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="144.0,214.0 164.0,214.0" marker-end="url(#ah-p2)"/><polyline class="dg-a " points="456.0,214.0 890.5,214.0 890.5,82.0" marker-end="url(#ah-p2)"/><text class="dg-l " x="884.5" y="208.0" text-anchor="end">muons</text><polyline class="dg-a " points="1080.0,54.0 1090.0,54.0 1090.0,314.0 1082.0,314.0" marker-end="url(#ah-p2)"/><text class="dg-l " x="1084" y="224.0" text-anchor="end">L1A</text><polyline class="dg-a dg-off" points="144.0,314.0 944.0,314.0" marker-end="url(#ah-p2)"/><text class="dg-l dg-off" x="544.0" y="308.0" text-anchor="middle">only after L1 accept: not in the L1 decision</text></svg></div>
+    <div class="legend"><span><i class="sw base"></i>Phase-2 baseline (in CMSSW)</span><span><i class="sw off"></i>Read out only after L1 accept</span></div>
+    <figcaption>Phase-2 L1 baseline, as configured in CMSSW (<code>L1Trigger/TrackTrigger</code>, <code>L1Trigger/Phase2L1ParticleFlow</code>, <code>L1Trigger/Phase2L1GT</code>). The pixel Inner Tracker still only reads out after an L1 accept.</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th>Stage</th><th>Input &rarr; output</th><th>How the detector is split</th></tr>
+    <tr><td>Outer Tracker readout</td><td>Stubs from p<sub>T</sub> modules, every bunch crossing</td><td>9 &phi; regions &times; 24 DTC boards (216), up to 72 modules each; front-ends send 8-crossing packets</td></tr>
+    <tr><td>Track finder</td><td>Stubs &rarr; tracks (p<sub>T</sub>, &eta;, &phi;, z<sub>0</sub>, d<sub>0</sub> for "extended" tracks)</td><td>Time-multiplexed by 18: each processor sees one region's full event every 18th crossing; tracks may cross 2 regions</td></tr>
+    <tr><td>Correlator Layer-1</td><td>Tracks + calo clusters &rarr; PF and PUPPI candidates</td><td>Regional (&eta;, &phi;) sectors, time-multiplexed by 6</td></tr>
+    <tr><td>Correlator Layer-2</td><td>PUPPI candidates &rarr; seeded-cone jets (R&nbsp;=&nbsp;0.4), HT; NN tagger on up to 16 candidates &times; 20 features per jet</td><td>Whole event, time-multiplexed by 18</td></tr>
+    <tr><td>Global Trigger</td><td>Jet word of 128 bits: p<sub>T</sub>, &eta;, &phi;, z<sub>0</sub> and 8 tag scores (b, c, uds, g, &tau;<sup>&plusmn;</sup>, &mu;, e), 8 bits each</td><td>Whole event</td></tr>
+  </table></div>
+  <div class="col" style="margin-top:6px">
+    <p>The planned HH&rarr;4b-style seed in the CMSSW Phase-2 menu (<code>step1_2024</code>) is <code>PuppiHT400 and QuadJet70_55_40_40</code> (jets |&eta;|&lt;2.4), alongside <code>PuppiHT450</code> and <code>SinglePuppiJet230</code>. The tag scores already reach the Global Trigger in the jet word, but no seed in that menu cuts on them yet. The "today" baseline in this pilot is that system with the tag scores used, as in the tagger group's HH&rarr;4b validation (HT plus the sum of the 4 leading jets' b scores).</p>
+    <p class="muted">Where displacement information comes from today: the tagger's charged candidates carry the L1 track's d<sub>xy</sub>, but those tracks use Outer Tracker stubs only, whose innermost layer is far outside the pixel detector. Their impact-parameter resolution is much coarser than a pixel track's.</p>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Stage 3 · if L1 used pixels</div>
+    <h2>Adding pixel information: read out hits only around L1 jets</h2>
+    <p>In the baseline the pixel front-ends store every hit for the 12.5&nbsp;&micro;s latency and send them out only after an L1 accept. Reading and tracking the whole pixel detector every crossing is out of reach: a PU&nbsp;200 crossing has about 185,000 pixel clusters, 297&nbsp;Tb/s at 40&nbsp;MHz. That is why L1 tracking uses Outer Tracker stubs.</p>
+    <p>The proposal is a region-of-interest (RoI) readout: ask for the buffered pixel hits only inside the cones of likely jets, while they are still in the front-end buffers. The request does not need finished jets, only their directions. A seeded-cone jet is everything within &Delta;R&nbsp;=&nbsp;0.4 of its seed, the highest-p<sub>T</sub> PUPPI candidate not yet clustered, so a cone around the seed contains exactly the jet; the seeds exist when correlator Layer-1 finishes, about 6&nbsp;&micro;s after the collision. A local fit in each cone gives impact parameters, condensed to 64 bits per jet, and the tagger runs again with them.</p>
+  </div>
+  <figure>
+    <div class="diagram"><svg class="dg" viewBox="0 0 1104 452" role="img" aria-label="Proposed: jet seeds from correlator layer-1 (about 6 µs) request the buffered pixel hits in their cones during the L1 latency; local pixel tracking in each cone gives a 64-bit impact-parameter summary per jet that feeds the jet tagger, whose scores reach the Global Trigger in the existing jet word."><defs><marker id="ah-p3" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-p3-n" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path class="dg-ah dg-new" d="M0,0 L10,5 L0,10 z"/></marker></defs><text class="dg-h" x="77.0" y="14" text-anchor="middle">DETECTOR</text><text class="dg-h" x="233.0" y="14" text-anchor="middle">BACK-END</text><text class="dg-h" x="389.0" y="14" text-anchor="middle">TRACK FINDING</text><text class="dg-h" x="545.0" y="14" text-anchor="middle">CORRELATOR L1</text><text class="dg-h" x="701.0" y="14" text-anchor="middle">CORRELATOR L2</text><text class="dg-h" x="857.0" y="14" text-anchor="middle">GLOBAL TRIGGER</text><text class="dg-h" x="1013.0" y="14" text-anchor="middle">OUTPUT</text><rect class="dg-box " x="10" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="47" text-anchor="middle">Calorimeters</text><text class="dg-s" x="77.0" y="62" text-anchor="middle">crystals, HCAL, HGCAL</text><rect class="dg-box " x="166" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="47" text-anchor="middle">Calo trigger</text><text class="dg-s" x="233.0" y="62" text-anchor="middle">clusters, TM18</text><rect class="dg-box " x="10" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="127" text-anchor="middle">Outer Tracker</text><text class="dg-s" x="77.0" y="142" text-anchor="middle">pT stubs @ 40 MHz</text><rect class="dg-box " x="166" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="127" text-anchor="middle">216 DTCs</text><text class="dg-s" x="233.0" y="142" text-anchor="middle">9 φ regions × 24</text><rect class="dg-box " x="322" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="389.0" y="127" text-anchor="middle">Track finder</text><text class="dg-s" x="389.0" y="142" text-anchor="middle">TM18, pT &gt; 2 GeV</text><rect class="dg-box " x="478" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="545.0" y="47" text-anchor="middle">PF + PUPPI</text><text class="dg-s" x="545.0" y="62" text-anchor="middle">regional (η, φ) sectors</text><text class="dg-s" x="545.0" y="74" text-anchor="middle">TM6</text><rect class="dg-box " x="634" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="701.0" y="47" text-anchor="middle">Jets + NN tagger</text><text class="dg-s" x="701.0" y="62" text-anchor="middle">seeded cone R=0.4</text><text class="dg-s" x="701.0" y="74" text-anchor="middle">16 cands × 20 feats</text><rect class="dg-box " x="790" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="857.0" y="47" text-anchor="middle">Global Trigger</text><text class="dg-s" x="857.0" y="62" text-anchor="middle">jet word 128 b</text><text class="dg-s" x="857.0" y="74" text-anchor="middle">incl. 8 tag scores</text><rect class="dg-box dg-key" x="946" y="28" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="47" text-anchor="middle">L1 accept</text><text class="dg-s" x="1013.0" y="62" text-anchor="middle">≤ 750 kHz</text><rect class="dg-box " x="946" y="108" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="127" text-anchor="middle">40 MHz scouting</text><text class="dg-s" x="1013.0" y="142" text-anchor="middle">L1 objects, every BX</text><rect class="dg-box " x="10" y="188" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="219" text-anchor="middle">Muon systems</text><rect class="dg-box " x="166" y="188" width="290" height="52" rx="6"/><text class="dg-t" x="311.0" y="219" text-anchor="middle">Muon track finders</text><rect class="dg-box " x="10" y="352" width="134" height="52" rx="6"/><text class="dg-t" x="77.0" y="371" text-anchor="middle">Inner Tracker</text><text class="dg-s" x="77.0" y="386" text-anchor="middle">pixel hits buffered</text><text class="dg-s" x="77.0" y="398" text-anchor="middle">for 12.5 μs latency</text><rect class="dg-box dg-off" x="946" y="352" width="134" height="52" rx="6"/><text class="dg-t" x="1013.0" y="371" text-anchor="middle">Readout → HLT</text><text class="dg-s" x="1013.0" y="386" text-anchor="middle">pixel tracks, PNet</text><polyline class="dg-a " points="144.0,54.0 164.0,54.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="300.0,54.0 476.0,54.0" marker-end="url(#ah-p3)"/><text class="dg-l " x="388.0" y="48.0" text-anchor="middle">clusters</text><polyline class="dg-a " points="144.0,134.0 164.0,134.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="300.0,134.0 320.0,134.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="456.0,134.0 545.0,134.0 545.0,82.0" marker-end="url(#ah-p3)"/><text class="dg-l " x="500.5" y="128.0" text-anchor="middle">tracks</text><polyline class="dg-a " points="612.0,54.0 632.0,54.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="768.0,54.0 788.0,54.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="924.0,54.0 944.0,54.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="857.0,80.0 857.0,134.0 944.0,134.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="144.0,214.0 164.0,214.0" marker-end="url(#ah-p3)"/><polyline class="dg-a " points="456.0,214.0 890.5,214.0 890.5,82.0" marker-end="url(#ah-p3)"/><text class="dg-l " x="884.5" y="208.0" text-anchor="end">muons</text><rect class="dg-box dg-new" x="478" y="268" width="134" height="52" rx="6"/><text class="dg-t" x="545.0" y="287" text-anchor="middle">RoI request</text><text class="dg-s" x="545.0" y="302" text-anchor="middle">seed η, φ, z0</text><text class="dg-s" x="545.0" y="314" text-anchor="middle">~5 seeds / event</text><rect class="dg-box dg-new" x="166" y="352" width="134" height="52" rx="6"/><text class="dg-t" x="233.0" y="371" text-anchor="middle">Regional readout</text><text class="dg-s" x="233.0" y="386" text-anchor="middle">hits in jet cones</text><text class="dg-s" x="233.0" y="398" text-anchor="middle">~800 clusters / jet</text><rect class="dg-box dg-new" x="322" y="352" width="134" height="52" rx="6"/><text class="dg-t" x="389.0" y="371" text-anchor="middle">Cone tracking</text><text class="dg-s" x="389.0" y="386" text-anchor="middle">local pixel fit</text><rect class="dg-box dg-new" x="478" y="352" width="134" height="52" rx="6"/><text class="dg-t" x="545.0" y="371" text-anchor="middle">Per-jet IP summary</text><text class="dg-s" x="545.0" y="386" text-anchor="middle">idealised so far</text><text class="dg-s" x="545.0" y="398" text-anchor="middle">not built</text><polyline class="dg-a dg-new" points="502.0,80.0 502.0,266.0" marker-end="url(#ah-p3-n)"/><text class="dg-l dg-new" x="508" y="256" text-anchor="start">seeds ~6 µs</text><polyline class="dg-a dg-new" points="478.0,294.0 77.0,294.0 77.0,350.0" marker-end="url(#ah-p3-n)"/><text class="dg-l dg-new" x="277.5" y="288.0" text-anchor="middle">request hits in jet cones (within latency)</text><polyline class="dg-a dg-new" points="144.0,378.0 164.0,378.0" marker-end="url(#ah-p3-n)"/><polyline class="dg-a dg-new" points="300.0,378.0 320.0,378.0" marker-end="url(#ah-p3-n)"/><polyline class="dg-a dg-new" points="456.0,378.0 476.0,378.0" marker-end="url(#ah-p3-n)"/><polyline class="dg-a dg-new" points="612.0,378.0 738.0,378.0 738.0,82.0" marker-end="url(#ah-p3-n)"/><text class="dg-l dg-new" x="744" y="372.0" text-anchor="start">64 b / jet → tagger</text><polyline class="dg-a dg-off" points="77.0,404.0 77.0,422.0 1013.0,422.0 1013.0,406.0" marker-end="url(#ah-p3)"/><text class="dg-l dg-off" x="545.0" y="417" text-anchor="middle">full pixel readout after L1 accept, unchanged</text><polyline class="dg-a " points="1080.0,54.0 1090.0,54.0 1090.0,378.0 1082.0,378.0" marker-end="url(#ah-p3)"/><text class="dg-l " x="1084" y="256.0" text-anchor="end">L1A</text></svg></div>
+    <div class="legend">
+      <span><i class="sw base"></i>Phase-2 baseline (in CMSSW)</span>
+      <span><i class="sw off"></i>Read out only after L1 accept</span>
+      <span><i class="sw new"></i>Proposed in this pilot, in no CMS plan we know of</span>
+    </div>
+    <figcaption>Proposed RoI loop (blue). Jet seeds (the hardest PUPPI candidates from correlator Layer-1, or L1 track jets) go to the pixel system as a readout request; the per-jet summary returns to the tagger, and the tag scores reach the Global Trigger in the existing jet word.</figcaption>
+  </figure>
+  <div class="col">
+    <h3>When can the request start?</h3>
+    <p>The Phase-2 L1 design report fixes the timeline: the first L1 track data reach the trigger 5&nbsp;&micro;s after the collision (the full event then streams in over the time-multiplexing period), correlator Layer-1 must hand its particles to Layer-2 within 1&nbsp;&micro;s, the correlator must finish by 9.5&nbsp;&micro;s, the Global Trigger takes about 1&nbsp;&micro;s, and the pixel front-end buffers expire at 12.5&nbsp;&micro;s. Finished Layer-2 jets (about 9&nbsp;&micro;s) come too late to fetch hits and re-tag. Seeds may not: they exist once Layer-1 has produced the PUPPI candidates, roughly 6&ndash;7&nbsp;&micro;s. A cycle-level timeline (event streaming, seed selection, request distribution, return links, tagger deadline) is still needed.</p>
+  </div>
+  <figure>
+    <div class="diagram"><svg class="dg" viewBox="0 0 1104 368" role="img" aria-label="Phase-2 L1 latency budget: tracks arrive at 5 µs, the correlator finishes by 9.5 µs and the Global Trigger by about 10.5 µs; a pixel region-of-interest request seeded by finished Layer-2 jets would start too late, but jet seeds (about 6 µs) or L1 track jets (about 5.5 µs) leave 2.5 to 3 µs."><line class="dg-grid" x1="236.0" y1="30" x2="236.0" y2="338"/><text class="dg-s" x="236.0" y="356" text-anchor="middle">0</text><line class="dg-grid" x1="303.52" y1="30" x2="303.52" y2="338"/><text class="dg-s" x="303.52" y="356" text-anchor="middle">1</text><line class="dg-grid" x1="371.03999999999996" y1="30" x2="371.03999999999996" y2="338"/><text class="dg-s" x="371.03999999999996" y="356" text-anchor="middle">2</text><line class="dg-grid" x1="438.56" y1="30" x2="438.56" y2="338"/><text class="dg-s" x="438.56" y="356" text-anchor="middle">3</text><line class="dg-grid" x1="506.08" y1="30" x2="506.08" y2="338"/><text class="dg-s" x="506.08" y="356" text-anchor="middle">4</text><line class="dg-grid" x1="573.6" y1="30" x2="573.6" y2="338"/><text class="dg-s" x="573.6" y="356" text-anchor="middle">5</text><line class="dg-grid" x1="641.12" y1="30" x2="641.12" y2="338"/><text class="dg-s" x="641.12" y="356" text-anchor="middle">6</text><line class="dg-grid" x1="708.64" y1="30" x2="708.64" y2="338"/><text class="dg-s" x="708.64" y="356" text-anchor="middle">7</text><line class="dg-grid" x1="776.16" y1="30" x2="776.16" y2="338"/><text class="dg-s" x="776.16" y="356" text-anchor="middle">8</text><line class="dg-grid" x1="843.68" y1="30" x2="843.68" y2="338"/><text class="dg-s" x="843.68" y="356" text-anchor="middle">9</text><line class="dg-grid" x1="911.2" y1="30" x2="911.2" y2="338"/><text class="dg-s" x="911.2" y="356" text-anchor="middle">10</text><line class="dg-grid" x1="978.72" y1="30" x2="978.72" y2="338"/><text class="dg-s" x="978.72" y="356" text-anchor="middle">11</text><line class="dg-grid" x1="1046.24" y1="30" x2="1046.24" y2="338"/><text class="dg-s" x="1046.24" y="356" text-anchor="middle">12</text><text class="dg-h" x="1080" y="22" text-anchor="end">µs AFTER THE COLLISION</text><rect class="dg-box " x="236.0" y="36" width="101.27999999999997" height="24" rx="4"/><text class="dg-l " x="226" y="52" text-anchor="end">Calo trigger primitives</text><text class="dg-l " x="343.28" y="52">arrive 1.5</text><rect class="dg-box " x="236.0" y="74" width="337.6" height="24" rx="4"/><text class="dg-l " x="226" y="90" text-anchor="end">L1 tracks, HGCAL</text><text class="dg-l " x="579.6" y="90">arrive 5</text><rect class="dg-box " x="573.6" y="112" width="303.84000000000003" height="24" rx="4"/><text class="dg-l " x="226" y="128" text-anchor="end">Correlator L1 + L2</text><text class="dg-l " x="883.44" y="128">done by 9.5: jets, tags</text><rect class="dg-box " x="877.44" y="150" width="67.51999999999998" height="24" rx="4"/><text class="dg-l " x="226" y="166" text-anchor="end">Global Trigger</text><text class="dg-l " x="871.44" y="166" text-anchor="end">~1 µs</text><rect class="dg-box " x="944.96" y="188" width="135.03999999999996" height="24" rx="4"/><text class="dg-l " x="226" y="204" text-anchor="end">L1 accept to front-ends</text><text class="dg-l " x="938.96" y="204" text-anchor="end">pixel buffers end 12.5</text><rect class="dg-box dg-new" x="607.36" y="226" width="202.55999999999995" height="24" rx="4"/><text class="dg-l dg-new" x="226" y="242" text-anchor="end">RoI from L1 track jets</text><text class="dg-l dg-new" x="815.92" y="242">~3 µs to fetch, process, feed tagger</text><rect class="dg-box dg-new" x="641.12" y="264" width="168.79999999999995" height="24" rx="4"/><text class="dg-l dg-new" x="226" y="280" text-anchor="end">RoI from seeded-cone seeds</text><text class="dg-l dg-new" x="815.92" y="280">~2.5 µs</text><rect class="dg-box dg-off" x="843.68" y="302" width="33.760000000000105" height="24" rx="4"/><text class="dg-l dg-off" x="226" y="318" text-anchor="end">RoI from finished L2 jets</text><text class="dg-l dg-off" x="883.44" y="318">jets exist ~9 µs: no time left</text></svg></div>
+    <div class="legend"><span><i class="sw base"></i>Baseline timing (L1 TDR)</span><span><i class="sw new"></i>Pixel request window, proposed</span><span><i class="sw off"></i>Too late</span></div>
+    <figcaption>Latency budget from the Phase-2 L1 TDR (CERN-LHCC-2020-004: Table 2.11, &sect;5.6, pp.&nbsp;140 and 273). Requests seeded by L1 track jets or seeded-cone seeds leave about 2.5&ndash;3&nbsp;&micro;s to fetch hits, process them and feed the tagger. Orientation only, not a cycle-level timeline.</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <tr><th>Seed for the request</th><th>Available</th><th class="n">b-jets with a seed within &Delta;R&lt;0.2</th><th class="n">median &Delta;R</th><th class="n">seeds / event</th></tr>
+    <tr class="hl"><td><b>Seeded-cone seed</b> (hardest PUPPI candidate)</td><td>~6&ndash;7 &micro;s (estimate)</td><td class="n">a 0.4 cone holds all the jet&#39;s constituents</td><td class="n">&ndash;</td><td class="n">up to 16</td></tr>
+    <tr><td>L1 track jet, p<sub>T</sub> &gt; 10 GeV</td><td>~5.5&ndash;6 &micro;s (estimate)</td><td class="n">97.5%</td><td class="n">0.033</td><td class="n">16</td></tr>
+    <tr><td>L1 track jet, p<sub>T</sub> &gt; 20 GeV</td><td>~5.5&ndash;6 &micro;s (estimate)</td><td class="n">93%</td><td class="n">0.033</td><td class="n">5</td></tr>
+    <tr><td>Calorimeter jet, p<sub>T</sub> &gt; 10 GeV</td><td>to Global Trigger by 9 &micro;s</td><td class="n">96%</td><td class="n">0.046</td><td class="n">42</td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">HH&rarr;4b b-jets: L1 jets with p<sub>T</sub>&gt;30&nbsp;GeV, |&eta;|&lt;2.4 matched to a b gen jet (official 151X sample, 50k events); seeds per event counted within |&eta;|&lt;2.4. Track-jet timing is an estimate (the Global Track Trigger runs on the tracks arriving at 5&nbsp;&micro;s); seeded-cone seed timing follows from the TDR&#39;s 1&nbsp;&micro;s Layer-1 budget after first data. The matching is a first look (nearest neighbour on reconstructed, b-matched jets; seeds may be shared between jets); it does not yet measure the displaced tracks captured, or trigger efficiency after an early gate and a request cap. A seed-p<sub>T</sub> threshold would cut the number of requests; how seed p<sub>T</sub> relates to jet p<sub>T</sub> needs the PUPPI candidates, which our ntuples do not store yet.</p>
+  <div class="col">
+    <h3>Hits or tracks? Three ways to get displacement out of the pixels at L1</h3>
+    <p>The tagger needs impact parameters, not raw hits. Nothing in the Phase-2 plan produces pixel tracks within the L1 latency (the TDR states the pixel detector is not used for L1; pixel tracking runs at the HLT), so one of these has to fit in the ~2.5&ndash;3&nbsp;&micro;s window:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Approach</th><th>What it takes</th><th>What we know</th></tr>
+    <tr><td>Pixel track finding from scratch in each cone</td><td>Pattern recognition on ~800 clusters per cone</td><td>The Outer Tracker track finder, with far lower occupancy and a dedicated system, needs ~3.3&ndash;4&nbsp;&micro;s. No hint that pixel tracking at L1 is planned. <span class="pill other">Unlikely</span></td></tr>
+    <tr><td>Network over the hits in each cone</td><td>A network that looks at hit combinations (e.g. a graph network), after a pre-filter</td><td>Published FPGA graph networks for tracking run in 0.3&ndash;0.7&nbsp;&micro;s for dozens of hits and exceed 4&nbsp;&micro;s above ~900 hits (<a href="https://arxiv.org/abs/2112.02048">arXiv:2112.02048</a>); our cones hold ~800 clusters, so a pre-filter to ~100 is needed. A plain set network on loose hits failed here; grouping is what matters. <span class="pill warn">Possible, hard</span></td></tr>
+    <tr class="hl"><td><b>Extend existing L1 tracks into the pixels</b></td><td>For each Outer-Tracker L1 track (p<sub>T</sub>&nbsp;&gt;&nbsp;2&nbsp;GeV, available at 5&nbsp;&micro;s), pick up the pixel hits in a narrow window around its path and refit the impact parameter; no pattern recognition</td><td>Proxy: keeping only pixel tracks above 2&nbsp;GeV loses nothing (b-eff. 52% / 77% at 1% / 10% fakes vs 51% / 77% with all tracks; minimum-bias fakes 3.0 / 6.0 / 8.3% at &epsilon;<sub>b</sub> 50 / 60 / 70%). Requests could then be narrow windows per track instead of whole cones. <span class="pill good">Most promising</span></td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">The third row is a proxy: it assumes each L1 track above 2&nbsp;GeV corresponds to a pixel track with HLT-quality impact parameter. Still to emulate with real L1 tracks and all clusters: Outer Tracker track efficiency, ambiguous hit association at PU&nbsp;200, and the impact-parameter resolution of a pixel-plus-Outer-Tracker refit.</p>
+  <div class="col">
+    <h3>Information flow, step by step</h3>
+    <ol class="steps">
+      <li><b>Seeds and pre-selection.</b> At about 6&nbsp;&micro;s the hardest PUPPI candidates (or, slightly earlier, L1 track jets) are known; if the event passes a loose pre-selection (for example track-based HT), each seed's &eta;, &phi; and z<sub>0</sub> goes out as an RoI request.</li>
+      <li><b>Regional readout.</b> The pixel system returns the buffered hits inside each cone (&Delta;R&nbsp;&lt;&nbsp;0.4).</li>
+      <li><b>Local tracking.</b> Pixel tracks are fitted within each cone, constrained to the jet's vertex from L1 tracks, or a network learns the same information directly from the cone's hits (open question 3).</li>
+      <li><b>Per-jet summary.</b> 8 numbers &times; 8 bits: the three highest signed impact-parameter significances, the number of tracks and of tracks with significance above 3 and 5, the sum of significances, and the largest signed impact parameter.</li>
+      <li><b>Tagger and Global Trigger.</b> The tagger runs with the 64 extra bits per jet; its 8 scores travel in the existing 128-bit jet word, so the Global Trigger format does not change. The HH&rarr;4b seed becomes HT plus a b-tag requirement at lower HT.</li>
+      <li><b>Storage.</b> L1 objects, including the scores and the per-jet summary, are written with every accepted event and recorded every crossing by 40&nbsp;MHz scouting, so the scheme can be studied offline in data. The full pixel readout after each L1 accept is unchanged.</li>
+    </ol>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Data volume</th><th>How it is counted</th><th class="n">Bandwidth</th></tr>
+    <tr class="hl"><td><b>RoI readout, pre-selection HT &gt; 140 GeV</b> <span class="muted">(illustrative)</span></td><td>1.2% of crossings (367 kHz) &times; 2.65 jets &times; 806 clusters &times; 40 b</td><td class="n"><b>32 Gb/s</b></td></tr>
+    <tr class="hl"><td><b>RoI readout, pre-selection HT &gt; 200 GeV</b> <span class="muted">(illustrative)</span></td><td>0.4% of crossings (123 kHz) &times; 2.92 jets &times; 806 clusters &times; 40 b</td><td class="n"><b>12 Gb/s</b></td></tr>
+    <tr><td>Per-jet summaries to the tagger</td><td>64 b &times; 4 jets, every crossing (upper bound)</td><td class="n">10 Gb/s</td></tr>
+    <tr><td class="muted">Full pixel readout after each L1 accept (baseline)</td><td>750 kHz &times; 185,474 clusters &times; 40 b</td><td class="n">5.6 Tb/s</td></tr>
+    <tr><td class="muted">All pixel clusters every crossing</td><td>40 MHz &times; 185,474 clusters &times; 40 b</td><td class="n">297 Tb/s</td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">Measured on Phase2Spring24 PU&nbsp;200 events: pre-selection rates from the 655k minimum-bias sample (L1 jets p<sub>T</sub>&gt;30&nbsp;GeV, |&eta;|&lt;2.4); 806 is the median number of pixel clusters within &Delta;R&lt;0.4 of an L1 jet (90% of jets: under 1,506). The 40-bit cluster word is an assumption. These are orders of magnitude, not a readout estimate: the 806 comes from only 10 events (36 jets), a median times a mean jet count is not mean traffic, the pre-selection uses finished-jet HT rather than an early track-based HT, and real links carry encoded chip data with headers, module granularity and overlapping requests. HT &gt; 140&nbsp;GeV is the cut a 1%-mistag tagger allows at 14&nbsp;kHz (see results).</p>
+  <div class="callout warn" style="margin-top:6px"><b>Open hardware questions.</b> (1) Can the pixel front-ends or back-end answer a regional request in the middle of the latency? The baseline chips send hits only after an L1 accept, and readout is destructive: hits read early for the trigger are gone for the normal readout after an L1 accept, so the scheme needs a separate copy of the hits or back-end buffering and re-merging. The chip&#39;s two-level mode does not solve this (see Plan). (2) Can request, readout and processing fit in the 2.5&ndash;3&nbsp;&micro;s between the seeds (about 6&ndash;7&nbsp;&micro;s) and the moment the tagger needs its inputs (about 8.5&nbsp;&micro;s)? No path from the pixel readout into the correlator exists today. (3) Fit or network? In the info-budget study, a small set network given the hits of pixel tracks without the fit added nothing over the NN alone, but it was trained on fewer than 2k jets. On the ~20&times; larger sample the same inputs do help (b-jet efficiency at 10% fakes 36% &rarr; 55%, 65% with a wider network), so a network can learn much of the track information from hits; how much data it needs, and whether it fits on an FPGA through hls4ml, are open.</div>
+  <div class="col" style="margin-top:10px">
+    <h3>Could Correlator Layer-2 compute the per-jet summary?</h3>
+    <p>Layer-2 is the natural place: it has the jets and sees the whole event. But the summary in our studies is an idealised upper bound, not a firmware design. Component by component:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Component</th><th>In our study</th><th>What L1 would need</th><th>Status</th></tr>
+    <tr><td>Track inputs</td><td>HLT pixel tracks from the full-detector fit: d<sub>xy</sub>, its uncertainty, z</td><td>Per-cone tracks (or a network) from the RoI readout, delivered to Layer-2 with each jet</td><td><span class="pill other">Idealised</span></td></tr>
+    <tr><td>Vertex</td><td>From all pixel tracks (capped-p<sub>T</sub> &Sigma;p<sub>T</sub><sup>2</sup>)</td><td>L1 track vertex, or the jet's z<sub>0</sub></td><td><span class="pill other">Idealised</span></td></tr>
+    <tr><td>Summary arithmetic</td><td>Double precision: top-3 sort of signed IP significance, counts above 3 and 5, sum, max</td><td>Fixed point; significance via lookup table; sign from the jet axis. Simple, but not implemented</td><td><span class="pill base">Plausible</span></td></tr>
+    <tr><td>Precision</td><td>A first 8-bit run lost little, but had a unit bug (now fixed)</td><td>Quantised inputs, effect on performance measured</td><td><span class="pill other">To rerun</span></td></tr>
+    <tr><td>Classifier</td><td>Boosted decision trees (scikit-learn, 300 trees) on NN scores + summary</td><td>Summary as extra inputs to the NN tagger, retrained; or a small BDT in firmware</td><td><span class="pill other">Not built</span></td></tr>
+    <tr><td>Latency and resources</td><td>Not considered</td><td>Fits after the tagger's own budget in Layer-2</td><td><span class="pill other">Unknown</span></td></tr>
+  </table></div>
+  <div class="callout" style="margin-top:12px"><b>How this maps onto what we measured.</b> The pixel information in our studies is already restricted the same way: pixel tracks within &Delta;R&nbsp;&lt;&nbsp;0.4 of each L1 jet, within 2&nbsp;mm in z of a vertex. Two things are more optimistic than the RoI scheme: the tracks come from the HLT's full-detector pixel tracking rather than a fit inside each cone, and the vertex comes from all pixel tracks rather than from L1 tracks. Until cone-local tracking is emulated, the pixel numbers below are an upper bound for this scheme.</div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Provenance</div>
+    <h2>What is settled, what others explored, what is ours</h2>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Status</th><th>Item</th><th>Where it lives</th></tr>
+    <tr><td><span class="pill base">Baseline</span></td><td>Outer Tracker track trigger, correlator PF/PUPPI, seeded-cone jets</td><td>CMSSW <code>L1Trigger/TrackTrigger</code>, <code>L1Trigger/Phase2L1ParticleFlow</code></td></tr>
+    <tr><td><span class="pill base">Baseline</span></td><td>NN jet tagger with 8 class scores; scores in the 128-bit Global Trigger jet word</td><td>CMSSW (model v0 in 17_0_0_pre2, v2_0_0 default from pre7), <code>DataFormats/L1TParticleFlow</code></td></tr>
+    <tr><td><span class="pill base">Baseline</span></td><td>Menu seed <code>PuppiHT400 and QuadJet70_55_40_40</code>; no seed cuts on tag scores</td><td>CMSSW <code>Phase2GTMenus/step1_2024</code></td></tr>
+    <tr><td><span class="pill base">Baseline</span></td><td>40&nbsp;MHz L1 scouting; pixel detector read out only after L1 accept</td><td>Phase-2 design</td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>Tagger training and its HH&rarr;4b validation seed (HT + sum of 4 b scores, 14&nbsp;kHz default)</td><td>L1 jet-tagger group, TrainTagger</td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>HLT pixel tracks written into FastPUPPI ntuples (2025 version, hit positions broken)</td><td>Marc Huwiler's <code>devPixelsForL1</code> branches</td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>HLT pixel tracking and pixel vertices, used here as a stand-in for L1 pixel tracking</td><td>Phase-2 HLT</td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>Run-3 POWHEG HH&rarr;4b samples at &kappa;<sub>&lambda;</sub> = 0, 1, 2.45, 5</td><td>CMS central production</td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>Region-of-interest pixel tracking at L1 (around L1 electrons/photons); L1 b-tagging with pixel information mentioned as under study (2018)</td><td><a href="https://arxiv.org/abs/1506.08877">arXiv:1506.08877</a>, <a href="https://arxiv.org/abs/1812.00749">arXiv:1812.00749</a></td></tr>
+    <tr><td><span class="pill other">Others</span></td><td>Two-level "tag now, read later" mode in the pixel readout chip</td><td>RD53B manual &sect;9.3 (CMS expected to use single-level auto-read; not a regional or immediate fetch)</td></tr>
+    <tr><td><span class="pill ours">This pilot</span></td><td>Fixed pixel-hit positions, pixel tables in 17_0_X FastPUPPI, v2_0_0 tagger backport</td><td><code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code>, <code>andrzejnovak/cmssw:L1PF_17_0_X_NGJetModel_v2</code></td></tr>
+    <tr><td><span class="pill ours">This pilot</span></td><td>Jet-level b-tagging with pixel tracks; the 64-bit per-jet summary (chosen here from classic track-counting variables) and the bit-budget study</td><td><a href="https://claude.ai/artifact/9q5PSiwbxrxW7XKmDVXA7v">L1 Pixel b-Tagging</a>, <a href="https://claude.ai/artifact/Xyx1BCt4asM2djsQNvVxvL">Information Budget</a></td></tr>
+    <tr><td><span class="pill ours">This pilot</span></td><td>L1 seed rate study with idealised taggers, gen m<sub>HH</sub>, &kappa;<sub>&lambda;</sub> reweighting</td><td>this page; scripts in <code>l1pixels/analysis/</code></td></tr>
+    <tr><td><span class="pill ours">This pilot</span></td><td>RoI readout of pixel hits around correlator jets, and its rates and bandwidth</td><td>this page (concept, not emulated)</td></tr>
+  </table></div>
+</section>
+
+<section id="results">
+  <div class="eyebrow">Sensitivity study</div>
+  <div class="verdict">
+    <span class="k">Bottom line</span>
+    <span class="v">Worth a focused follow-up. The gain is modest for SM HH, large for BSM &kappa;<sub>&lambda;</sub> and low m<sub>HH</sub>.</span>
+    <p style="margin:0">For SM events in a generator fiducial proxy (4 b jets with p<sub>T</sub>&nbsp;&gt;&nbsp;30&nbsp;GeV, |&eta;|&nbsp;&lt;&nbsp;2.4), the Phase-2 seed with the current L1 NN tagger captures 79%; an ideal tagger adds about 17 points (&times;1.2). For &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, whose events pile up near the HH threshold, it captures 59% and a better tagger brings that to 93% (&times;1.6; &times;2.1 counting all events). Getting there needs a per-jet mistag of about 1&ndash;3% on the jets that set the rate, 5&ndash;10&times; better than today's L1 NN tagger. Measured on minimum-bias jets, pixel taggers reach about 2.5% fakes at 50% b-efficiency (5% at 60%), 7&ndash;8&times; better than today&#39;s NN; on the idealised map that is roughly 87&ndash;89% for SM, about half the ideal gain. The direct rate test confirms this for a standalone seed, but on top of the planned menu seeds the SM gain shrinks to &times;1.06&ndash;1.11 (&times;1.11&ndash;1.24 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5; see the headline). In short, the pilot shows substantial information in reconstructed pixel tracks and a measured but modest fixed-rate gain; it does not yet establish tagging from raw hits or a feasible readout loop.</p>
+  </div>
+  <div class="tiles">
+    <div><span class="k">SM, 4b in acceptance</span><span class="v">79% &rarr; 96%</span><span class="s">today's L1 NN seed &rarr; tagger with &epsilon;<sub>b</sub> 0.7, &epsilon;<sub>mis</sub> 1%</span></div>
+    <div><span class="k">&kappa;<sub>&lambda;</sub> = 5, 4b in acceptance</span><span class="v">59% &rarr; 93%</span><span class="s">same seeds; most of the gain is at m<sub>HH</sub> &lt; 400 GeV</span></div>
+    <div><span class="k">HT threshold at 14 kHz</span><span class="v">250 &rarr; 140 GeV</span><span class="s">what the better tagger buys (HT only: 370 GeV)</span></div>
+    <div><span class="k">Today's L1 NN mistag</span><span class="v">~20%</span><span class="s">at &epsilon;<sub>b</sub> &asymp; 0.5, on hard jets in minimum-bias events</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">The L1 math</div>
+    <h2>Why b-tagging matters at fixed rate</h2>
+    <p>The seed follows the HH&rarr;4b seed in the L1 tagger group's validation code (TrainTagger, <code>bbbb.py</code>): HT from L1 jets plus a b-tag requirement on the 4 leading jets. For each tagger, the HT cut and tag requirement are chosen together to give the highest HH&rarr;4b efficiency while the minimum-bias rate stays at the budget. A tagger with fewer mistags passes fewer minimum-bias events, so the same rate allows a lower HT cut.</p>
+    <p>HH&rarr;4b is soft. Of SM events with 4 b jets in acceptance, an HT cut alone keeps 99% above 150&nbsp;GeV, 91% above 250&nbsp;GeV and 69% above 370&nbsp;GeV. Every step down in HT from where today's seed sits is worth a lot.</p>
+  </div>
+  <figure><img src="hh4b_ht_cut_eff.png" alt="Fraction of HH to 4b events kept versus HT cut, with the 14 kHz HT cuts for HT only, the L1 NN seed and a 1 percent mistag tagger marked">
+    <figcaption>Fraction of SM HH&rarr;4b (4 b in acceptance) kept by an HT cut. Dashed lines: the HT cut each seed can afford at 14&nbsp;kHz.</figcaption></figure>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Result 1 · SM</div>
+    <h2>What the seed captures today, and what is left</h2>
+  </div>
+  <figure><img src="mhh_captured_vs_recoverable_14kHz.png" alt="Generator-level m_HH of SM HH to 4b events, split into captured today, recoverable with a better tagger, and still lost; lower panel shows efficiency versus m_HH">
+    <figcaption>Generator-level m<sub>HH</sub> at 14&nbsp;kHz, events with 4 gen b jets (p<sub>T</sub>&gt;30&nbsp;GeV, |&eta;|&lt;2.4). Each seed is rate-limited on its own, so events can move both ways. Blue: kept by both seeds. Green: gained by a tagger with &epsilon;<sub>b</sub> 0.7 and &epsilon;<sub>mis</sub> 1%. Orange hatch: kept today but lost by the better seed (about 2%). Grey: missed by both. Dotted: HT only.</figcaption></figure>
+  <div class="tablewrap"><table>
+    <tr><th>Seed at 14 kHz</th><th class="n">HT cut</th><th class="n">4b in acceptance</th><th class="n">All HH&rarr;4b events</th></tr>
+    <tr><td>HT only</td><td class="n">370 GeV</td><td class="n">69%</td><td class="n">51%</td></tr>
+    <tr><td>HT + L1 NN tagger (today)</td><td class="n">250 GeV</td><td class="n">79%</td><td class="n">59%</td></tr>
+    <tr><td>&ge;1 tag, &epsilon;<sub>b</sub> 0.7, &epsilon;<sub>mis</sub> 3%</td><td class="n">195 GeV</td><td class="n">94%</td><td class="n">83%</td></tr>
+    <tr class="hl"><td><b>&ge;1 tag, &epsilon;<sub>b</sub> 0.7, &epsilon;<sub>mis</sub> 1%</b></td><td class="n"><b>140 GeV</b></td><td class="n"><b>96%</b></td><td class="n"><b>89%</b></td></tr>
+    <tr><td>&ge;1 tag, &epsilon;<sub>b</sub> 0.9, &epsilon;<sub>mis</sub> 1%</td><td class="n">140 GeV</td><td class="n">99%</td><td class="n">&ndash;</td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">"4b in acceptance" is 31% of SM HH&rarr;4b events. It is a generator fiducial proxy, roughly what offline keeps with current b-jet thresholds, not an offline selection; "all events" is relevant if offline or scouting moves to lower thresholds.</p>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Result 2 · self-coupling</div>
+    <h2>Away from the SM the gain grows</h2>
+    <p>No Phase-2 HH&rarr;4b samples exist for &kappa;<sub>&lambda;</sub>&nbsp;&ne;&nbsp;1. The Phase-2 SM sample is reweighted event by event with the ratio of generator-level m<sub>HH</sub> spectra from the CMS Run-3 POWHEG samples at &kappa;<sub>&lambda;</sub> = 0, 1, 2.45 and 5. The L1 response depends only on event kinematics, which the SM sample covers.</p>
+  </div>
+  <figure><img src="mhh_kl_small_multiples_14kHz.png" alt="Four panels of generator-level m_HH for kappa lambda 0, 1, 2.45 and 5, each split into captured today, recoverable and still lost">
+    <figcaption>Same categories as above for four values of &kappa;<sub>&lambda;</sub>. For &kappa;<sub>&lambda;</sub> = 2.45 and 5 the spectrum peaks near threshold, where today's seed is weakest.</figcaption></figure>
+  <div class="tablewrap"><table>
+    <tr><th>&kappa;<sub>&lambda;</sub></th><th class="n">HT only</th><th class="n">L1 NN (today)</th><th class="n">&epsilon;<sub>b</sub> 0.7, &epsilon;<sub>mis</sub> 1%</th><th class="n">gain</th><th class="n">effective events</th></tr>
+    <tr><td>0</td><td class="n">62% / 44%</td><td class="n">76% / 54%</td><td class="n">96% / 87%</td><td class="n">&times;1.3 / &times;1.6</td><td class="n">35,496</td></tr>
+    <tr><td>1 (SM)</td><td class="n">69% / 51%</td><td class="n">79% / 59%</td><td class="n">96% / 89%</td><td class="n">&times;1.2 / &times;1.5</td><td class="n">50,000</td></tr>
+    <tr><td>2.45</td><td class="n">70% / 50%</td><td class="n">75% / 52%</td><td class="n">96% / 85%</td><td class="n">&times;1.3 / &times;1.6</td><td class="n">6,914</td></tr>
+    <tr class="hl"><td><b>5</b></td><td class="n">38% / 24%</td><td class="n"><b>59% / 36%</b></td><td class="n"><b>93% / 76%</b></td><td class="n"><b>&times;1.6 / &times;2.1</b></td><td class="n">2,414</td></tr>
+  </table></div>
+  <p class="col muted" style="margin-top:4px">Each cell: 4b in acceptance / all events, at 14&nbsp;kHz. Seeds are the SM-optimised ones for every &kappa;<sub>&lambda;</sub>.</p>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Result 3 · what it takes</div>
+    <h2>Mistag rate decides it, at any rate budget</h2>
+    <p>An idealised tagger tags true b jets with probability &epsilon;<sub>b</sub> and everything else with &epsilon;<sub>mis</sub>. At &epsilon;<sub>b</sub> 0.5 and &epsilon;<sub>mis</sub> 10% it gives 79%, close to the real L1 NN (80%). But on the hard minimum-bias jets the NN actually mistags about 21% at &epsilon;<sub>b</sub>&nbsp;=&nbsp;0.5, so the NN does better than a flat tagger at its own operating point (its seed sums continuous scores). Read the map as a sensitivity illustration, not a calibrated prediction; it also counts b jets from pileup as mistags at every point. Lowering the mistag from 10% to 1% matters far more than raising &epsilon;<sub>b</sub>, because with 4 real b jets one tag is usually enough.</p>
+  </div>
+  <div class="figrow">
+    <figure><img src="eff_vs_mistag_14kHz.png" alt="SM HH to 4b seed efficiency at 14 kHz versus per-jet mistag for b efficiencies 0.5, 0.7 and 0.9">
+      <figcaption>SM efficiency at 14&nbsp;kHz versus per-jet mistag. Shaded: where today's L1 NN sits on the jets that set the rate.</figcaption></figure>
+    <figure><img src="eff_vs_rate.png" alt="SM HH to 4b seed efficiency versus L1 rate budget from 5 to 30 kHz">
+      <figcaption>Efficiency versus rate budget. At 5&nbsp;kHz: HT only 46%, L1 NN 66%, 1%-mistag tagger 94%.</figcaption></figure>
+  </div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Where pixels stand</div>
+    <h2>Pixel tracks help a lot on jets, not yet measured on rate</h2>
+    <p><span class="pill ours">This pilot</span> In our jet-level study, pixel information from each L1 jet's cone was added to the L1 NN tagger in three forms: the 8-number summary, the list of up to 16 pixel tracks, and the hits of those tracks without the fit parameters (still selected and grouped using the HLT track fit). On jets from HH&rarr;4b (b) and QCD (light):</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Tagger input (full sample)</th><th class="n">b eff. @ 1% light</th><th class="n">b eff. @ 10% light</th><th class="n">AUC</th></tr>
+    <tr><td>L1 NN tagger only (today)</td><td class="n">15%</td><td class="n">36%</td><td class="n">0.69</td></tr>
+    <tr><td>NN + 8-number pixel summary <span class="muted">(BDT)</span></td><td class="n">51%</td><td class="n">77%</td><td class="n">0.91</td></tr>
+    <tr class="hl"><td><b>NN + 16 pixel tracks</b> <span class="muted">(set network; best case)</span></td><td class="n"><b>60%</b></td><td class="n"><b>82%</b></td><td class="n"><b>0.94</b></td></tr>
+    <tr><td>NN + HLT-selected, track-associated hit quadruplets, no fit parameters <span class="muted">(small network)</span></td><td class="n">30%</td><td class="n">55%</td><td class="n">0.82</td></tr>
+    <tr><td>NN + the same hit quadruplets <span class="muted">(4&times; wider network)</span></td><td class="n">37%</td><td class="n">65%</td><td class="n">0.86</td></tr>
+  </table></div>
+  <div class="col" style="margin-top:10px">
+    <h3>Is there enough data to learn from hits?</h3>
+    <p>Learning curve: b-jet efficiency at 10% light mistag versus the number of training jets (per training half). Full tracks keep improving with more data. The hits-only networks stay at the NN-alone level up to 22k jets and jump at 45k; a rerun with 4&times; more patience and 2&times; more epochs gives the same 36&ndash;39% up to 22k jets, so the jump is a real data requirement, not an early-stopping artefact: these networks need between ~22k and ~45k training jets before they start using the hits. Training counts include the 20% of jets held out for validation. These hits are not raw: they were selected and grouped using the HLT track fit, so this is not yet a raw-hit feasibility result.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th class="n">Training jets / half</th><th class="n">Summary (BDT)</th><th class="n">16 tracks</th><th class="n">Track-associated hits</th><th class="n">Same, wide net</th></tr>
+    <tr><td class="n">4,455</td><td class="n">74%</td><td class="n">75%</td><td class="n">36%</td><td class="n">37%</td></tr>
+    <tr><td class="n">11,139</td><td class="n">76%</td><td class="n">78%</td><td class="n">38%</td><td class="n">38%</td></tr>
+    <tr><td class="n">22,279</td><td class="n">76%</td><td class="n">80%</td><td class="n">39%</td><td class="n">40%</td></tr>
+    <tr class="hl"><td class="n">44,559</td><td class="n">77%</td><td class="n">82%</td><td class="n">55%</td><td class="n">65%</td></tr>
+</table></div>
+  
+  <div class="col" style="margin-top:10px">
+    <h3>Can a network recover the track information from hits?</h3>
+    <p>Trained to reproduce the HLT track fit (labels available for every jet), two cases. <b>Hits grouped by track</b> (4 hits in, no fit parameters): the network recovers each track's impact parameter (R&sup2;&nbsp;=&nbsp;0.67) and its significance (R&sup2;&nbsp;=&nbsp;0.75), finding 75% of displaced tracks (significance&nbsp;&gt;&nbsp;3) at 95% purity; it learns nothing with 10k training tracks and saturates around 100k. <b>Hits pooled per jet without track grouping</b>: a set network recovers track counts but not displacement (R&sup2; 0.17&ndash;0.51 for the displacement features), and tagging with its predicted summary falls to 18% / 43% at 1% / 10% fakes, against 51% / 77% with the true summary and 15% / 36% for the NN alone.</p>
+    <p><b>So the grouping step carries most of the value:</b> something has to assemble hits into track candidates within each cone, either a simple track finder or a network that looks at hit combinations (for example a graph network). A plain set network on loose hits is not enough. All hits here still come from vertex-compatible HLT pixel tracks; all clusters in the cone would be harder.</p>
+  </div>
+<div class="col" style="margin-top:10px">
+    <h3>Measured on the jets that set the rate</h3>
+    <p>The rate is set by hard jets in minimum-bias events (pileup, unmatched and some heavy-flavour jets), not by QCD light jets. With 16k minimum-bias events produced with pixel tables, the taggers were trained on HH&rarr;4b b vs QCD light (even events), working points set on held-out HH&rarr;4b b-jets, and applied to minimum-bias jets in events with HT&nbsp;&gt;&nbsp;150&nbsp;GeV:</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Fake rate on minimum-bias jets (HT &gt; 150 GeV events)</th><th class="n">&epsilon;<sub>b</sub> = 50%</th><th class="n">60%</th><th class="n">70%</th></tr>
+    <tr><td>L1 NN tagger (today)</td><td class="n">21%</td><td class="n">37%</td><td class="n">49%</td></tr>
+    <tr class="hl"><td><b>NN + 8-number pixel summary</b></td><td class="n"><b>2.5%</b></td><td class="n"><b>5.3%</b></td><td class="n"><b>8.8%</b></td></tr>
+    <tr><td>NN + 16 pixel tracks</td><td class="n">3.0%</td><td class="n">6.5%</td><td class="n">9.8%</td></tr>
+    <tr><td class="muted">for comparison: NN + summary on QCD light jets</td><td class="n">0.9%</td><td class="n">2.2%</td><td class="n">5.2%</td></tr>
+  </table></div>
+  <div class="callout" style="margin-top:6px"><b>What it means.</b> On the jets that set the rate, pixels cut the fake rate about 7&ndash;8&times;, but these fakes are 2&ndash;3&times; higher than on QCD light jets, so the QCD numbers were optimistic. The NN's 21% at &epsilon;<sub>b</sub>&nbsp;=&nbsp;50% reproduces the earlier measurement. Read on the idealised map (Result 3), a tagger at about (50%, 2.5%) or (60%, 5%) puts the SM seed around 87&ndash;89% instead of 79%: roughly half of the ideal gain. This is approximate: only 397 jets, and the map is a sensitivity illustration. The direct test (HH&rarr;4b efficiency against measured rate with the real tagger) needs a targeted production of high-HT minimum-bias events.</div>
+
+  <p class="col muted" style="margin-top:4px">Pixel numbers from the full local sample (48 HH&rarr;4b + 48 QCD files: 57k b-jets, 32k light jets), trained in two folds (train on even events and test on odd, then the reverse). The gain is not from retraining: the same BDT on the 8 NN scores plus jet p<sub>T</sub> and &eta;, without pixels, gives 16% / 37% at 1% / 10% light mistag, the same as the NN ratio (15% / 36%), while adding the pixel summary gives 51% / 77%. Caveat: b jets come from HH&rarr;4b while light jets come from QCD, so process differences beyond flavour can leak in. Earlier numbers on this page and the companion pages used 1000 + 800 events. Details: <a href="https://claude.ai/artifact/9q5PSiwbxrxW7XKmDVXA7v">L1 Pixel b-Tagging</a> and <a href="https://claude.ai/artifact/Xyx1BCt4asM2djsQNvVxvL">L1 Pixel Information Budget</a>.</p>
+</section>
+
+<section class="col">
+  <div class="eyebrow">Read with care</div>
+  <h2>Caveats</h2>
+  <ul class="tight">
+    <li><b>Pixel tracks are not in Phase-2 L1.</b> L1 tracking uses the Outer Tracker only. Everything pixel-related here is an "if L1 had pixel tracks" scenario; feasibility at 40&nbsp;MHz is a hardware question.</li>
+    <li><b>Why 14 kHz.</b> It is the default rate in TrainTagger's HH&rarr;4b validation, not a menu allocation. Results are shown from 5 to 30&nbsp;kHz; tighter budgets favour better tagging even more.</li>
+    <li><b>The idealised tagger</b> has no p<sub>T</sub> dependence and treats jets independently. It reproduces the real NN at the NN's own working point, which is encouraging but not proof.</li>
+    <li><b>Perfect tag.</b> A gen-matched "perfect" tag reaches ~100%, but it ignores b jets from pileup (gen jets come from the hard scatter only), so it is not quoted as the ceiling; the &epsilon;<sub>mis</sub> &asymp; 1% points are.</li>
+    <li><b>&kappa;<sub>&lambda;</sub> reweighting</b> is in m<sub>HH</sub> only (cos&theta;* and p<sub>T,HH</sub> changes ignored). Our 14&nbsp;TeV SM m<sub>HH</sub> shape matches the 13.6&nbsp;TeV POWHEG &kappa;<sub>&lambda;</sub>=1 shape closely (figure below). Weights near threshold reach ~90&ndash;130 for &kappa;<sub>&lambda;</sub> = 2.45 and 5, leaving 6.9k and 2.4k effective events.</li>
+    <li><b>Seed not re-optimised per &kappa;<sub>&lambda;</sub></b>, and only HT + tag was scanned; jet-p<sub>T</sub> thresholds and ORs with other menu seeds were not.</li>
+    <li><b>Statistics and optimisation bias.</b> 655k minimum-bias events, about 295 passing at 14&nbsp;kHz: ~6% counting uncertainty for a fixed cut. The cuts are optimised on the same events they are evaluated on, so the true uncertainty is larger; realised rates are 13.3, 13.7 and 12.9&nbsp;kHz for HT only, NN and the 1%-mistag tagger (below the 14&nbsp;kHz cap, not equal to it). To do: freeze cuts on one half and evaluate on the other, or bootstrap the optimisation.</li>
+    <li><b>Denominator.</b> "4b in acceptance" is a generator fiducial proxy, not an offline selection; no reconstruction, offline b-tagging or HLT is applied.</li>
+    <li><b>&kappa;<sub>&lambda;</sub> numbers are provisional.</b> Generator weights in the Run-3 POWHEG samples were not checked, the effective sample sizes quoted are before acceptance, and no uncertainty bands are shown yet.</li>
+    <li><b>Detector realism.</b> A momentum-space cone is not a detector address: magnetic bending, the vertex z uncertainty and module boundaries matter, as do barrel/endcap transitions (TFPX, TEPX), fake, shared or merged hits, inefficiency and a wrong L1 vertex. None of this is modelled yet.</li>
+  </ul>
+  <figure style="margin-top:10px"><img src="mhh_sm_shape_check.png" alt="Generator-level m_HH shape of the Phase-2 SM sample compared with the Run-3 POWHEG kappa lambda equals 1 sample">
+    <figcaption>Check of the reweighting basis: Phase-2 SM sample (14&nbsp;TeV) versus Run-3 POWHEG &kappa;<sub>&lambda;</sub>=1 (13.6&nbsp;TeV).</figcaption></figure>
+</section>
+
+<section id="plan">
+  <div class="col">
+    <div class="eyebrow">Plan</div>
+    <h2>What we can check now, and what needs insiders</h2>
+    <div class="callout" style="margin-bottom:10px"><b>Two decision gates, in parallel.</b> <b>Physics:</b> HH&rarr;4b efficiency versus measured minimum-bias rate with an actual pixel tagger, on held-out events, including a realistic early pre-selection and request cap (the minimum-bias pixel production for this is running). <b>Hardware:</b> a concrete request and readout timeline from inner-tracker and L1 experts, including how to keep hits for the normal readout. Raw-hit networks, longer training and quantisation come after both.</div>
+    <p>Grouped by the three questions. "Now" means it can be done with the samples, code and public information we already have on subMIT. "Needs insiders" means it depends on non-public designs, firmware tools or detector expertise; for those, the public sources we found are listed first, so the questions to experts can be specific.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>Question</th><th>Check</th><th>Who</th><th>What exists already</th></tr>
+    <tr><td rowspan="2">1. Does better b-tagging help?</td><td>Re-optimise the seed per &kappa;<sub>&lambda;</sub>; add a 4th-jet threshold; quote the gain as an OR with the planned menu seed <code>PuppiHT400 and QuadJet70_55_40_40</code></td><td><span class="pill good">Now</span></td><td>Menu seeds and their online-to-offline threshold scalings are in CMSSW (<code>Phase2GTMenus</code>, <code>l1tGTObject_constants.py</code>)</td></tr>
+    <tr><td>Check the &kappa;<sub>&lambda;</sub> reweighting in (m<sub>HH</sub>, cos&theta;*)</td><td><span class="pill good">Now</span></td><td>cos&theta;* already extracted from the Run-3 samples</td></tr>
+    <tr><td rowspan="4">2. Do pixels help b-tagging?</td><td>Redo the pixel b-tag study on the ~10&times; sample, with a learning curve <span class="pill good">Done</span> (results above); rerun the hits-only curve with longer training</td><td><span class="pill good">Now</span></td><td>48 + 48 files produced; <code>train_sets.py</code> already has a training-fraction loop</td></tr>
+    <tr><td>Quantise the 8 summary numbers to 8 bits <span class="muted">(lower priority)</span></td><td><span class="pill good">Now</span></td><td>First run: 50%/76% vs 51%/77% unquantised, but with a unit bug in the impact-parameter range (now fixed); rerun before quoting</td></tr>
+    <tr><td>Measure the pixel tagger's fake rate on minimum bias, and run it through the seed. <span class="pill good">Done</span>: 7&ndash;8&times; fewer fakes than the NN; direct rate test with the menu OR done on all 2.0M minimum-bias events (headline above)</td><td><span class="pill good">Now</span></td><td>Needs pixel tables for minimum bias: run our input step on minimum-bias RAW on Slurm (about 5&nbsp;s/event)</td></tr>
+    <tr><td>Feed pixel inputs into the L1 tagger itself instead of a side BDT</td><td><span class="pill good">Now</span></td><td>TrainTagger is public (<code>CMS-L1T-Jet-Tagging/TrainTagger</code>), with configs and an hls4ml conversion script</td></tr>
+    <tr><td rowspan="7">3. Could L1 get it?</td><td>Emulate L1-track-seeded pixel hit association: extrapolate each L1 track into the pixel layers, pick up hits in a window, refit the impact parameter, re-tag; measure association ambiguity at PU&nbsp;200 and resolution. <span class="pill good">Done</span>: 87% hit purity, d0 within 36&nbsp;&micro;m of HLT, full gain kept (headline)</td><td><span class="pill good">Now</span></td><td>Needs L1 tracks and all pixel clusters in the ntuples (next production). The proxy (pixel tracks above 2&nbsp;GeV only) keeps the full gain</td></tr>
+    <tr><td>Emulate the RoI scheme with realistic early seeds (L1 track jets, already in our ntuples; seeded-cone seeds need the PUPPI candidates stored): hits only inside seed cones, vertex from L1 tracks, a simple fit or a network</td><td><span class="pill good">Now</span></td><td>Needs a new production: our ntuples keep only the hits on pixel tracks, so a table of all pixel clusters (positions from the cluster-centroid code we already wrote) and tables of L1 tracks and the L1 vertex must be added to <code>PixelTrackTableProducer</code> and the ntuple step</td></tr>
+    <tr><td>Can a network learn from raw hits? Data needed, and training on track-fit targets. <span class="pill good">First look done</span>: works with hits grouped by track, fails with loose hits; next, a network over hit combinations (graph network) on all clusters</td><td><span class="pill good">Now</span></td><td>Labels from HLT pixel tracks are available for every jet, including minimum bias</td></tr>
+    <tr><td>Firmware behaviour: bit-accurate emulation of a quantised network</td><td><span class="pill good">Now</span></td><td>hls4ml converts and emulates without FPGA tools (TrainTagger runs it with <code>build=False</code>)</td></tr>
+    <tr><td>Firmware cost: latency and FPGA resources of the extra inputs or a second network</td><td><span class="pill warn">Needs insiders</span></td><td>Needs Xilinx synthesis tools, not on subMIT. Public reference: the L1 tagger takes 234&nbsp;ns and 13% of LUTs on a VU13P, and Layer-2 already sits at about 1.01&nbsp;&micro;s against a 1&nbsp;&micro;s target (<a href="https://arxiv.org/abs/2509.24371">arXiv:2509.24371</a>), so there is little slack.</td></tr>
+    <tr><td>Can the pixel chips serve a regional read request during the latency?</td><td><span class="pill warn">Needs insiders</span></td><td>The RD53B chip family (CMS's CROC shares its readout logic) has a two-level "manual read" mode: a first trigger tags a crossing's hits; they are read out only if a <code>read_trigger</code> arrives within up to 1024 crossings (about 25&nbsp;&micro;s); designed for up to 4&nbsp;MHz + 1&nbsp;MHz. It lowers the hit rate the chip can absorb, and the manual expects CMS to run the simple "auto-read" mode (<a href="https://orion.docs.cern.ch/documentations/RD53B_ATLAS_Main.pdf">RD53B manual, &sect;9.3</a>). On a closer reading (thanks to the review): <code>read_trigger</code> only marks a tagged crossing to be read when its programmed timer expires; it is not an immediate or regional fetch; the 4&nbsp;MHz + 1&nbsp;MHz figure is a command-bandwidth example, not a validated operating point; and hits read out are cleared, so a crossing read early is no longer available for normal readout. So this mode is not a ready-made solution. For experts: is the mode usable in CMS's CROC and DAQ; can requests go only to the chips in a jet cone; what is the hit loss at CMS occupancy?</td></tr>
+    <tr><td>Latency budget and data path: when do Layer-2 jets exist, and is there time and a link to request hits, fit, tag and decide within 12.5&nbsp;&micro;s?</td><td><span class="pill warn">Needs insiders</span></td><td>The Phase-2 L1 TDR (CERN-LHCC-2020-004) has the latency budget; we have not read it in detail yet. No link from the pixel readout to the correlator exists in the baseline.</td></tr>
+  </table></div>
+  <div class="callout" style="margin-top:6px"><b>Read before asking.</b> Region-of-interest pixel tracking at L1 has been studied in CMS before: pixel-based tracking around L1 electron and photon candidates (<a href="https://arxiv.org/abs/1506.08877">Moon and Savoy-Navarro, arXiv:1506.08877</a>), and a 2018 proceedings noting that L1 b-tagging with pixel and outer-tracker information was being studied (<a href="https://arxiv.org/abs/1812.00749">arXiv:1812.00749</a>). Earlier CMS discussion also described a "pull" architecture in which calorimeter and muon triggers request tracking in regions of interest. These are the natural people and papers to start from.</div>
+</section>
+
+<section>
+  <div class="col">
+    <div class="eyebrow">Handoff</div>
+    <h2>Where everything lives</h2>
+    <p>All on subMIT. Run anything longer than a minute on Slurm (<code>--partition=submit</code>), not on the login node, which has a 12&nbsp;GB per-user memory limit. Python with uproot, awkward and matplotlib comes from the CMSSW environment.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <tr><th>What</th><th>Where</th><th>Status</th></tr>
+    <tr><td>FastPUPPI with pixel tables, job configs, pixel b-tag analysis</td><td><code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code>, <code>NtupleProducer/test_pixels/</code> (README has the setup recipe)</td><td><span class="pill good">on GitHub</span></td></tr>
+    <tr><td>L1 tagger v2_0_0 backport</td><td><code>andrzejnovak/cmssw:L1PF_17_0_X_NGJetModel_v2</code></td><td><span class="pill good">on GitHub</span></td></tr>
+    <tr><td>Working CMSSW area</td><td><code>/work/submit/novaka/l1pixels/ngv2/CMSSW_17_0_0_pre2</code></td><td>built</td></tr>
+    <tr><td>L1 seed study scripts (this page)</td><td><code>/work/submit/novaka/l1pixels/analysis/</code>: <code>l1_seed.py</code>, <code>seed_flags.py</code>, <code>plot_l1_seed.py</code>, <code>plot_mhh.py</code>, <code>kl_reweight.py</code>, <code>genmhh/</code>, <code>klreweight/</code></td><td><span class="pill warn">not in git yet</span></td></tr>
+    <tr><td>Official-input ntuples (HH&rarr;4b 50k, minimum bias 655k)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/official151X/</code></td><td>done</td></tr>
+    <tr><td>Pixel-table ntuples (HH&rarr;4b, QCD)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/local_v2/</code> (48 + 48 files)</td><td>done, not analysed</td></tr>
+    <tr><td>Gen m<sub>HH</sub> per event (Phase-2 SM)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/genmhh/</code></td><td>done</td></tr>
+    <tr><td>Results</td><td><code>analysis/l1seed_full/l1_seed.json</code>, <code>analysis/plots_kl/kl_reweight.json</code>, plots in <code>analysis/plots_l1seed/</code>, <code>analysis/plots_kl/</code></td><td>done</td></tr>
+    <tr><td>Input files on EOS</td><td>official FastPUPPI 151X inputs (HH&rarr;4b, <code>NuGunAllEta_PU200</code>), listed in <code>l1pixels/official/jobs.txt</code></td><td>needs a grid proxy</td></tr>
+  </table></div>
+  <h3 class="col">Rerunning the chain</h3>
+  <pre><span class="c"># environment (gives python3 with uproot / awkward / matplotlib)</span>
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+cd /work/submit/novaka/l1pixels/ngv2/CMSSW_17_0_0_pre2/src &amp;&amp; cmsenv
+cd /work/submit/novaka/l1pixels
+
+<span class="c"># 1. ntuples with the v2 tagger from official inputs (150 jobs: 50 HH4b + 100 MinBias files)</span>
+cd official &amp;&amp; sbatch --array=0-149 run_step2.sh &amp;&amp; cd ..
+
+<span class="c"># 2. seed scan: HT-only, NN, perfect, idealised taggers at 5-30 kHz -&gt; l1seed_full/l1_seed.json</span>
+cd analysis &amp;&amp; sbatch run_l1_seed.sh l1seed_full 14
+python3 plot_l1_seed.py l1seed_full/l1_seed.json plots_l1seed
+
+<span class="c"># 3. gen m_HH from the HH4b input files, then per-event seed decisions and the m_HH plot</span>
+(cd genmhh &amp;&amp; sbatch run_dump.sh)
+python3 seed_flags.py l1seed_full/l1_seed.json \
+  "/ceph/submit/data/user/n/novaka/l1pixels/official151X/perfNano_HH4b_*.root" \
+  "/ceph/submit/data/user/n/novaka/l1pixels/genmhh/mhh_*.npz" seed_flags_14kHz.npz 14
+python3 plot_mhh.py seed_flags_14kHz.npz plots_l1seed
+
+<span class="c"># 4. kappa_lambda: gen m_HH from Run-3 POWHEG NanoAOD, then reweight</span>
+(cd klreweight &amp;&amp; sbatch run_nano.sh)
+python3 kl_reweight.py seed_flags_14kHz.npz "klreweight/nano_mhh_kl*.npz" plots_kl</pre>
+  <ul class="tight col" style="margin-top:6px">
+    <li><b>Seed definition</b> lives in <code>event_quantities()</code> and <code>best_wp()</code> in <code>l1_seed.py</code>: jets |&eta;|&lt;2.4, HT from jets above 30&nbsp;GeV, b-tag on the 4 leading jets above 15&nbsp;GeV, rate = minimum-bias pass fraction &times; 2760 bunches &times; 11.245&nbsp;kHz.</li>
+    <li><b>Run-3 &kappa;<sub>&lambda;</sub> samples</b>: <code>/GluGlutoHHto4B_kl-{0p00,1p00,2p45,5p00}_kt-1p00_c2-0p00_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22NanoAODv12-130X_mcRun3_2022_realistic_v5-v2/NANOAODSIM</code>, 100k events each.</li>
+    <li><b>Grid access</b>: EOS and xrootd reads need a valid proxy at <code>$HOME/x509up_u&lt;uid&gt;</code> (<code>voms-proxy-init -voms cms</code>).</li>
+  </ul>
+</section>
+
+<p class="foot">Pilot carried out October 2026 on subMIT. Samples: Phase2Spring24 PU 200 via the official FastPUPPI 151X inputs; L1 tagger <code>L1TSC4NGJetModel_v2_0_0</code>; &kappa;<sub>&lambda;</sub> shapes from CMS Run-3 POWHEG simulation. All plots are private work, not CMS-approved.</p>
+</div>
+
