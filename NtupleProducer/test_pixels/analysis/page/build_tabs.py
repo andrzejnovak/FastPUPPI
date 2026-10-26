@@ -83,6 +83,7 @@ html = f"""<!doctype html>
   <button role="tab" id="t-tag" aria-controls="p-tag" aria-selected="false" tabindex="-1">3 · Tagging</button>
   <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">4 · Rate</button>
   <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">5 · Code</button>
+  <button role="tab" id="t-more" aria-controls="p-more" aria-selected="false" tabindex="-1">6 · Beyond HH&rarr;4b</button>
 </div>
 </div>
 
@@ -113,7 +114,7 @@ html = f"""<!doctype html>
 <section class="panel" role="tabpanel" id="p-flow" aria-labelledby="t-flow" hidden>
   <div class="tiles">
     <div><span class="k">Window for pixel information</span><span class="v">~2.5&ndash;3 &micro;s</span><span class="s">L1 tracks at 5 &micro;s &rarr; correlator done by 9.5 &micro;s</span></div>
-    <div><span class="k">Extra data</span><span class="v">~1&ndash;3 Gb/s</span><span class="s">pixel hits in L1-track windows, 0.3&ndash;1% of crossings</span></div>
+    <div><span class="k">Extra data</span><span class="v">~4&ndash;10 Gb/s</span><span class="s">pixel hits in L1-track windows, 0.3&ndash;1% of crossings, real chip encoding; more if chips can only return all their hits</span></div>
     <div><span class="k">Pixels in L1 today</span><span class="v">None</span><span class="s">read out only after an L1 accept</span></div>
   </div>
   <figure>{d_latency}
@@ -126,7 +127,8 @@ html = f"""<!doctype html>
   <div class="tablewrap"><table>
     <tr><th>Step</th><th>Content</th><th class="n">Bits / crossing</th><th class="n">HT &gt; 140</th><th class="n">HT &gt; 200</th></tr>
     <tr><td>Request</td><td>15&ndash;18 L1 tracks &times; 64 b (&phi;, &eta;, z<sub>0</sub>, 1/R)</td><td class="n">0.9&ndash;1.2 k</td><td class="n">0.3 Gb/s</td><td class="n">0.1 Gb/s</td></tr>
-    <tr class="hl"><td><b>Hits back</b></td><td>200&ndash;260 clusters in the track windows &times; ~36 b</td><td class="n">7&ndash;9 k</td><td class="n"><b>2.7 Gb/s</b></td><td class="n"><b>1.2 Gb/s</b></td></tr>
+    <tr><td>Hits back, compact clusters</td><td>200&ndash;260 clusters in the track windows &times; ~36 b</td><td class="n">7&ndash;9 k</td><td class="n">2.7 Gb/s</td><td class="n">1.2 Gb/s</td></tr>
+    <tr class="hl"><td><b>Hits back, real chip encoding</b></td><td>the same clusters at ~130 b each (CMSSW chip emulator, below)</td><td class="n">25&ndash;33 k</td><td class="n"><b>~10 Gb/s</b></td><td class="n"><b>~4 Gb/s</b></td></tr>
     <tr><td>Result to correlator</td><td>32 b per track (pixel d0, z0, quality)</td><td class="n">0.5 k</td><td class="n">0.2 Gb/s</td><td class="n">0.1 Gb/s</td></tr>
     <tr><td>Into the tagger</td><td>+1 sign bit per candidate (reusing the 8-bit dxy field), or a 64 b per-jet summary</td><td class="n">&le; 64 / jet</td><td class="n">&ndash;</td><td class="n">&ndash;</td></tr>
     <tr><td>To the Global Trigger</td><td>128-bit jet word, unchanged</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
@@ -136,6 +138,15 @@ html = f"""<!doctype html>
   <details class="more"><summary>Where the bit widths come from</summary>
     <p style="margin-top:8px">CMSSW 17_0_0_pre2: L1 track word 96 b with a 13-b d0 (39&nbsp;&micro;m step, about our pixel resolution; <code>TTTrack_TrackWord.h</code>); PUPPI candidate 61 b with an 8-b dxy stored as &radic;|dxy|, unsigned (<code>l1ct::PuppiObj</code>, <code>datatypes.h</code>); Global Trigger jet 128 b (<code>gt_datatypes.h</code>). Cluster size: pixel-chip quarter-core encoding (<code>Phase2ITQCore</code>): 6 + 2 + 8 address bits, hit map, 4-b charge per pixel, about 30&ndash;40 b per cluster. Window clusters: narrow windows (0.8&nbsp;mm r-&phi; &times; 8&nbsp;mm), same purity and d0 as the default (87%, 36&nbsp;&micro;m). Track counts: L1 tracks above 2&nbsp;GeV in jets above 30&nbsp;GeV. No design document for a pixel-to-L1 path is in CMSSW; these are to be checked against one.</p>
   </details>
+  <div class="col"><h3>What CMSSW says about the pixel readout</h3>
+    <p class="note" style="margin:0">From running the emulators and maps in CMSSW 17_0_0_pre2 on 20 PU&nbsp;200 events (<code>itlinks/</code>, tab 5).</p></div>
+  <div class="tablewrap"><table>
+    <tr><th>Finding</th><th>What it means</th></tr>
+    <tr><td><b>Chip output is ~2.4&times;10<sup>7</sup> bits per crossing</b> for the whole pixel detector (emulated chip data stream, <code>Phase2ITQCoreProducer</code>): ~130 b per cluster, 18&nbsp;Tb/s at 750&nbsp;kHz</td><td>3.6&times; the 36 b per cluster assumed in the bit budget: hits back ~10 / 4 Gb/s, not 2.7 / 1.2</td></tr>
+    <tr><td><b>A chip returns all its hits</b> for a crossing, not a window: median 1.1&nbsp;kbit, 1% of chips above ~8&nbsp;kbit</td><td>~1&ndash;6 &micro;s per crossing on one 1.28&nbsp;Gb/s e-link: comparable to the whole 2.5&ndash;3&nbsp;&micro;s window</td></tr>
+    <tr><td>Module &rarr; lpGBT &rarr; back-end map exists (3,892 modules, 1,342 lpGBTs, 28 boards); <b>the e-link configuration and link capacity do not</b></td><td>Spare bandwidth per link cannot be settled from CMSSW: a question for the pixel DAQ experts</td></tr>
+    <tr><td><b>Prompt L1 tracks carry d0 = 0</b> (13-b field always empty); the NN tagger runs on the extended chain, whose d0 comes from the Outer Tracker alone</td><td>A pixel-refit d0 fits in the existing 13-b field (39 &micro;m step &asymp; its resolution): correlator, tagger and Global Trigger formats unchanged</td></tr>
+  </table></div>
   <div class="tablewrap"><table>
     <tr><th>Question</th><th>Status</th></tr>
     <tr><td>L1 tracks (Outer Tracker) available at ~5 &micro;s</td><td><span class="pill base">Settled</span> in CMSSW / TDR</td></tr>
@@ -209,6 +220,12 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
     <tr><td>Tab 3: tagging chain ROC</td><td><code>analysis/make_l1ext_lists.py</code> (<code>MODE=otonly</code> for OT-only), <code>make_lists.py</code> (HLT pixel tracks), <code>tag_compare.py</code></td><td><code>lists_l1ext_*.npz</code>, <code>tag_chain.json</code></td></tr>
     <tr><td>Tab 3: event display</td><td><code>analysis/event_display.py &lt;HH4b ntuple&gt; &lt;png&gt;</code></td><td><code>plots_page/event_display.png</code></td></tr>
     <tr><td>Tab 4: efficiency vs rate</td><td><code>analysis/direct_rate.py</code>, <code>direct_curves.py</code></td><td><code>direct_rate2.json</code>, <code>direct_rate_l1ext.json</code>, <code>curves.json</code></td></tr>
+    <tr><td>Tab 6: charm tagging</td><td><code>analysis/ctag_compare.py</code></td><td><code>ctag_chain.json</code></td></tr>
+    <tr><td>Tab 6: VBF menu efficiency</td><td><code>analysis/vbf_menu.py</code></td><td><code>vbf_menu.json</code></td></tr>
+    <tr><td>Tab 6: boosted H (first look)</td><td><code>analysis/fatjet_first.py</code>; R = 0.8 jet tables: <code>addSC8Jets()</code> in <code>../python/runPerformanceNTuple.py</code></td><td><code>fatjet_first.json</code></td></tr>
+    <tr><td>Tab 2: pixel link study</td><td><code>itlinks/bitstream_cfg.py</code>, <code>dump_bits.py</code>, <code>occupancy.py</code></td><td><code>occupancy.json</code></td></tr>
+    <tr><td>Private samples (ggH + jet, ZH(&nu;&nu;); Pythia8, Spring24 recipe)</td><td><code>privgen/</code>: fragments, <code>run_privgen.sh</code> (Slurm), <code>run_privgen_osg.sh</code> (OSG)</td><td><code>privgen/*.root</code> on CMS scratch</td></tr>
+    <tr><td>VBF-like minimum-bias selection</td><td><code>mbsel/scan_jets.py</code>, <code>mbsel/select_vbf.py</code></td><td><code>select_vbf_loose.json</code></td></tr>
     <tr><td>All plots; this page</td><td><code>analysis/make_page_plots.py</code>; <code>analysis/page/build_tabs.py</code> (run in <code>pilot_page/</code>, reads <code>index.html</code> for styles and diagrams)</td><td><code>plots_page/*.png</code>, <code>tabs.html</code></td></tr>
   </table></div>
 
@@ -231,7 +248,7 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
   <div class="col"><h3>Data on subMIT</h3></div>
   <div class="tablewrap"><table>
     <tr><th>What</th><th>Where</th></tr>
-    <tr><td>Ntuples with clusters, L1 tracks, vertex, PUPPI candidates (HH&rarr;4b, QCD; 21k events each)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/local_v3/</code></td></tr>
+    <tr><td>Ntuples with clusters, L1 tracks, vertex, PUPPI candidates (HH&rarr;4b, QCD; 21k events each)</td><td><code>/scratch/submit/cms/novaka/l1pixels/local_v3/</code></td></tr>
     <tr><td>Minimum bias with pixels (120,731 high-HT events of 1,999,360)</td><td><code>.../l1pixels/local_mbsel_ext/</code> (official, L1 HT &gt; 90) + <code>.../local_mbnew/</code> (stored HT &gt; 60)</td></tr>
     <tr><td>Offline jets from MINIAOD</td><td><code>.../l1pixels/offline/</code></td></tr>
     <tr><td>Generator m<sub>HH</sub>; Run-3 &kappa;<sub>&lambda;</sub> shapes</td><td><code>.../l1pixels/genmhh/</code>; <code>analysis/klreweight/</code></td></tr>
@@ -245,6 +262,35 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
     </ul>
   </div>
   <div class="callout warn"><b>Gotchas.</b> L1 track curvature sign: <code>l1ext.CURV_SIGN = +1</code> (&minus;1 gives 31% hit purity). Outer-Tracker displaced-track d0 has the opposite sign to the CMS d<sub>xy</sub> convention (flipped in <code>MODE=otonly</code>); keep |d0|&nbsp;&lt;&nbsp;1&nbsp;cm there. Offline PUPPI b jets need the response correction (0.73 at 25&nbsp;GeV to 0.96 at 150&nbsp;GeV) or the Higgs candidates peak near 105&nbsp;GeV. The stored L1 HT in minimum-bias RAW runs low against our emulation, so rate scans use HT cuts &ge;&nbsp;150&nbsp;GeV. <code>direct_rate.py</code> picks thresholds on even events and quotes odd ones; the minimum-bias weight uses <code>MB_TOTAL=1999360</code>.</div>
+</section>
+
+<!-- ============ TAB 6: beyond HH->4b ============ -->
+<section class="panel" role="tabpanel" id="p-more" aria-labelledby="t-more" hidden>
+  <div class="tiles">
+    <div><span class="k">L1 charm tag, c vs light at 10%</span><span class="v">16% &rarr; 29%</span><span class="s">today&#39;s NN &rarr; + L1 tracks with pixel hits (same as HLT pixel tracks)</span></div>
+    <div><span class="k">VBF H&rarr;cc kept by the planned menu</span><span class="v">57%</span><span class="s">of events in a generator VBF + cc acceptance (H&rarr;bb: 53%)</span></div>
+    <div><span class="k">Boosted ggH&rarr;cc, R = 0.8 jets</span><span class="v">In progress</span><span class="s">private samples and minimum bias with large jets are being produced</span></div>
+  </div>
+  <figure>{img("ctag_roc.png", "ROC curves for L1 charm tagging, c versus light and c versus b, for the L1 NN, Outer-Tracker-only displaced tracks, L1 tracks with pixel hits and HLT pixel tracks")}
+    <figcaption><b>Pixels make L1 charm tagging possible.</b> Charm decay lengths (D<sup>0</sup> ~120&nbsp;&micro;m) are below the Outer Tracker&#39;s d0 resolution (545&nbsp;&micro;m), so today&#39;s NN is close to random for charm; pixel hits nearly double the c efficiency at loose working points. Inputs are the 8-number summary built for b; charm-specific inputs should do better.</figcaption></figure>
+  <div class="col"><h3>VBF H&rarr;cc and H&rarr;bb: the trigger is a real bottleneck</h3>
+    <p class="note" style="margin:0">Generator acceptance: two jets of the Higgs flavour with p<sub>T</sub>&nbsp;&gt;&nbsp;30&nbsp;GeV, |&eta;|&nbsp;&lt;&nbsp;2.4, and two other jets with m<sub>jj</sub>&nbsp;&gt;&nbsp;500&nbsp;GeV, |&Delta;&eta;|&nbsp;&gt;&nbsp;3. Menu seeds emulated with the CMSSW online thresholds (muon seeds not included). Phase2Spring24 PU&nbsp;200, ~20k events per sample.</p></div>
+  <div class="tablewrap"><table>
+    <tr><th>Fraction of accepted events kept</th><th class="n">VBF H&rarr;cc</th><th class="n">VBF H&rarr;bb</th></tr>
+    <tr><td>Acceptance (of all events)</td><td class="n">12.9%</td><td class="n">14.8%</td></tr>
+    <tr class="hl"><td><b>Planned menu (any hadronic seed)</b></td><td class="n"><b>57%</b></td><td class="n"><b>53%</b></td></tr>
+    <tr><td>VBF seed <code>DoublePuppiJet160_35_mass620</code></td><td class="n">39%</td><td class="n">36%</td></tr>
+    <tr><td>SingleJet230 / DoubleJet112 / HT seeds</td><td class="n">28 / 34 / 23%</td><td class="n">26 / 32 / 22%</td></tr>
+    <tr><td>Only the VBF seed fires</td><td class="n">12%</td><td class="n">10%</td></tr>
+  </table></div>
+  <p class="note col" style="margin:0">For comparison, HH&rarr;4b events passing an offline selection are 84% triggered by the menu alone. A VBF seed with lower thresholds plus two flavour-tagged central jets is the natural L1 use of pixels here; its rate is being measured on a VBF-like minimum-bias production (105k events selected from all 2.0M with the stored L1 jets).</p>
+  <div class="col"><h3>Boosted ggH&rarr;cc in one large jet (in progress)</h3>
+    <ul class="tight">
+      <li>Phase-2 L1 already builds R&nbsp;=&nbsp;0.8 seeded-cone jets (own Global Trigger collection) and runs a two-prong tagger on them; no menu seed uses either yet. Its tracks carry d0&nbsp;=&nbsp;0, so it has no flavour information: pixels would turn it into an L1 X&rarr;cc / bb tag.</li>
+      <li>Private samples (no Phase-2 ggH&rarr;bb/cc exists): Pythia8 H + jet with top-mass dependence, p&#770;<sub>T</sub>&nbsp;&gt;&nbsp;150&nbsp;GeV, and ZH with Z&rarr;&nu;&nu;, through the official Spring24 GEN-SIM &rarr; PU&nbsp;200 DIGI/L1/HLT recipe.</li>
+      <li>Next: efficiency of today&#39;s menu against Higgs p<sub>T</sub>; large-jet mass from PUPPI constituents (the L1 jet mass is not filled); a pixel summary in the R&nbsp;=&nbsp;0.8 cone; H&rarr;cc vs QCD ROC; rate of "large jet + cc tag" seeds.</li>
+    </ul>
+  </div>
 </section>
 
 <p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 5. Long-form notes: the pilot page.</p>

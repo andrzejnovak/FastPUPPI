@@ -8,8 +8,8 @@
 # Offline selection with the b-jet response correction, then the L1 comparison on selected events (HLT pixel, L1-extended)
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd /work/submit/novaka/l1pixels/hitdev/CMSSW_17_0_0_pre2/src && eval `scram runtime -sh` && cd /work/submit/novaka/l1pixels/analysis
-OFF=/ceph/submit/data/user/n/novaka/l1pixels/offline
-GEN="/ceph/submit/data/user/n/novaka/l1pixels/genmhh/mhh_*.npz"; KL="klreweight/nano_mhh_kl*.npz"
+OFF=/scratch/submit/cms/novaka/l1pixels/offline
+GEN="/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"; KL="klreweight/nano_mhh_kl*.npz"
 python3 ../offline/offline_sel.py offline_flags2.npz offline_sel2.json "$OFF/HH4b_*.npz" "$OFF/QCDFlat_*.npz"
 python3 -c "
 import numpy as np

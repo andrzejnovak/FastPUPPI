@@ -9,5 +9,5 @@
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd /work/submit/novaka/l1pixels/hitdev/CMSSW_17_0_0_pre2/src && eval `scram runtime -sh` && cd /work/submit/novaka/l1pixels/analysis
 SET=$(sed -n "$((SLURM_ARRAY_TASK_ID+1))p" l1ext_val/settings.txt)
-F=$(ls /ceph/submit/data/user/n/novaka/l1pixels/local_v3/perfNano_HH4b_*.root | head -1)
+F=$(ls /scratch/submit/cms/novaka/l1pixels/local_v3/perfNano_HH4b_*.root | head -1)
 env NEVT=200 $SET python3 l1ext_validate.py l1ext_val/scan_${SLURM_ARRAY_TASK_ID}.json $F

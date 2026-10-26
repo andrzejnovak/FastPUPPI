@@ -41,7 +41,7 @@ HLT emulation (can only lower the gain); a real b-jet regression; κλ sensitivi
 |---|---|
 | Working areas | `/work/submit/novaka/l1pixels/` (`analysis/`, `offline/`, `mbsel/`, `local/`, `pilot_page/`, `review/`, `docs/`) |
 | CMSSW | `/work/submit/novaka/l1pixels/{ngv2,hitdev}/CMSSW_17_0_0_pre2` (ngv2: production; hitdev: python env) |
-| Extended ntuples (clusters, L1 tracks, vertex, PUPPI cands) | `/ceph/submit/data/user/n/novaka/l1pixels/local_v3` (HH4b, QCDFlat; 21k each) |
+| Extended ntuples (clusters, L1 tracks, vertex, PUPPI cands) | `/scratch/submit/cms/novaka/l1pixels/local_v3` (HH4b, QCDFlat; 21k each) |
 | Minimum bias with pixels | `.../local_mbsel_ext` (23,411 official events, L1 HT > 90) + `.../local_mbnew` (97,320 new, stored HT > 60); out of 1,999,360 total |
 | Offline jets (MINIAOD) | `.../offline/{HH4b,QCDFlat}_*.npz` |
 | Gen m_HH | `.../genmhh/mhh_*.npz`; κλ shapes `analysis/klreweight/nano_mhh_kl*.npz` |
@@ -79,6 +79,24 @@ map (`CMSSWCablingMap__OT800_IT700.csv`) → `occupancy.json`. Findings: 2.4e7 b
 1.28 Gb/s e-link); the real e-link configuration is not in CMSSW (a naive 8.96 Gb/s/lpGBT model gives >100%
 occupancy). Prompt L1 tracks carry d0 = 0 (13-b field empty); the NG tagger runs on the extended (displaced-track)
 chain, so a pixel-refit d0 could fill the existing field.
+
+## Beyond HH→4b (2026-10-26, page tab 6)
+
+- **Charm:** pixels make L1 charm tagging possible: c efficiency at 10% light mistag 16% (NN) → 29% (L1 tracks + pixel
+  hits), c vs b at 30% b: 41% → 61% (`analysis/ctag_compare.py`, `run_ctag.sh` → `ctag_chain.json`; QCD jets).
+- **VBF H→cc / bb:** the planned menu keeps only 57% / 53% of events in a generator VBF + cc/bb acceptance
+  (`analysis/vbf_menu.py` → `vbf_menu.json`; VBF ntuples in `local_v3/perfNano_VBFH{CC,BB}_*`). Rate side: VBF-like
+  minimum bias (`production/mbsel/scan_jets.py` over all 2.0M events, `select_vbf.py` with LEAD=30 SUB=15 MJJ=200,
+  96–99% complete for emulated VBF seeds down to 50/20 GeV) → `local_mbvbf/`.
+- **Boosted H→cc (in progress):** R = 0.8 jets + two-prong score in the ntuples (`addSC8Jets()`, on by default in
+  `step2_cfg.py`); minimum bias re-run with them in `local_mbnew_v2/`, `local_mbsel_v2/` (same events as the old
+  folders); private ggH + jet and ZH(νν) samples (`production/privgen/README.md`) → `privgen/`. L1 jet masses are 0 in the
+  ntuples: compute the large-jet mass from PUPPI constituents. First look: `analysis/fatjet_first.py`.
+- **OSG** (`production/osg/`): works for CMS xrootd inputs only with `X509_CERT_DIR`/`X509_VOMS_DIR` from cvmfs (in the
+  runners; without them xrootd falls back to tokens: "Auth failed"). Exclude FANDM-ITS and SU-ITS for the private
+  production. `sweep_held_mb.sh` moves held OSG jobs to Slurm.
+- **Data** now lives on CMS scratch, `/scratch/submit/cms/novaka/l1pixels/` (not backed up; everything is regenerable
+  from the recipes here). The old copy on /ceph is kept until the move is confirmed.
 
 ## Gotchas
 

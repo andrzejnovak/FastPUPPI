@@ -1,4 +1,4 @@
-# Local test of the ntuple step: standard perfNano + gen-jet flavour + seeded-cone jets.
+# Local test of the ntuple step: standard perfNano + gen-jet flavour + seeded-cone jets (R = 0.4 and 0.8).
 #   cmsRun step2_cfg.py inputFiles=file:inputs.root out=perfNano.root
 import sys, os
 sys.path.insert(0, os.path.join(os.environ["CMSSW_BASE"], "src/FastPUPPI/NtupleProducer/python"))
@@ -17,6 +17,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 cfg.addGenJetFlavourTable()
 cfg.addSeededConeJets()
 cfg.addNGJetTags()
+cfg.addSC8Jets()
 if opts.extended:
     import FWCore.ParameterSet.Config as cms
     from FastPUPPI.NtupleProducer.l1TrackTable_cfi import l1TrackTable

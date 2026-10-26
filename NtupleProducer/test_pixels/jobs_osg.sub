@@ -6,7 +6,7 @@ transfer_input_files = cmssw.tgz
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 transfer_output_files = perfNano_$(sample)_$(idx).root
-transfer_output_remaps = "perfNano_$(sample)_$(idx).root = /ceph/submit/data/user/n/novaka/l1pixels/v1/perfNano_$(sample)_$(idx).root"
+transfer_output_remaps = "perfNano_$(sample)_$(idx).root = /scratch/submit/cms/novaka/l1pixels/v1/perfNano_$(sample)_$(idx).root"
 use_x509userproxy = True
 x509userproxy = /home/submit/novaka/x509up_u248613
 output = logs/$(sample)_$(idx).out

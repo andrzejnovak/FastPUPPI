@@ -1,5 +1,5 @@
 import glob, numpy as np, uproot, awkward as ak
-fs = sorted(glob.glob("/ceph/submit/data/user/n/novaka/l1pixels/official151X/perfNano_MinBias_*.root"))
+fs = sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/official151X/perfNano_MinBias_*.root"))
 hts, nj = [], []
 for f in fs:
     a = uproot.open(f)["Events"].arrays(["L1NGJets_pt", "L1NGJets_eta"])

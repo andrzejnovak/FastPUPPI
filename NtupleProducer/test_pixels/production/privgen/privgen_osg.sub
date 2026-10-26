@@ -1,0 +1,23 @@
+# condor_submit privgen_osg.sub   (one job per line of $(jobfile): sample idx nevents)
+universe = vanilla
+executable = run_privgen_osg.sh
+arguments = $(sample) $(idx) $(nev)
+transfer_input_files = cmssw1409.tgz, cmssw.tgz
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files = perfNano_$(sample)_$(idx).root
+transfer_output_remaps = "perfNano_$(sample)_$(idx).root = /scratch/submit/cms/novaka/l1pixels/privgen/perfNano_$(sample)_$(idx).root"
+use_x509userproxy = True
+x509userproxy = /home/submit/novaka/x509up_u248613
+output = logs/osg_$(sample)_$(idx).out
+error = logs/osg_$(sample)_$(idx).err
+log = logs/privgen_osg.log
+request_cpus = 1
+request_memory = 16000
+request_disk = 25000000
+max_retries = 2
++ProjectName = "MIT_submit"
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/cmssw/el9:x86_64"
++SingularityBindCVMFS = True
+Requirements = (TARGET.GLIDEIN_Site =!= "FANDM-ITS") && (TARGET.GLIDEIN_Site =!= "SU-ITS") && (HAS_CVMFS_unpacked_cern_ch == True) && (HAS_SINGULARITY == True) && (HAS_CVMFS_cms_cern_ch == True) && (Microarch >= "x86_64-v3")
+queue sample, idx, nev from jobs_pass1_osg.txt

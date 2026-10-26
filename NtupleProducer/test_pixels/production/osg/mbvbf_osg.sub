@@ -1,0 +1,23 @@
+# condor_submit mb_osg.sub   (targeted minimum bias, re-run with R = 0.8 jets: 562 new + 164 official-selected jobs)
+universe = vanilla
+executable = run_mb_osg.sh
+arguments = $(jobs) $(idx) $(outname)
+transfer_input_files = cmssw.tgz, $(jobs)
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files = $(outname)
+transfer_output_remaps = "$(outname) = /scratch/submit/cms/novaka/l1pixels/$(outdir)/$(outname)"
+use_x509userproxy = True
+x509userproxy = /home/submit/novaka/x509up_u248613
+output = logs/mbvbf_$(outname).out
+error = logs/mbvbf_$(outname).err
+log = logs/mbvbf_osg.log
+request_cpus = 2
+request_memory = 8000
+request_disk = 8000000
+max_retries = 3
++ProjectName = "MIT_submit"
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/cmssw/el9:x86_64"
++SingularityBindCVMFS = True
+Requirements = (TARGET.GLIDEIN_Site =!= "FANDM-ITS") && (TARGET.GLIDEIN_Site =!= "SU-ITS") && (HAS_CVMFS_unpacked_cern_ch == True) && (HAS_SINGULARITY == True) && (HAS_CVMFS_cms_cern_ch == True) && (Microarch >= "x86_64-v3")
+queue jobs, idx, outname, outdir from mbvbf_osg_jobs.txt

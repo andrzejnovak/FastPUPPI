@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_v3.sh <sample> <idx> <lfn> <maxEvents>   (input step + ntuple step, outputs to /ceph)
 SAMPLE=$1; IDX=$2; LFN=$3; NEV=$4
-OUT=/ceph/submit/data/user/n/novaka/l1pixels/local_v3
+OUT=/scratch/submit/cms/novaka/l1pixels/local_v3
 [ -f $OUT/perfNano_${SAMPLE}_${IDX}.root ] && exit 0
 export X509_USER_PROXY=$HOME/x509up_u248613
 source /cvmfs/cms.cern.ch/cmsset_default.sh

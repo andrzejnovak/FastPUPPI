@@ -891,4 +891,14 @@ def addNGJetTags():
     process.extraPFStuff.add(process.l1NGJetTable)
 
 
+
+def addSC8Jets():
+    """Wide jets (seeded cone R = 0.8): the corrected emulator jets as sent to the Global Trigger, and the same-cone
+    jets with the two-prong tagger score (L1TSC82ProngJetModel_v0). Needs addSeededConeJets() (L1TPFJetsTask)."""
+    from FastPUPPI.NtupleProducer.l1TaggedJetTable_cfi import l1TaggedJetTable
+    process.l1pfjetTable.jets.sc8PuppiCorr = cms.InputTag('l1tSC8PFL1PuppiCorrectedEmulator')
+    process.l1SC8ProngJetTable = l1TaggedJetTable.clone(name="L1SC8ProngJets", classes=["nprong"],
+                                                        src=cms.InputTag("l1tSC82ProngJetProducer", "l1tSC82ProngJets"))
+    process.extraPFStuff.add(process.l1SC8ProngJetTable)
+
 # addDecodedCalo()

@@ -14,13 +14,13 @@ P=l1ext_parts
 for s in HH4b QCDFlat MinBiasSel MinBiasNew; do
   [ -f lists_l1ext_$s.npz ] || python3 merge_lists.py lists_l1ext_$s.npz $P/${s}_*.npz
 done
-V3=/ceph/submit/data/user/n/novaka/l1pixels/local_v3
-MB=/ceph/submit/data/user/n/novaka/l1pixels/local_mbsel_ext
-NEW=/ceph/submit/data/user/n/novaka/l1pixels/local_mbnew
+V3=/scratch/submit/cms/novaka/l1pixels/local_v3
+MB=/scratch/submit/cms/novaka/l1pixels/local_mbsel_ext
+NEW=/scratch/submit/cms/novaka/l1pixels/local_mbnew
 python3 direct_rate.py direct_rate_l1ext.json "$V3/perfNano_HH4b_*.root" "$MB/perfNano_MinBiasSel_*.root,$NEW/perfNano_MinBiasNew_*.root" \
   lists_l1ext_HH4b.npz lists_l1ext_QCDFlat.npz lists_l1ext_MinBiasSel.npz,lists_l1ext_MinBiasNew.npz
-GEN="/ceph/submit/data/user/n/novaka/l1pixels/genmhh/mhh_*.npz"; KL="klreweight/nano_mhh_kl*.npz"
-OFF=/ceph/submit/data/user/n/novaka/l1pixels/offline
+GEN="/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"; KL="klreweight/nano_mhh_kl*.npz"
+OFF=/scratch/submit/cms/novaka/l1pixels/offline
 echo "=== generator fiducial, L1-extended"; python3 kl_direct.py direct_rate_l1ext_flags.npz "$GEN" "$KL" kl_direct_l1ext.json
 python3 ../offline/offline_sel.py offline_flags.npz offline_sel.json "$OFF/HH4b_*.npz" "$OFF/QCDFlat_*.npz"
 for sel in resolved_4b 3b_mass 4b_nomass 4j; do

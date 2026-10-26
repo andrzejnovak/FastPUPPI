@@ -9,5 +9,5 @@
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd /work/submit/novaka/l1pixels/hitdev/CMSSW_17_0_0_pre2/src && eval `scram runtime -sh` && cd /work/submit/novaka/l1pixels/analysis
 export OMP_NUM_THREADS=8 TF_NUM_INTRAOP_THREADS=8
-python3 make_lists.py lists_mb_minbias.npz MinBias /ceph/submit/data/user/n/novaka/l1pixels/local_mb/perfNano_MinBias_*.root
+python3 make_lists.py lists_mb_minbias.npz MinBias /scratch/submit/cms/novaka/l1pixels/local_mb/perfNano_MinBias_*.root
 python3 mb_mistag.py mb_mistag.json lists_full_hh4b.npz lists_full_qcd.npz lists_mb_minbias.npz

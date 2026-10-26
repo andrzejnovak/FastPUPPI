@@ -35,7 +35,7 @@ odd = fl["odd"]
 
 
 # ---------- kappa_lambda weights from gen m_HH (as kl_direct.py) ----------
-g = {k: np.concatenate([np.load(f)[k] for f in sorted(glob.glob("/ceph/submit/data/user/n/novaka/l1pixels/genmhh/mhh_*.npz"))])
+g = {k: np.concatenate([np.load(f)[k] for f in sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"))])
      for k in ("lumi", "event", "mhh")}
 pos = {(l, e): i for i, (l, e) in enumerate(zip(g["lumi"], g["event"]))}
 mhh = np.array([g["mhh"][pos[(l, e)]] for l, e in zip(fl["lumi"], fl["event"])])
@@ -187,7 +187,7 @@ plt.close(fig)
 # ---------- 5. d0 vs HLT: Outer Tracker alone vs with pixel hits ----------
 val = json.load(open("l1ext_val/scan_0.json"))["rows"]
 pix = np.array([(r["d0"] - r["ref_dxy"]) * 1e4 for r in val if r.get("ext") and "ref_dxy" in r and "d0" in r])
-f = sorted(glob.glob("/ceph/submit/data/user/n/novaka/l1pixels/local_v3/perfNano_HH4b_*.root"))[0]
+f = sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/local_v3/perfNano_HH4b_*.root"))[0]
 a = uproot.open(f)["Events"].arrays(filter_name=["L1TracksExt_*", "PixelTracks_pt", "PixelTracks_eta", "PixelTracks_phi",
                                                 "PixelTracks_dxyBS"], entry_stop=200)
 ot = []
@@ -216,3 +216,29 @@ fig.tight_layout()
 fig.savefig(f"{OUT}/d0_resolution.png", dpi=150)
 plt.close(fig)
 print("plots written to", OUT, "| OT-only tracks", len(ot), "pixel-extended", len(pix))
+
+
+# ---------- 6. charm tagging: c vs light and c vs b, with and without pixels (ctag_compare.py) ----------
+ct = json.load(open("ctag_chain.json"))
+fig, axs = plt.subplots(1, 2, figsize=(11, 4.2))
+for ax, (task, bkg) in zip(axs, (("CvsL", "light-jet"), ("CvsB", "b-jet"))):
+    for tag, col, ls, lab in (("L1 NN", C["NN"], "-", "today's L1 NN"), ("OT only", C["OT only"], "-", "+ Outer Tracker displaced tracks"),
+                              ("L1 + pixel", C["L1 pixel"], "-", "+ L1 tracks with pixel hits"), ("HLT pixel", C["HLT pixel"], "-", "+ HLT pixel tracks")):
+        r = ct[task][tag]
+        lo = [k for k in r if k.startswith("c_at_")]
+        ax.plot(np.array(r["roc_ceff"]) * 100, r["roc_mistag"], c=col, ls=ls, lw=2.2,
+                label=f"{lab}: {100 * r[lo[1]]:.0f}%")
+    ref = 0.1 if task == "CvsL" else 0.3
+    ax.axhline(ref, c="#b0aea6", lw=0.8, ls=":")
+    ax.set_yscale("log")
+    ax.set_xlim(0, 100)
+    ax.set_ylim(1e-2 if task == "CvsL" else 3e-2, 1)
+    ax.set_xlabel("c-jet efficiency [%]")
+    ax.set_ylabel(f"{bkg} mistag rate (QCD)")
+    ax.set_title(f"c vs {'light' if task == 'CvsL' else 'b'}; legend: c efficiency at {int(ref * 100)}% {bkg} mistag",
+                 loc="left", fontsize=10, color=INK)
+    ax.legend(loc="lower right", fontsize=8.5)
+fig.suptitle("L1 charm tagging needs pixels: QCD jets (L1 jets pT > 15 GeV, |eta| < 2.4)", fontsize=10.5, color=INK, x=0.01, ha="left")
+fig.tight_layout()
+fig.savefig(f"{OUT}/ctag_roc.png", dpi=150)
+plt.close(fig)

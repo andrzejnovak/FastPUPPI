@@ -223,7 +223,7 @@ ul.tight {{ margin: 0; padding-left: 20px; display: grid; gap: 6px }}
   </ul>
 </section>
 
-<p class="foot">Produced from <code>/ceph/submit/data/user/n/novaka/l1pixels/</code> with <code>test_pixels/analysis/make_jets.py</code> and <code>plots.py</code>; plots are private work.</p>
+<p class="foot">Produced from <code>/scratch/submit/cms/novaka/l1pixels/</code> with <code>test_pixels/analysis/make_jets.py</code> and <code>plots.py</code>; plots are private work.</p>
 </div>
 """
 if banner:  # interim page still built from v0-tagger ntuples

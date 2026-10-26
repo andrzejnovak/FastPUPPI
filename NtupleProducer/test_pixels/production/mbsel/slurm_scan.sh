@@ -7,7 +7,7 @@
 #SBATCH --output=scan_logs/%A_%a.out
 # Stored-L1-HT scan of all MinBias files, 100 files per task (125 tasks)
 IDX=$SLURM_ARRAY_TASK_ID
-OUT=/ceph/submit/data/user/n/novaka/l1pixels/mbscan/scan_${IDX}.npz
+OUT=/scratch/submit/cms/novaka/l1pixels/mbscan/scan_${IDX}.npz
 [ -f $OUT ] && exit 0
 export X509_USER_PROXY=$HOME/x509up_u248613
 source /cvmfs/cms.cern.ch/cmsset_default.sh

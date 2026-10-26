@@ -8,7 +8,7 @@
 # Targeted minimum-bias production: only events with L1 HT > 90 GeV (selected from the official-input ntuples by ID).
 # One line of jobs_mbsel.txt per task: "lfn|run:lumi:event,...;lfn|...". Input step + ntuple step, output to /ceph.
 IDX=$SLURM_ARRAY_TASK_ID
-OUT=/ceph/submit/data/user/n/novaka/l1pixels/local_mbsel_ext
+OUT=/scratch/submit/cms/novaka/l1pixels/local_mbsel_ext
 [ -f $OUT/perfNano_MinBiasSel_${IDX}.root ] && exit 0
 LINE=$(sed -n "$((IDX+1))p" /work/submit/novaka/l1pixels/mbsel/jobs_mbsel.txt)
 FILES=$(echo "$LINE" | tr ';' '\n' | cut -d'|' -f1 | sed 's#^#root://cms-xrd-global.cern.ch/#' | paste -sd,)

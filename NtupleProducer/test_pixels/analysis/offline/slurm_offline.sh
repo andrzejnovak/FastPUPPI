@@ -7,7 +7,7 @@
 #SBATCH --output=logs/%A_%a.out
 # Offline jets for the v3 HH4b and QCD files (one line of ../local/jobs_v3.txt per task)
 read SAMPLE IDX LFN NEV <<< "$(sed -n "$((SLURM_ARRAY_TASK_ID+1))p" /work/submit/novaka/l1pixels/local/jobs_v3.txt)"
-OUT=/ceph/submit/data/user/n/novaka/l1pixels/offline/${SAMPLE}_${IDX}.npz
+OUT=/scratch/submit/cms/novaka/l1pixels/offline/${SAMPLE}_${IDX}.npz
 [ -f $OUT ] && exit 0
 export X509_USER_PROXY=$HOME/x509up_u248613
 source /cvmfs/cms.cern.ch/cmsset_default.sh

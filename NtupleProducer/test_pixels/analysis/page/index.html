@@ -539,9 +539,9 @@ svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var
     <tr><td>L1 tagger v2_0_0 backport</td><td><code>andrzejnovak/cmssw:L1PF_17_0_X_NGJetModel_v2</code></td><td><span class="pill good">on GitHub</span></td></tr>
     <tr><td>Working CMSSW area</td><td><code>/work/submit/novaka/l1pixels/ngv2/CMSSW_17_0_0_pre2</code></td><td>built</td></tr>
     <tr><td>L1 seed study scripts (this page)</td><td><code>/work/submit/novaka/l1pixels/analysis/</code>: <code>l1_seed.py</code>, <code>seed_flags.py</code>, <code>plot_l1_seed.py</code>, <code>plot_mhh.py</code>, <code>kl_reweight.py</code>, <code>genmhh/</code>, <code>klreweight/</code></td><td><span class="pill warn">not in git yet</span></td></tr>
-    <tr><td>Official-input ntuples (HH&rarr;4b 50k, minimum bias 655k)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/official151X/</code></td><td>done</td></tr>
-    <tr><td>Pixel-table ntuples (HH&rarr;4b, QCD)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/local_v2/</code> (48 + 48 files)</td><td>done, not analysed</td></tr>
-    <tr><td>Gen m<sub>HH</sub> per event (Phase-2 SM)</td><td><code>/ceph/submit/data/user/n/novaka/l1pixels/genmhh/</code></td><td>done</td></tr>
+    <tr><td>Official-input ntuples (HH&rarr;4b 50k, minimum bias 655k)</td><td><code>/scratch/submit/cms/novaka/l1pixels/official151X/</code></td><td>done</td></tr>
+    <tr><td>Pixel-table ntuples (HH&rarr;4b, QCD)</td><td><code>/scratch/submit/cms/novaka/l1pixels/local_v2/</code> (48 + 48 files)</td><td>done, not analysed</td></tr>
+    <tr><td>Gen m<sub>HH</sub> per event (Phase-2 SM)</td><td><code>/scratch/submit/cms/novaka/l1pixels/genmhh/</code></td><td>done</td></tr>
     <tr><td>Results</td><td><code>analysis/l1seed_full/l1_seed.json</code>, <code>analysis/plots_kl/kl_reweight.json</code>, plots in <code>analysis/plots_l1seed/</code>, <code>analysis/plots_kl/</code></td><td>done</td></tr>
     <tr><td>Input files on EOS</td><td>official FastPUPPI 151X inputs (HH&rarr;4b, <code>NuGunAllEta_PU200</code>), listed in <code>l1pixels/official/jobs.txt</code></td><td>needs a grid proxy</td></tr>
   </table></div>
@@ -561,8 +561,8 @@ python3 plot_l1_seed.py l1seed_full/l1_seed.json plots_l1seed
 <span class="c"># 3. gen m_HH from the HH4b input files, then per-event seed decisions and the m_HH plot</span>
 (cd genmhh &amp;&amp; sbatch run_dump.sh)
 python3 seed_flags.py l1seed_full/l1_seed.json \
-  "/ceph/submit/data/user/n/novaka/l1pixels/official151X/perfNano_HH4b_*.root" \
-  "/ceph/submit/data/user/n/novaka/l1pixels/genmhh/mhh_*.npz" seed_flags_14kHz.npz 14
+  "/scratch/submit/cms/novaka/l1pixels/official151X/perfNano_HH4b_*.root" \
+  "/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz" seed_flags_14kHz.npz 14
 python3 plot_mhh.py seed_flags_14kHz.npz plots_l1seed
 
 <span class="c"># 4. kappa_lambda: gen m_HH from Run-3 POWHEG NanoAOD, then reweight</span>

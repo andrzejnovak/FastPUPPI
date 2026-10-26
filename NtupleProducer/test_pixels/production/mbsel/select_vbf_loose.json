@@ -1,0 +1,60 @@
+{
+ "lead": 30.0,
+ "sub": 15.0,
+ "mjj": 200.0,
+ "n_scanned": 1999360,
+ "n_presel": 157088,
+ "n_done_in_scan": 120350,
+ "n_new_selected": 105272,
+ "n_jobs": 501,
+ "validation": {
+  "emu_92_25_mjj400": {
+   "n": 4016,
+   "kept_by_stored_presel": 0.987300796812749
+  },
+  "emu_92_25_mjj500": {
+   "n": 2650,
+   "kept_by_stored_presel": 0.9928301886792453
+  },
+  "emu_92_25_mjj620": {
+   "n": 1641,
+   "kept_by_stored_presel": 0.9939061547836685
+  },
+  "emu_70_25_mjj400": {
+   "n": 5995,
+   "kept_by_stored_presel": 0.9769808173477899
+  },
+  "emu_70_25_mjj500": {
+   "n": 3842,
+   "kept_by_stored_presel": 0.9877667881311817
+  },
+  "emu_70_25_mjj620": {
+   "n": 2465,
+   "kept_by_stored_presel": 0.9926977687626775
+  },
+  "emu_60_20_mjj400": {
+   "n": 7703,
+   "kept_by_stored_presel": 0.9661170972348435
+  },
+  "emu_60_20_mjj500": {
+   "n": 4791,
+   "kept_by_stored_presel": 0.9818409517845961
+  },
+  "emu_60_20_mjj620": {
+   "n": 3133,
+   "kept_by_stored_presel": 0.991062879029684
+  },
+  "emu_50_20_mjj400": {
+   "n": 8724,
+   "kept_by_stored_presel": 0.9601100412654745
+  },
+  "emu_50_20_mjj500": {
+   "n": 5409,
+   "kept_by_stored_presel": 0.9804030319837308
+  },
+  "emu_50_20_mjj620": {
+   "n": 3586,
+   "kept_by_stored_presel": 0.9921918572225321
+  }
+ }
+}
