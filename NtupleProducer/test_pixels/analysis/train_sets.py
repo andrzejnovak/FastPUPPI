@@ -14,7 +14,10 @@ import sys
 import numpy as np
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
-import tensorflow as tf  # noqa: E402
+try:
+    import tensorflow as tf  # noqa: E402  (only the deep-set training needs it)
+except ImportError:
+    tf = None
 from sklearn.ensemble import HistGradientBoostingClassifier  # noqa: E402
 from sklearn.metrics import roc_auc_score, roc_curve  # noqa: E402
 

@@ -97,7 +97,7 @@ svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var
   <div class="eyebrow">Pilot study · Phase-2 L1 trigger · October 2026</div>
   <h1>HH&rarr;4b L1 b-Tag Pilot</h1>
   <p class="lede" style="margin-top:14px">Is better b-tagging at Level-1 worth pursuing for HH&rarr;4b, for example by bringing pixel-detector information into the L1 jet tagger? This page first walks through what L1 sees today (Run&nbsp;3), what the Phase-2 upgrade plans, and what adding pixel information would take. Then it presents the sensitivity study.</p>
-  <p class="muted" style="margin:0">Short answer, now measured directly against minimum-bias rate: on top of the planned Phase-2 menu seeds, pixel information is worth &times;1.06&ndash;1.11 the HL-LHC luminosity for SM HH&rarr;4b, &times;1.07&ndash;1.15 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;0 and &times;1.11&ndash;1.24 for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5. As a standalone seed it is worth &times;1.12&ndash;1.25 for SM, but the menu already catches most of those events. The gain survives a realistic L1 path (L1 tracks extended into the pixel layers do as well as HLT pixel tracks). After an analysis-level selection (4b + 3b) the SM gain is &times;1.05&ndash;1.11, at the stop line set beforehand: the standard chain loses most of the signal offline, not in the trigger. &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 keeps &times;1.2&ndash;1.5. The case rests on the self-coupling (low m<sub>HH</sub>) and on other channels. <a href="#headline">Jump to the headline</a>, <a href="#results">the results</a> or <a href="#plan">the plan</a>.</p>
+  <p class="muted" style="margin:0"><b>Short answer (updated 26 October).</b> Pixel hits at L1 keep the soft, low-m<sub>HH</sub> HH&rarr;4b events that measure the Higgs self-coupling: below 400&nbsp;GeV, 96% of offline-selected events instead of 83% with the planned NN seed (60% with a Run-3-style menu). A pixel seed at +1&nbsp;kHz keeps what the NN seed needs +15&nbsp;kHz for. The total SM yield grows only &times;1.05&ndash;1.11, because most selected events are hard and already triggered. Compact summary with all plots: the tabbed pilot page.</p>
 </header>
 
 <section class="col">
@@ -109,7 +109,7 @@ svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var
     <li><b>Do pixel hits actually improve b-jet identification?</b> Yes: the L1 tagger keeps about half of b-jets at a 1% fake rate instead of 15%. This holds not only with the pixel tracks the software trigger (HLT) reconstructs, but also when each L1 track is simply extended into the pixel layers by picking up the nearest pixel hits, which is something L1 could plausibly do. <span class="pill good">Answered</span></li>
     <li><b>Could L1 realistically get that information?</b> Reading all pixels every collision is far too much data. The idea here is to ask for pixel hits only around the few jets L1 has already found, in about 1% of collisions. Turning those hits into useful information works in software (extending L1 tracks into the pixel layers keeps the full gain). Open: can the pixel electronics answer such a request in time, and does the fit fit into the firmware and latency budget? <span class="pill warn">Open</span></li>
   </ol>
-  <p><b>Status in one line:</b> pixels give a much better L1 b-tagger, also in a realistic L1-style emulation (2); for Standard-Model HH&rarr;4b the trigger gain after an analysis selection is small (1), so the case rests on the self-coupling and other channels; whether the electronics can deliver the hits in time is the open hardware question (3).</p>
+  <p><b>Status in one line:</b> pixels give a much better L1 b-tagger, also in a realistic L1-style emulation (2); for HH&rarr;4b they recover the low-m<sub>HH</sub> events that carry most of the self-coupling information (1); whether the electronics can deliver the hits in time is the open hardware question (3).</p>
   <details class="gloss">
     <summary>Terms used on this page</summary>
     <dl>
@@ -123,9 +123,21 @@ svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var
   </details>
 </section>
 
+<section id="lowmhh">
+  <div class="col">
+    <div class="eyebrow">The headline (26 October)</div>
+    <h2>Pixels keep the low-m<sub>HH</sub> events that measure the self-coupling</h2>
+    <p class="lede" style="margin:0">78% of the &kappa;<sub>&lambda;</sub> information near the SM sits below m<sub>HH</sub>&nbsp;=&nbsp;400&nbsp;GeV. There the pixel seed keeps 96% of offline-selected events, the planned NN seed 83% and a Run-3-style menu 60%. Spending the same rate on lower HT cuts does almost nothing.</p>
+  </div>
+  <figure><img src="mhh_eff.png" alt="Fraction of SM HH to 4b events kept by L1 against generator m_HH, at trigger level and after offline selection, with the share of the kappa lambda information per bin">
+    <figcaption>Kept by L1 vs generator m<sub>HH</sub>; top strip: &kappa;<sub>&lambda;</sub> information per bin; dotted: the same rate on lower HT.</figcaption></figure>
+  <figure><img src="klw_vs_rate.png" alt="Offline-selected events with m_HH below 400 GeV kept by L1 against added rate, for today's and a softer offline selection">
+    <figcaption>A pixel seed at +1&nbsp;kHz keeps as many low-m<sub>HH</sub> events as the NN seed at +10&ndash;15&nbsp;kHz, with today&#39;s and with a softer offline selection.</figcaption></figure>
+</section>
+
 <section id="headline">
   <div class="col">
-    <div class="eyebrow">The headline</div>
+    <div class="eyebrow">Total-yield view (the earlier headline)</div>
     <h2>What pixel information at L1 would be worth for HH&rarr;4b</h2>
     <p class="lede" style="margin:0">Measured directly, with the pixel tagger run on minimum-bias events: added on top of the planned menu seeds, a 2.5&nbsp;kHz b-tagged HT seed catches 93.8% of fiducial SM HH&rarr;4b events with pixel information, against 88.9% with today&#39;s L1 NN, which is <b>&times;1.06&ndash;1.11 the HL-LHC luminosity for SM</b>. For &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, where the menu alone catches only 48%, it is 75% against 68%: <b>&times;1.11&ndash;1.24</b>.</p>
     <p style="margin:10px 0 0">The planned menu (QuadJet+HT and HT, 20&nbsp;kHz together) already catches 79% of fiducial SM events, so most of what a better tagger finds as a standalone seed is already kept. The gain left is the 11% the menu and an NN seed still miss, of which pixels recover about 45%.</p>
@@ -198,8 +210,8 @@ svg.dg { display: block; min-width: 820px; width: 100%; height: auto; color: var
   </div>
   <div class="verdict" style="margin-top:6px">
     <span class="k">Is it worth it?</span>
-    <span class="v">Not a dead end, but on HH&rarr;4b alone the realistic gain is modest for the hardware it needs.</span>
-    <p style="margin:0">The direct test, combined with the planned menu, gives +6&ndash;11% equivalent luminosity for SM HH&rarr;4b and +11&ndash;24% for &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5, against a new regional pixel readout path inside the L1 latency that also has to preserve the normal readout. Two of the open risks are now checked. A realistic L1 path (L1 tracks extended into the pixel layers, no HLT tracking) keeps the full gain. An analysis-level selection (4b + 3b) brings the SM gain to &times;1.05&ndash;1.11, at the stop line (&times;1.05): most signal is lost offline (acceptance, b-tagging, pairing), and the selected events are already 93% triggered with today&#39;s NN seed; &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 keeps &times;1.2&ndash;1.5, because the planned menu misses a third of those even after selection. So for SM HH&rarr;4b alone this does not justify the hardware; the case has to come from the self-coupling measurement (low m<sub>HH</sub>) and (3) the same pixel information helping other triggers that need displacement: b-rich channels (HH&rarr;bb&tau;&tau;, ttH(bb)), charm, and displaced and long-lived-particle triggers. <b>Stop criteria:</b> if the &kappa;<sub>&lambda;</sub> sensitivity gain (from a fit to the m<sub>HH</sub> shape, not just efficiency) and the other channels do not add significantly, this is a dead end for Phase-2.</p>
+    <span class="v">Worth pursuing for the self-coupling: the gain sits where &kappa;<sub>&lambda;</sub> is measured.</span>
+    <p style="margin:0">Below m<sub>HH</sub>&nbsp;=&nbsp;400&nbsp;GeV (78% of the &kappa;<sub>&lambda;</sub> information) the pixel seed keeps 96% of offline-selected events against 83% for the NN seed, and with softer offline selections it keeps &times;1.26 the &kappa;<sub>&lambda;</sub> information. The total SM yield gain stays small (&times;1.05&ndash;1.11), and the rate saved is ~1% of the 346&nbsp;kHz TDR menu, so the case is efficiency at low m<sub>HH</sub>. The cost is a new regional pixel readout path inside the L1 latency, which only pixel DAQ experts can assess.</p>
   </div>
 </section>
 

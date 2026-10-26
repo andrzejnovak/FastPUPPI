@@ -36,20 +36,9 @@ def mjj(pt1, eta1, phi1, m1, pt2, eta2, phi2, m2):
     return (v1 + v2).mass
 
 
-def evaluate(files, flav):
-    import vector
-    vector.register_awkward()
-    a = ak.concatenate([uproot.open(f)["Events"].arrays(filter_name=BR) for f in files])
+def menu_flags(a):
+    """Per-event decisions of the planned hadronic seeds (VBF, SingleJet, DoubleJet, HT) on an events array."""
     n = len(a)
-    # acceptance
-    g = ak.zip({k: a[f"GenJets_{k}"] for k in ("pt", "eta", "phi", "mass", "hadronFlavour")})
-    hq = g[(g.hadronFlavour == flav) & (g.pt > 30) & (abs(g.eta) < 2.4)]
-    oth = g[(g.hadronFlavour != flav) & (g.pt > 30) & (abs(g.eta) < 4.7)]
-    pr = ak.combinations(oth, 2)
-    m = mjj(pr["0"].pt, pr["0"].eta, pr["0"].phi, pr["0"].mass, pr["1"].pt, pr["1"].eta, pr["1"].phi, pr["1"].mass)
-    vbf_ok = (m > 500) & (abs(pr["0"].eta - pr["1"].eta) > 3)
-    acc = ak.to_numpy((ak.num(hq) >= 2) & ak.any(vbf_ok, axis=1))
-    # L1 seeds on SC4 jets (|eta| < 5)
     j = ak.zip({k: a[f"scPuppiCorrJets_{k}"] for k in ("pt", "eta", "phi", "mass")})
     jp = ak.cartesian([j, j], nested=False)
     l1, l2 = jp["0"], jp["1"]
@@ -76,7 +65,24 @@ def evaluate(files, flav):
         p, e = ak.to_numpy(ak.fill_none(jpt[:, k], 0.0)), ak.to_numpy(ak.fill_none(jeta[:, k], 0.0))
         quad &= p > np.where(abs(e) < 1.5, QUAD_BARREL[k], QUAD_ENDCAP[k])
     htseed = (quad & (ht > HT_QUAD)) | (ht > HT_ALONE)
-    seeds = {"VBF": vbf, "SingleJet": single, "DoubleJet": double, "HT": htseed}
+    return {"VBF": vbf, "SingleJet": single, "DoubleJet": double, "HT": htseed}
+
+
+def evaluate(files, flav):
+    import vector
+    vector.register_awkward()
+    a = ak.concatenate([uproot.open(f)["Events"].arrays(filter_name=BR) for f in files])
+    n = len(a)
+    # acceptance
+    g = ak.zip({k: a[f"GenJets_{k}"] for k in ("pt", "eta", "phi", "mass", "hadronFlavour")})
+    hq = g[(g.hadronFlavour == flav) & (g.pt > 30) & (abs(g.eta) < 2.4)]
+    oth = g[(g.hadronFlavour != flav) & (g.pt > 30) & (abs(g.eta) < 4.7)]
+    pr = ak.combinations(oth, 2)
+    m = mjj(pr["0"].pt, pr["0"].eta, pr["0"].phi, pr["0"].mass, pr["1"].pt, pr["1"].eta, pr["1"].phi, pr["1"].mass)
+    vbf_ok = (m > 500) & (abs(pr["0"].eta - pr["1"].eta) > 3)
+    acc = ak.to_numpy((ak.num(hq) >= 2) & ak.any(vbf_ok, axis=1))
+    seeds = menu_flags(a)
+    vbf, single, double, htseed = (seeds[k] for k in ("VBF", "SingleJet", "DoubleJet", "HT"))
     anyseed = vbf | single | double | htseed
     na = acc.sum()
     out = {"events": int(n), "accepted": int(na), "acceptance": float(na / n),
