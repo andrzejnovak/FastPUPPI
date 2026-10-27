@@ -8,14 +8,15 @@ terms = """
       <li><b>b efficiency / mistag:</b> share of b jets tagged / of light-quark and gluon jets wrongly tagged.</li>
       <li><b>Offline-selectable:</b> would pass a later analysis selection (four jets, b tags, two Higgs-mass pairs), if the trigger kept it.</li>
       <li><b>Pixel hits:</b> the innermost tracker layers, the only ones that resolve b-hadron decay lengths (~0.5&nbsp;mm); today read out only after an L1 accept.</li>
+      <li><b>+2.5 / +15&nbsp;kHz:</b> the extra L1 rate a new b-tagged seed may use on top of the HT seeds. 2.5&nbsp;kHz is this study&#39;s benchmark (a small dedicated seed, &lt; 1% of the menu); 15&nbsp;kHz is the rate of CMS&#39;s published b-tag NN seed for HH&rarr;4b (PoS(ICHEP2022)639). Neither is an official allocation.</li>
     </ul>
   </details>"""
 
 tab_hh = f"""
 <section class="panel" role="tabpanel" id="p-hh" aria-labelledby="t-hh">
 <div class="callout"><b>Answer.</b> The planned L1 trigger misses 40% of HH&rarr;4b, mostly at low m<sub>HH</sub>, where the self-coupling is measured.
-Today&#39;s NN tagger recovers part of it; adding pixel hits to the real-time L1 b tag recovers most of the rest at the same extra rate.
-Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-rich QCD it also accepts, and on whether pixel chips can be read in time (tab 3). Scouting adds nothing.</div>
+Today&#39;s NN tagger recovers part of it; adding pixel hits to the real-time L1 b tag recovers much more at the same extra rate, and sharpens &kappa;<sub>&lambda;</sub> beyond the NN in our (statistics-limited) fit.
+The open question is whether pixel chips can be read in time (tab 3). Scouting adds nothing.</div>
 {terms}
 
 <div class="step">
@@ -40,7 +41,7 @@ Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-
   <ul class="bul">
     <li><b>The NN already has displacement information:</b> its tracks come from the planned 5-parameter (displaced) L1 track fit. But that fit uses the outer tracker only: ~545&nbsp;&micro;m resolution, about the b decay length, so b decays are barely seen.</li>
     <li><b>Per jet:</b> 15% of b jets tagged at 1% mistag.</li>
-    <li><b>As a seed</b> (H<sub>T</sub> + summed b scores of the 4 leading jets, +2.5&nbsp;kHz): recovers a quarter of the events the HT seeds miss (all events: 60 &rarr; 70%).</li>
+    <li><b>As a seed</b> (H<sub>T</sub> + summed b scores of the 4 leading jets): all events 60 &rarr; 70% at +2.5&nbsp;kHz, &rarr; 78% at +15&nbsp;kHz: recovers a quarter to a half of the events the HT seeds miss.</li>
   </ul>
 </div>
 
@@ -49,23 +50,25 @@ Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-
   <ul class="bul">
     <li>Each outer-tracker L1 track is extended into the pixel layers and refit; the tagger gets 8 displacement numbers per jet (tab 2).</li>
     <li><b>Per jet: 47% of b jets tagged at 1% mistag</b> (NN 15%).</li>
-    <li><b>All events:</b> 70 &rarr; 78% (ceiling 82%): recovers 45% of the missed events, vs 25% for the NN.</li>
-    <li><b>Offline-selectable, m<sub>HH</sub> &lt; 400:</b> 83 &rarr; 96%: recovers 91% of the missed events, vs 57% for the NN.</li>
+    <li><b>All events:</b> NN &rarr; pixel 70 &rarr; 78% at +2.5&nbsp;kHz, 78 &rarr; 86% at +15&nbsp;kHz (perfect tag 82 / 91%).</li>
+    <li><b>Offline-selectable, m<sub>HH</sub> &lt; 400:</b> 83 &rarr; 96% at +2.5&nbsp;kHz, 93 &rarr; 99% at +15&nbsp;kHz: pixels reach at +2.5&nbsp;kHz what the NN needs ~15&nbsp;kHz for.</li>
   </ul>
   <figure>{img("recovery.png", "Share kept by L1 for the planned HT seeds, lower HT cuts, the NN seed, the pixel seed and a perfect b tag, in four populations: all events, m_HH below 400 GeV, offline-selectable below 400 GeV, and kappa lambda information")}
-    <figcaption><b>Each panel is one population.</b> The pixel seed is close to a perfect tag at the same rate once events must also pass the offline selection.</figcaption>
+    <figcaption><b>Each panel is one population;</b> filled +2.5&nbsp;kHz, open +15&nbsp;kHz. Once events must also pass the offline selection, the pixel seed is close to a perfect tag.</figcaption>
     {prov("All seeds +2.5&nbsp;kHz on top of the HT seeds: H<sub>T</sub> + sum of the four leading jets&#39; b scores; cuts chosen on even events, quoted on odd (<code>direct_curves.py</code>).",
           "Rate from 2.0M PU&nbsp;200 minimum-bias crossings (the 120,731 with high stored L1 H<sub>T</sub> re-simulated with pixels); H<sub>T</sub> cuts &ge; 150&nbsp;GeV, where that sample is complete.",
           "Pixel tagger: BDT on the NN scores, jet p<sub>T</sub>, &eta; and the 8-number pixel summary, trained on even HH b jets vs QCD light jets.",
           "Perfect tag: generator flavour, its rate from QCD&#39;s share of true b jets per H<sub>T</sub> bin (minimum bias has no flavour record; <code>perfect_ceiling.py</code>).",
           "&kappa;<sub>&lambda;</sub> information: signal only. <code>make_story_plots.py recovery</code>.")}
   </figure>
-  <details class="more"><summary>Efficiency vs m<sub>HH</sub>, softer offline selections, cutflow</summary>
+  <figure>{img("klw_vs_rate.png", "Share of offline-selectable events below 400 GeV kept against the extra L1 rate, NN, pixel and perfect seeds, today's and a softer offline selection, with the 2.5 and 15 kHz benchmarks marked")}
+    <figcaption><b>The extra rate is a choice, so here it is as an axis.</b> A pixel seed at +1&nbsp;kHz keeps as much as the NN seed at +10&ndash;15&nbsp;kHz; with more rate the NN catches up.</figcaption>
+    {prov("Seeds as above at 0.5&ndash;15&nbsp;kHz added rate (<code>direct_curves.py</code>); softer offline selection: jets &gt; 20&nbsp;GeV, looser tags, 40&nbsp;GeV window (<code>offline_scenarios.py</code>). <code>make_page_plots.py</code> section 13.")}
+  </figure>
+  <details class="more"><summary>Efficiency vs m<sub>HH</sub>, cutflow</summary>
     <div class="moregrid">
       <figure>{img("mhh_eff.png", "Fraction kept by L1 against generator m_HH, trigger level and offline-selectable, for all options")}
-        <figcaption>Below 400&nbsp;GeV the pixel seed keeps 66% vs 52% (1.27&times;), up to 1.5&times; in the lowest bin.</figcaption></figure>
-      <figure>{img("klw_vs_rate.png", "Share of offline-selectable events below 400 GeV kept against added rate")}
-        <figcaption>A pixel seed at +1&nbsp;kHz keeps as much as the NN seed at +10&ndash;15&nbsp;kHz.</figcaption></figure>
+        <figcaption>At +2.5&nbsp;kHz, below 400&nbsp;GeV the pixel seed keeps 66% vs 52% (1.27&times;), up to 1.5&times; in the lowest bin.</figcaption></figure>
       <figure>{img("cutflow.png", "Fraction kept by each L1 option, of all events and of offline-selectable events")}
         <figcaption>For the total yield most offline-selectable events are hard and already triggered.</figcaption></figure>
     </div>
@@ -91,22 +94,26 @@ Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-
   <h2><span class="n">5 · WHAT IT BUYS</span>The self-coupling, with a QCD background</h2>
   <ul class="bul">
     <li>A fit of the m<sub>4j</sub> shape, 3000&nbsp;fb<sup>&minus;1</sup>, statistical only, at L1-jet resolution, with background from minimum bias.</li>
-    <li><b>The NN seed removes the second allowed &kappa;<sub>&lambda;</sub> region</b> near 5.</li>
-    <li><b>At the SM point the pixel and NN seeds tie</b> once we count the real bb&#772; QCD a better b tag also accepts. If &kappa;<sub>&lambda;</sub> is far from 1 the pixel seed is ahead (SM excluded at 1.75 vs 1.4&sigma; for &kappa;<sub>&lambda;</sub> = 5).</li>
-    <li><b>Not yet a fair test:</b> the seeds were tuned for efficiency, not for this fit. The pixel inputs include the NN&#39;s, so a pixel seed tuned for sensitivity cannot do worse.</li>
+    <li><b>Any b-tagged seed removes the second allowed &kappa;<sub>&lambda;</sub> region</b> near 5.</li>
+    <li><b>At +2.5&nbsp;kHz the pixel seed is ahead:</b> 68% interval 0.45&ndash;1.93 vs 0.38&ndash;2.03 (NN); SM excluded at 2.2 vs 1.6&sigma; if &kappa;<sub>&lambda;</sub> = 5. At +15&nbsp;kHz they are close (1.8 vs 1.5&sigma;).</li>
+    <li><b>Precision &plusmn;~0.1&sigma;:</b> the background rests on ~10 minimum-bias events per score category, so rows within ~0.1&sigma; are not distinguishable (e.g. +15 vs +2.5&nbsp;kHz).</li>
+    <li><b>Seeds are tuned for efficiency, not for this fit;</b> the pixel inputs include the NN&#39;s, so a sensitivity-tuned pixel seed cannot do worse.</li>
   </ul>
   <figure>{img("kl_scan.png", "Minus two delta log likelihood against kappa lambda and the allowed regions, for the HT seeds, NN seed, pixel seed, HT seeds plus pixel scouting, and scouting alone")}
     <figcaption>Every allowed region is drawn; the gap at 2.5&ndash;4 is the usual &kappa;<sub>&lambda;</sub> degeneracy (same total yield at two values).</figcaption>
     {prov("<code>analysis/scouting.py</code> (<code>run_scouting.sh</code>, tier3): four leading L1 jets (p<sub>T</sub> &gt; 20, |&eta;| &lt; 2.4), Higgs-candidate window, m<sub>4j</sub> as m<sub>HH</sub>, 4- and 3-tag categories, L1 H<sub>T</sub> &gt; 150; triggered events get offline-like tags (b 0.84, c 0.12, light 0.01 per jet).",
           "Background: minimum bias (6.2&times;10<sup>8</sup> crossings per event at 3000&nbsp;fb<sup>&minus;1</sup>) for rate and shape. It has no flavour record, so the 4b/3b fraction comes from QCD: for HT-seed events from all accepted QCD; for seed-added events from QCD binned in the same seed score (deciles of ~650 events).",
+          "Seed-added events are split into seed-score categories as an analysis would (~10 minimum-bias events each: 3 at +2.5&nbsp;kHz, 8 at +15&nbsp;kHz); one lumped category let low-purity events dilute the good ones.",
           "Model A (one QCD fraction everywhere) gives the pixel seed more credit (Z 2.0 vs NN 1.9). An earlier model using only the 27&ndash;49 QCD events each seed adds made the pixel seed look worse: a small-sample artefact.",
           "Asimov likelihood, &sigma;(&kappa;<sub>&lambda;</sub>) parabola and Run-3 m<sub>HH</sub> shapes for &kappa;<sub>&lambda;</sub> = 0, 1, 2.45, 5. Not included: systematics, offline resolution, VBF HH, non-QCD backgrounds.")}
   </figure>
   <div class="tablewrap"><table>
     <tr><th>3000&nbsp;fb<sup>&minus;1</sup>, stat. only</th><th class="n">Significance of SM HH</th><th class="n">&kappa;<sub>&lambda;</sub> allowed (68%)</th><th class="n">SM excluded if &kappa;<sub>&lambda;</sub> = 5</th></tr>
     <tr><td>Planned HT seeds</td><td class="n">1.6&sigma;</td><td class="n">0.25&ndash;2.3 and 4.2&ndash;5.5</td><td class="n">0.8&sigma;</td></tr>
-    <tr><td>+ NN seed</td><td class="n">1.7&sigma;</td><td class="n">0.35&ndash;2.1</td><td class="n">1.4&sigma;</td></tr>
-    <tr class="hl"><td><b>+ pixel seed</b></td><td class="n">1.7&sigma;</td><td class="n">0.35&ndash;2.1</td><td class="n"><b>1.75&sigma;</b></td></tr>
+    <tr><td>+ NN seed, +2.5&nbsp;kHz</td><td class="n">1.8&sigma;</td><td class="n">0.38&ndash;2.03</td><td class="n">1.6&sigma;</td></tr>
+    <tr class="hl"><td><b>+ pixel seed, +2.5&nbsp;kHz</b></td><td class="n"><b>1.8&sigma;</b></td><td class="n"><b>0.45&ndash;1.93</b></td><td class="n"><b>2.2&sigma;</b></td></tr>
+    <tr><td>+ NN seed, +15&nbsp;kHz</td><td class="n">1.7&sigma;</td><td class="n">0.35&ndash;2.10</td><td class="n">1.5&sigma;</td></tr>
+    <tr><td>+ pixel seed, +15&nbsp;kHz</td><td class="n">1.7&sigma;</td><td class="n">0.35&ndash;2.10</td><td class="n">1.8&sigma;</td></tr>
   </table></div>
 </div>
 
@@ -114,7 +121,7 @@ Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-
   <h2><span class="n">6 · PATH B</span>Scouting: no added HH sensitivity in this study</h2>
   <ul class="bul">
     <li><b>The idea:</b> leave the real-time decision alone; record L1 objects at 40&nbsp;MHz and use the pixel tag there, as a fallback if real-time pixels are too hard.</li>
-    <li><b>Result:</b> HT seeds + pixel scouting 1.6&sigma; = HT seeds alone; NN seed + pixel scouting 1.7&sigma; = NN seed alone.</li>
+    <li><b>Result:</b> HT seeds + pixel scouting 1.6&sigma; = HT seeds alone; NN seed + pixel scouting 1.8&sigma; = NN seed alone (at both +2.5 and +15&nbsp;kHz).</li>
   </ul>
   <figure>{img("scout_why.png", "Left: per-jet b efficiency against light mistag for the L1 NN, L1 plus pixel and offline UParT, with the scouting and offline working points. Right: signal and background after selection for the triggered pixel stream and for scouting")}
     <figcaption><b>Why:</b> scouted events never get offline reconstruction, so four L1 tags (23% of signal) replace four offline tags (50%), and every crossing above H<sub>T</sub> 150 competes.</figcaption>
@@ -137,7 +144,7 @@ Whether that sharpens &kappa;<sub>&lambda;</sub> beyond the NN depends on the b-
 <div class="step">
   <h2><span class="n">7 · WHERE THIS LEAVES US</span>Verdict</h2>
   <div class="paths">
-    <div><b>Path A: pixel seed</b><span class="v">recovers most events</span><span>45% of missed events overall, 91% of the offline-selectable low-mass ones. &kappa;<sub>&lambda;</sub> gain over the NN: tie at the SM, ahead if &kappa;<sub>&lambda;</sub> &ne; 1; a sensitivity-tuned seed is the next test.</span></div>
+    <div><b>Path A: pixel seed</b><span class="v">recovers most events</span><span>Offline-selectable low-mass events: 96% at +2.5&nbsp;kHz (NN 83%). &kappa;<sub>&lambda;</sub>: ahead of the NN at +2.5&nbsp;kHz, clearly if &kappa;<sub>&lambda;</sub> &ne; 1; statistics-limited (&plusmn;0.1&sigma;).</span></div>
     <div><b>Path B: scouting</b><span class="v">no added sensitivity</span><span>Same significance as the trigger it accompanies, in both background models tested.</span></div>
     <div><b>Open</b><span class="v">readout in time</span><span>Whole chips must be read: 73&nbsp;Gb/s and ~9&nbsp;&micro;s per crossing on one e-link (tab 3). Plus: a low-mass-optimised analysis selection.</span></div>
   </div>

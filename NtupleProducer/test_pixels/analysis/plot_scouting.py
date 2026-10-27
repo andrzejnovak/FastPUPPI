@@ -5,6 +5,7 @@
 Left: Asimov -2 Delta lnL vs kappa_lambda per stream; right: 68% / 95% intervals. Colours as make_page_plots.py.
 """
 import json
+import os
 import sys
 
 import matplotlib
@@ -21,10 +22,12 @@ plt.rcParams.update({"font.size": 10, "axes.edgecolor": "#c3c2b7", "axes.labelco
                      "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False})
 d = json.load(open(src))
 kl = np.array(d["curves"]["kl"])
-rows = [("trig_menu", "planned menu", C["menu"], "-"), ("trig_nn", "+ NN seed (2.5 kHz)", C["NN"], "-"),
-        ("trig_l1", "+ pixel seed (2.5 kHz)", C["L1 pixel"], "-"),
-        ("comb_menu_l1", "menu + pixel tags in scouting (fallback)", C["L1 pixel"], "--"),
-        ("scout_l1", "scouting alone, L1 pixel tags", C["L1 pixel"], ":")]
+FALLBACK, SCOUT = "#c2408f", "#0f8a5f"  # scouting variants get their own hues (validated with the page palette)
+rows = [("trig_menu", "planned HT seeds", C["menu"], "-"), ("trig_nn", "+ NN seed (+2.5 kHz)", C["NN"], "-"),
+        ("trig_l1", "+ pixel seed (+2.5 kHz)", C["L1 pixel"], "-"),
+        ("comb_menu_l1", "HT seeds + pixel tags in scouting", FALLBACK, "--"),
+        ("scout_l1", "scouting alone, L1 pixel tags", SCOUT, ":")]
+d15 = json.load(open(src.replace(".json", "_15khz.json"))) if os.path.exists(src.replace(".json", "_15khz.json")) else None
 INT = {"comb_menu_l1": "comb_menu+scout_l1"}  # curve key -> result key
 
 fig, (a, b) = plt.subplots(1, 2, figsize=(10, 3.9), gridspec_kw={"width_ratios": [1.25, 1]})
@@ -51,18 +54,21 @@ def regions(q, lvl):
     return out
 
 
-for i, (key, lab, col, ls) in enumerate(rows):
-    q = d["curves"][key]
-    y = len(rows) - 1 - i
+irows = [(key, lab, col, ls, d) for key, lab, col, ls in rows]
+if d15 is not None:  # the same seeds at +15 kHz (CMS's b-tag NN seed rate), interval panel only
+    irows[3:3] = [("trig_nn", "+ NN seed (+15 kHz)", C["NN"], "15", d15), ("trig_l1", "+ pixel seed (+15 kHz)", C["L1 pixel"], "15", d15)]
+for i, (key, lab, col, ls, dd) in enumerate(irows):
+    q = dd["curves"][key]
+    y = len(irows) - 1 - i
     for lo, hi in regions(q, 3.84):
         b.plot([lo, hi], [y, y], color=col, lw=2, solid_capstyle="round", alpha=0.45 if ls != "-" else 0.6)
     regs = regions(q, 1.0)
     for lo, hi in regs:
-        b.plot([lo, hi], [y, y], color=col, lw=7, solid_capstyle="round", alpha=0.9)
+        b.plot([lo, hi], [y, y], color=col, lw=7, solid_capstyle="round", alpha=0.45 if ls == "15" else 0.9)
     txt = "  ∪  ".join(f"[{lo:+.1f}, {hi:+.1f}]" for lo, hi in regs)
     b.text(8.2, y, txt, va="center", ha="left", fontsize=8.5, color=INK2)
 b.axvline(1.0, color="#c3c2b7", lw=1)
-b.set_yticks(range(len(rows)), [lab for _, lab, _, _ in rows][::-1], fontsize=8.5)
+b.set_yticks(range(len(irows)), [r[1] for r in irows][::-1], fontsize=8.5)
 b.set(xlim=(-4, 8), xlabel=r"allowed $\kappa_\lambda$ (thick 68%, thin 95%; every region drawn)")
 b.grid(axis="y", visible=False)
 fig.suptitle(r"HH$\to$4b, 3000 fb$^{-1}$, stat. only, L1-jet resolution; background: minimum bias $\times$ QCD 4b fractions by seed score",

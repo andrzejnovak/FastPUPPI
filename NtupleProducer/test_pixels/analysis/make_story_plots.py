@@ -40,7 +40,10 @@ def load_flags():
             fl[k] = pf[k][ix]
     ctl = dict(np.load("ht_control_flags.npz"))
     cp = {(l, e): i for i, (l, e) in enumerate(zip(ctl["lumi"], ctl["event"]))}
-    fl["HTlow"] = ctl[f"HTlow|menu|{ADD}"][np.array([cp[(l, e)] for l, e in zip(fl["lumi"], fl["event"])])]
+    cix = np.array([cp[(l, e)] for l, e in zip(fl["lumi"], fl["event"])])
+    fl["HTlow"] = ctl[f"HTlow|menu|{ADD}"][cix]
+    if "HTlow|menu|15" in ctl:
+        fl["HTlow15"] = ctl["HTlow|menu|15"][cix]
     g = {k: np.concatenate([np.load(f)[k] for f in sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"))])
          for k in ("lumi", "event", "mhh")}
     gp = {(l, e): i for i, (l, e) in enumerate(zip(g["lumi"], g["event"]))}
@@ -66,11 +69,11 @@ def recovery():
     """One small panel per population (explicit denominators), one marker per trigger option."""
     fl, mhh, wi = load_flags()
     odd, off = fl["odd"].astype(bool), fl["offline_4b3b"].astype(bool)
-    rows = [("Planned HT seeds (no b tag)", fl["menu"], C["menu"], "o"),
-            (f"+ {ADD} kHz on lower HT cuts", fl["HTlow"], C["HT"], "o"),
-            (f"+ {ADD} kHz seed, today's L1 NN", fl[f"NN|menu|{ADD}"], C["NN"], "o"),
-            (f"+ {ADD} kHz seed, pixel hits (path A)", fl[f"L1 pixel|menu|{ADD}"], C["L1 pixel"], "o"),
-            (f"+ {ADD} kHz seed, perfect b tag", fl[f"perfect|menu|{ADD}"], C["perfect"], "D")]
+    rows = [("Planned HT seeds (no b tag)", fl["menu"], None, C["menu"], "o"),
+            ("+ same rate on lower HT cuts", fl["HTlow"], fl.get("HTlow15"), C["HT"], "o"),
+            ("+ seed with today's L1 NN", fl[f"NN|menu|{ADD}"], fl["NN|menu|15"], C["NN"], "o"),
+            ("+ seed with pixel hits (path A)", fl[f"L1 pixel|menu|{ADD}"], fl["L1 pixel|menu|15"], C["L1 pixel"], "o"),
+            ("+ seed with a perfect b tag", fl[f"perfect|menu|{ADD}"], fl["perfect|menu|15"], C["perfect"], "D")]
     pops = [("All SM HH→4b events", odd, None), ("m$_{HH}$ < 400 GeV", odd & (mhh < 400), None),
             ("Would pass offline 4b+3b,\nm$_{HH}$ < 400 GeV", odd & off & (mhh < 400), None),
             ("κλ information in offline-\nselectable events (signal only)", odd & off, wi)]
@@ -78,19 +81,30 @@ def recovery():
     out = {}
     for ax, (title, den, w) in zip(axes, pops):
         w = np.ones(len(den)) if w is None else w
-        for i, (lab, flag, c, mk) in enumerate(rows):
+        for i, (lab, flag, flag15, c, mk) in enumerate(rows):
             v = 100 * (w * (flag.astype(bool) & den)).sum() / (w * den).sum()
             y = len(rows) - 1 - i
             ax.plot([0, v], [y, y], color=c, lw=1.2, alpha=0.4)
             ax.plot(v, y, mk, ms=8, color=c)
-            ax.text(v + 3, y, f"{v:.0f}%", va="center", fontsize=8.5, color=INK2)
-            out[f"{title.replace(chr(10), ' ')} | {lab}"] = round(float(v), 1)
+            txt = f"{v:.0f}"
+            if flag15 is not None:
+                v15 = 100 * (w * (flag15.astype(bool) & den)).sum() / (w * den).sum()
+                ax.plot([v, v15], [y, y], color=c, lw=1.2, alpha=0.6)
+                ax.plot(v15, y, mk, ms=8, color=c, mfc="white", mew=1.8)
+                txt += f" → {v15:.0f}"
+                out[f"{title.replace(chr(10), ' ')} | {lab} | 15 kHz"] = round(float(v15), 1)
+                v = max(v, v15)
+            ax.text(v + 3, y, txt + "%", va="center", fontsize=8.5, color=INK2)
+            out[f"{title.replace(chr(10), ' ')} | {lab}"] = round(float(100 * (w * (flag.astype(bool) & den)).sum() / (w * den).sum()), 1)
         ax.set_xlim(0, 118)
         ax.set_xticks([0, 50, 100])
         ax.set_title(title, loc="left", fontsize=9.5, color=INK)
         ax.set_xlabel("kept by L1 [%]")
         ax.grid(axis="y", visible=False)
     axes[0].set_yticks(range(len(rows)), [r[0] for r in rows][::-1])
+    h = [plt.Line2D([], [], marker="o", ls="", color=INK2, ms=7, label="filled: +2.5 kHz on top of the HT seeds"),
+         plt.Line2D([], [], marker="o", ls="", color=INK2, ms=7, mfc="white", mew=1.6, label="open: +15 kHz (CMS b-tag NN seed rate)")]
+    fig.legend(handles=h, loc="lower center", ncol=2, fontsize=9, bbox_to_anchor=(0.5, -0.08))
     fig.tight_layout()
     fig.savefig(f"{OUT}/recovery.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -259,7 +273,7 @@ def scout():
     a.legend(fontsize=8, loc="center right")
     a.set_title("Scouted events only have L1 tags", loc="left", fontsize=10, color=INK)
     rows = [("menu + pixel seed (path A)\noffline tags on triggered events", sc["trig_l1"], C["L1 pixel"]),
-            ("scouting alone\nL1 pixel tags, every crossing HT > 150", sc["scout_l1"], "#c9c6bd")]
+            ("scouting alone\nL1 pixel tags, every crossing HT > 150", sc["scout_l1"], "#0f8a5f")]
     for k, (lab, r, c) in enumerate(rows):
         y = 1 - k
         b.barh(y + 0.18, r["S"], height=0.32, color=c)

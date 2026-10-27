@@ -49,6 +49,8 @@ N_BX = LUMI / (7.5e34 / (2760 * 11245) * 1e-39)  # crossings in 3000/fb at 7.5e3
 SIG_SM = 36.69 * 0.5824 ** 2 * LUMI
 XS = lambda k: (70.3874 - 50.4111 * k + 11.0595 * k ** 2) / 31.0358  # sigma(kl) / sigma(1), ggF
 HT_CUT, JET_PT = 150.0, 20.0
+SEED_KHZ = float(os.environ.get("SEED_KHZ", "2.5"))
+N_CAT = int(os.environ.get("N_CAT", "0"))  # seed-score categories for the seed-added events (0: ~10 MB events each, 1-8)  # added rate of the tagged seeds on top of the HT seeds
 OFFLINE_P = {5: 0.84, 4: 0.12, 0: 0.01}
 MISTAGS = (0.002, 0.005, 0.01, 0.02, 0.05)
 PT_BINS = np.array([20, 30, 40, 50, 65, 80, 100, 130, 170, 250, 1e9])
@@ -299,7 +301,7 @@ def main():
     qseeds = {"menu": qcd["sp_menu"].astype(bool)}
     for tag in ("nn", "l1", "perfect"):
         e, h, s = D.best(hh[f"sp_{tag}"][ev_hh], hh["sp_ht"][ev_hh], fid[ev_hh], mb[f"sp_{tag}"][ev_mb],
-                         mb["sp_ht"][ev_mb], np.full(ev_mb.sum(), w_fold), 2.5,
+                         mb["sp_ht"][ev_mb], np.full(ev_mb.sum(), w_fold), SEED_KHZ,
                          hh["sp_menu"][ev_hh].astype(bool), mb["sp_menu"][ev_mb].astype(bool))
         seeds[tag] = (((hh["sp_ht"] > h) & (hh[f"sp_{tag}"] > s)) | seeds["menu"][0],
                       ((mb["sp_ht"] > h) & (mb[f"sp_{tag}"] > s)) | seeds["menu"][1])
@@ -403,11 +405,25 @@ def main():
     trig = {}
     for sd, (ah, am) in seeds.items():
         mh = seeds["menu"][0]
-        coef = templates(w_kl, [hw * mh * h4, hw * mh * h3, hw * (ah & ~mh) * h4, hw * (ah & ~mh) * h3], hh["m4j"])
-        # two strata as separate categories with their own QCD fractions: menu-accepted, and added by the seed
-        # (b-enriched for tagged seeds)
-        added = (mw & am & ~seeds["menu"][1], qseeds[sd] & ~qseeds["menu"]) + ((f"sp_{sd}",) if sd in ("nn", "l1") else ())
-        b, b2, n = strata_bkg([(mw & seeds["menu"][1], qseeds["menu"]), added], f"trig_{sd}", m4, m3)
+        # categories: menu-accepted, and the seed-added events split into N_CAT bins of seed score (as an analysis
+        # would; one lumped category lets low-purity added events dilute the good ones), each with its own QCD fractions
+        cats_h, strata = [mh], [(mw & seeds["menu"][1], qseeds["menu"])]
+        if sd in ("nn", "l1"):
+            key = f"sp_{sd}"
+            # edges from the seed-added minimum-bias events, so every category keeps its own background events
+            n_added = int((mw & am & ~seeds["menu"][1]).sum())
+            ncat = N_CAT if N_CAT > 0 else int(np.clip(n_added // 10, 1, 8))  # ~10 minimum-bias events per category
+            edges = np.quantile(mb[key][mw & am & ~seeds["menu"][1]], np.linspace(0, 1, ncat + 1)[1:-1])
+            print(f"  trig_{sd}: {n_added} seed-added minimum-bias events in the window -> {ncat} score categories", flush=True)
+            cat = lambda x: np.digitize(x, edges)
+            for c in range(ncat):
+                cats_h.append(ah & ~mh & (cat(hh[key]) == c))
+                strata.append((mw & am & ~seeds["menu"][1] & (cat(mb[key]) == c), qseeds[sd] & ~qseeds["menu"], key))
+        else:
+            cats_h.append(ah & ~mh)
+            strata.append((mw & am & ~seeds["menu"][1], qseeds[sd] & ~qseeds["menu"]))
+        coef = templates(w_kl, [hw * cm * t for cm in cats_h for t in (h4, h3)], hh["m4j"])
+        b, b2, n = strata_bkg(strata, f"trig_{sd}", m4, m3)
         trig[sd] = (coef, b, b2, n)
         curves[f"trig_{sd}"] = summarize(f"trig_{sd}", coef, b, b2, n, res)[::8].tolist()
 

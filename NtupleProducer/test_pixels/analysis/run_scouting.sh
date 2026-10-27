@@ -14,7 +14,8 @@ cd $A  # relative list paths
 export OMP_NUM_THREADS=4 MB_TOTAL=1999360 HT_MIN=150 PYTHONPATH=$WD PIXSUM=${PIXSUM:-v1}
 S=/scratch/submit/cms/novaka/l1pixels
 SP=seed_plane.npz; [ -n "$SUF" ] && SP=$S/derived/analysis_v2/seed_plane$SUF.npz
-python3 $WD/scouting.py $S/derived/scouting/scouting$SUF.json "$S/local_v3/perfNano_HH4b_*.root" \
+# SEED_KHZ (default 2.5): added rate of the tagged seeds; KSUF names the output (e.g. _15khz)
+python3 $WD/scouting.py $S/derived/scouting/scouting$SUF${KSUF}.json "$S/local_v3/perfNano_HH4b_*.root" \
   "$S/local_mbsel_ext/perfNano_MinBiasSel_*.root,$S/local_mbnew/perfNano_MinBiasNew_*.root" \
   lists_l1ext_HH4b.npz:lists_l1ext_QCDFlat.npz:lists_l1ext_MinBiasSel.npz:lists_l1ext_MinBiasNew.npz \
   $SP "$S/genmhh/mhh_*.npz" "klreweight/nano_mhh_kl*.npz"

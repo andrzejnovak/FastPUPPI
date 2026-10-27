@@ -10,4 +10,4 @@ source /work/submit/novaka/tools/ana-venv/bin/activate
 cd /work/submit/novaka/l1pixels/analysis
 S=/scratch/submit/cms/novaka/l1pixels
 python3 ht_control.py ht_control_flags.npz "$S/local_v3/perfNano_HH4b_*.root" \
-  "$S/local_mbsel_ext/perfNano_MinBiasSel_*.root,$S/local_mbnew/perfNano_MinBiasNew_*.root" 1 2.5 5 10
+  "$S/local_mbsel_ext/perfNano_MinBiasSel_*.root,$S/local_mbnew/perfNano_MinBiasNew_*.root" 1 2.5 5 10 15

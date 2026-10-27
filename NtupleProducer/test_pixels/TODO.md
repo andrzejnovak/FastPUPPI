@@ -66,4 +66,8 @@
 - [x] Chip-granular readout (analysis/chip_readout.py): ~68 whole chips, 73 / 28 Gb/s at HT > 140 / 200, ~9 us per crossing
       on one e-link (barrel layer 1 chips ~8 kbit each).
 - [ ] Regenerate the seed-plane figure (its 20 kHz numbers, 55/68%, disagree with rate_case.py's 65/76%); removed from the page.
+- [x] Second rate benchmark +15 kHz (CMS's b-tag NN seed rate, PoS(ICHEP2022)639) next to +2.5 kHz (this study's choice);
+      scouting.py SEED_KHZ, ht_control at 15 kHz. kappa_lambda fit now splits seed-added events into seed-score categories
+      (~10 MB events each). +2.5 kHz: NN 1.76 / pixel 1.84 sigma, kl5 SM excl. 1.6 / 2.2; +15 kHz: 1.73 / 1.72, 1.5 / 1.8.
+      Minimum-bias statistics limit the fit to ~+-0.1 sigma: a larger high-HT minimum-bias sample would sharpen it.
 

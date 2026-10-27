@@ -575,15 +575,18 @@ if os.path.exists("offline_scenarios.npz"):
                                        ("soft_wide", "Softer offline selection"))):
         sel = odd & scn[scen][si_] & (mhh < 400)
         klw = lambda f: 100 * f[sel].mean()
-        ax.axhline(klw(fl["menu"]), c=C["menu"], lw=1.5, ls="--", label="Run-3-style menu alone")
-        ax.text(0.43, klw(fl["menu"]) + 1, f"Run-3-style menu alone: {klw(fl['menu']):.0f}%", fontsize=8.5, color=INK2)
+        ax.axhline(klw(fl["menu"]), c=C["menu"], lw=1.5, ls="--", label="planned HT seeds alone")
+        ax.text(0.43, klw(fl["menu"]) + 1, f"planned HT seeds alone (no b tag): {klw(fl['menu']):.0f}%", fontsize=8.5, color=INK2)
         for tag, c, lab in (("NN", C["NN"], "today's L1 NN"), ("L1 pixel", C["L1 pixel"], "L1 tracks + pixel hits"),
                             ("perfect", C["perfect"], "perfect b tag")):
             y = [klw(fl[f"{tag}|menu|{r:g}"]) for r in rates]
             ax.plot(rates, y, "o-", c=c, lw=2.2 if tag != "perfect" else 1.2, ms=4.5, ls="-" if tag != "perfect" else "--",
                     label=f"+ seed with {lab}")
-        ax.set_xscale("log"); ax.set_xticks([0.5, 1, 2.5, 5, 10]); ax.set_xticklabels(["0.5", "1", "2.5", "5", "10"])
-        ax.set_xlim(0.4, 16)
+        ax.set_xscale("log"); ax.set_xticks([0.5, 1, 2.5, 5, 10, 15]); ax.set_xticklabels(["0.5", "1", "2.5", "5", "10", "15"])
+        ax.set_xlim(0.4, 17)
+        for xb, tb in ((2.5, "benchmark +2.5 kHz"), (15, "+15 kHz\n(CMS b-tag\nNN seed)")):
+            ax.axvline(xb, color="#c3c2b7", lw=1.2, ls="--")
+            ax.text(xb * 0.97, 33, tb, fontsize=7.5, color=INK2, ha="right", va="bottom")
         ax.set_xlabel("added L1 rate on top of the menu [kHz]")
         ax.set_title(title, loc="left", fontsize=10, color=INK)
     axs[0].set_ylabel("low-m$_{HH}$ events kept by L1 [%]")
