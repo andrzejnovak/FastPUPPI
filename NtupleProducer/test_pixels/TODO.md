@@ -98,8 +98,11 @@
       chip minimum); shared FIFO fails (hot modules 60-97% busy with normal readout; corrected payload).
 - [x] Barrel layer 1 only (replaceable layer; one-hit extension, KEEP_LIDS=1 MIN_HITS=1): 18/45 per jet, seed 70.3% vs
       NN 69.5%: one fast layer is not enough.
-- [ ] Weighted pT-binned QCD background (OSG cluster 3824054 on submit05, osg/qcdpt; offline_w dumps): run_qcdbkg.sh
+- [~] Weighted pT-binned QCD background: production done (558/558 ntuples in local_qcdpt; 1314/1325 offline_w dumps) (OSG cluster 3824054 on submit05, osg/qcdpt; offline_w dumps): run_qcdbkg.sh
       merge + fit; closure vs minimum bias; bootstrap. Low pT-hat bins (30-120) are weaker per event than minimum bias:
       phase 2 = step1 on offline-pre-selected events of all files (offline_w dumps of all 30-120 files: slurm_offline_w2.sh).
-- [ ] Low-mass offline selection with weighted QCD and real UParT tags (offline_lowmass_w.py, queued after the dumps).
+- [x] Low-mass offline selection with weighted QCD (offline_lowmass_w.py): softer selections triple the kappa_lambda information
+      but take 5-10x the weighted QCD: S/sqrt(B) x1.0-1.15 only (the earlier x1.44 used unweighted QCDFlat). Real tags: n_eff <= 13.
+- [x] L1 (40 MHz) scouting: no pixel data at 40 MHz; even perfect tags Z 0.24 alone, +0 on top of the trigger; offline tags
+      on every HT>150 crossing 1.62 vs menu 1.61. No case for HH->4b. HLT scouting dropped (user: L1 scouting is the question).
 - [ ] Firmware (HLS) latency/resources of the extension; vertex robustness; one-hit d0 error.

@@ -16,7 +16,7 @@ pixel-vs-NN projection and pixel scouting deliverable?
 - **The refit and tag package itself is robust:**
   - 64-bit word: no loss;
   - 10% random hit loss: −0.6 points at the seed.
-- **Background:** pT-binned QCD with generator cross-sections is being produced:
+- **Background:** pT-binned QCD with generator cross-sections (production complete 2026-10-27 16:00):
   - pixel ntuples: 558 OSG jobs, ~140k events;
   - offline jets with weights: all 654 QCD files.
   - Fit (`kl_qcdbkg.py`): direct flavour-aware background, closure against minimum bias, and a bootstrap.
@@ -113,12 +113,42 @@ Not done:
 
 ## Item 3: low-mass offline selection (internal)
 
-Pending: `offline/offline_lowmass_w.py` (`run_lowmass_w.sh`). Background:
-- pT-binned QCD with cross-sections (all 1000 events per file, 558 files);
-- real UParT tags on the chosen jets;
-- for comparison, the truth-tag probabilities used before;
-- n_eff per variant;
-- an m_4j sculpting check (4-tag vs 2-medium-tag shape in the window).
+`offline/offline_lowmass_w.py` (`run_lowmass_w.sh` → `derived/offline_lowmass_w.json`).
+
+Background:
+- pT-binned QCD (pT-hat 30–470), 1.22M events, each bin weighted with its generator cross-section to 3000/fb;
+- ≥ 4 jets, offline HT 150–800: 251k events;
+- the same selection variants as offline_lowmass.py.
+
+Results:
+- **Real UParT tags:** the tagged window holds n_eff = 1–13 weighted events (one 30–50 GeV event weighs 7e8), so
+  real-tag background ratios are noise (±100%).
+- **Truth-tag probabilities** (b 0.84, c 0.12, light 0.01 per jet, every event contributes):
+
+| Variant | κλ information | m_HH < 400 eff. | QCD (truth-tag) | Information-weighted S/√B |
+|---|---|---|---|---|
+| today (jets > 30, \|m1 − m2\| pairing, window 30) | ×1.00 | 5.3% | ×1.0 | ×1.00 |
+| jets > 20, χ² pairing, window 30 (earlier "best") | ×2.11 | 11.9% | ×4.6 | ×0.99 |
+| jets > 20, χ² pairing, window 40 | ×2.97 | 16.1% | ×6.7 | ×1.15 |
+| jets > 20, χ² pairing, window 50 | ×3.53 | 18.8% | ×9.8 | ×1.13 |
+
+- **This revises the earlier claim.** "2.1× information for 1.4× QCD" came from unweighted QCDFlat. With properly
+  weighted QCD the softer selections take in 5–10× more background, and S/√B gains only ~1.0–1.15×.
+- The low-mass signal can be accepted, but the multijet background grows as fast. A real gain needs better
+  discrimination (tagging or kinematics), not looser cuts.
+- Caveats: QCD only (no ttbar), truth tags assume independent jets, and no pT-hat < 30.
+
+## L1 (40 MHz) scouting: no case for HH→4b, with or without pixels
+
+- Pixel hits leave the CROC only for L1-accepted crossings, so L1 scouting cannot carry pixel information at all.
+- Even with ideal tags it adds nothing (`scouting.py`, `derived/scouting/scouting.json`, every crossing with L1 HT > 150):
+  - perfect b-tags in scouting: Z = 0.24 alone; on top of the triggered stream 2.26 → 2.26;
+  - pixel-quality tags: 0.14;
+  - NN: 0.02;
+  - offline-quality tags on every crossing: 1.62 vs the triggered menu's 1.61.
+- The limit is L1-jet kinematics (m_4j, Higgs window) and the multijet background, not tagging.
+- Caveat: minimum-bias background with QCD tag fractions (unvalidated model). A 10× smaller background still leaves
+  perfect-tag scouting < 1σ alone.
 
 ## Background for the κλ projection and scouting
 
