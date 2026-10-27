@@ -41,3 +41,14 @@
 - [x] Perfect-tag ceiling with a flavour-aware rate (2026-10-27, `perfect_ceiling.py`): 92.6 → 82.2% of all events at
       +2.5 kHz; 99.5 → 98.9% of offline-selected below 400 GeV. Still an upper bound (pileup b jets unlabelled).
 - [x] Analysis environment moved to pixi (`analysis/pixi.toml`); CMSSW only for production and FWLite.
+
+## Page plots we want but lack the inputs for (2026-10-27 page overhaul)
+- [ ] κλ scan at offline resolution with a real background model (needs the HH→4b group's background model, or a large
+      QCD / b-enriched sample at L1 HT 150–400 to fix the flavour content of seed-added events: models A/B on the page).
+- [ ] Rate case for other b-rich channels (ttH(bb), bbH, Z'→bb, HH→bbττ): needs those Phase-2 samples with pixel tables.
+- [ ] Readout latency per crossing with the real IT e-link configuration (pixel DAQ input; CMSSW has no e-link map).
+- [ ] Gains after an HLT emulation (can only lower them).
+- [ ] Firmware latency and resources of the track extension (FPGA study).
+- [ ] Same-definition comparison with the published CMS b-tag NN seed (PoS(ICHEP2022)639, fig. 4: NN @ 15 kHz vs
+      QuadJet+HT @ 11 kHz vs m_HH).
+
