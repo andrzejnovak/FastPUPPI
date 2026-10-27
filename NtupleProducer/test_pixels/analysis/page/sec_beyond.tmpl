@@ -1,11 +1,11 @@
 <section class="panel" role="tabpanel" id="p-more" aria-labelledby="t-more" hidden>
   <div class="tiles">
-    <div><span class="k">L1 charm tag, c vs light at 10%</span><span class="v">16% &rarr; 29% &rarr; 34%</span><span class="s">today&#39;s NN &rarr; + L1 tracks with pixel hits &rarr; + recalibrated 3D impact parameter and a charm word</span></div>
-    <div><span class="k">VBF H&rarr;cc kept by the planned menu</span><span class="v">57%</span><span class="s">of events in a generator VBF + cc acceptance (H&rarr;bb: 53%); a pixel-tagged VBF seed at +2&nbsp;kHz: 62% (H&rarr;bb: 51&nbsp;&rarr;&nbsp;61%)</span></div>
-    <div><span class="k">Boosted ggH, Higgs p<sub>T</sub> &gt; 200&nbsp;GeV, kept by the planned menu</span><span class="v">98&ndash;100%</span><span class="s">SingleJet230 or HT450 already fire: L1 is not the bottleneck, the HLT is (ZH(&nu;&nu;) above 150&nbsp;GeV: 96&ndash;98%)</span></div>
+    <div><span class="k">L1 charm tag: c efficiency at 10% light mistag</span><span class="v">16% &rarr; 29% &rarr; 34%</span><span class="s">pixels nearly double it: NN &rarr; + pixel hits &rarr; + recalibrated displacement and a charm-specific summary</span></div>
+    <div><span class="k">VBF H&rarr;cc / bb kept by the planned menu</span><span class="v">58% / 51%</span><span class="s">of events in a VBF + cc / bb acceptance; a tagged VBF seed at +2&nbsp;kHz: cc 61% (NN) &rarr; 62% (pixels), bb 56% &rarr; 61%</span></div>
+    <div><span class="k">Boosted ggH (Higgs p<sub>T</sub> &gt; 200&nbsp;GeV) kept by the planned menu</span><span class="v">98&ndash;100%</span><span class="s">little L1 loss left; ZH(&nu;&nu;) with MET &gt; 150&nbsp;GeV: 96% (bb) / 98% (cc) of all such events</span></div>
   </div>
   <figure>{img("ctag_roc.png", "ROC curves for L1 charm tagging, c versus light and c versus b, for the L1 NN, Outer-Tracker-only displaced tracks, L1 tracks with pixel hits and HLT pixel tracks")}
-    <figcaption><b>Pixels make L1 charm tagging possible:</b> 16% &rarr; 29% c efficiency at 10% light mistag.</figcaption></figure>
+    <figcaption><b>Pixels nearly double the L1 charm efficiency:</b> 16% &rarr; 29% at 10% light mistag.</figcaption></figure>
   <div class="tablewrap"><table>
     <tr><th>c efficiency (QCD jets)</th><th class="n">vs light 1%</th><th class="n">vs light 10%</th><th class="n">vs b 30%</th><th class="n">Bits</th></tr>
     <tr><td>Today&#39;s L1 NN</td><td class="n">5.1%</td><td class="n">15.6%</td><td class="n">40.7%</td><td class="n">&mdash;</td></tr>
@@ -14,13 +14,13 @@
     <tr class="hl"><td><b>Recalibrated 3D impact parameter + charm word</b></td><td class="n"><b>10.4%</b></td><td class="n"><b>33.5%</b></td><td class="n"><b>66.2%</b></td><td class="n">125</td></tr>
     <tr><td>Same, one combined word</td><td class="n">9.8%</td><td class="n">32.8%</td><td class="n">65.4%</td><td class="n">62</td></tr>
   </table></div>
-  <p class="note col" style="margin:0"><b>The lever is the inputs, not more features.</b> The refit used a d0 error fitted to HLT pixel tracks (88&nbsp;&micro;m floor); minimum-bias negative-IP tails give 17&ndash;85&nbsp;&micro;m, and the refit z<sub>0</sub> adds a longitudinal significance. Charm word: track counts in significance bands, vertex and two-track mass, displaced p<sub>T</sub> fractions, decay length and its significance, vertex charge (<code>charm_feats2.py</code>, <code>ctag_charm.py</code>). Bootstrap &plusmn;0.5 points at 10% light. The VBF H&rarr;cc seed does not move (62% at +2&nbsp;kHz): only ~50 events separate the seeds there. Same recalibration lifts the b tag from 48/78% to 55/83% at 1%/10% light (not yet propagated to tabs 1&ndash;4, 7).</p>
+  <p class="note col" style="margin:0"><b>The lever is the inputs, not more features.</b> The refit used a d0 error fitted to HLT pixel tracks (88&nbsp;&micro;m floor); minimum-bias negative-IP tails give 17&ndash;85&nbsp;&micro;m, and the refit z<sub>0</sub> adds a longitudinal significance. Charm word: track counts in significance bands, vertex and two-track mass, displaced p<sub>T</sub> fractions, decay length and its significance, vertex charge (<code>charm_feats2.py</code>, <code>ctag_charm.py</code>). Bootstrap &plusmn;0.5 points at 10% light. The VBF H&rarr;cc seed does not move (62% at +2&nbsp;kHz): only ~50 events separate the seeds there. The same recalibration lifts the per-jet b tag from 47/78% to ~54/83% at 1%/10% light, but not the HH&rarr;4b seed (tab 2, &ldquo;alternatives tested&rdquo;).</p>
   <div class="col"><h3>VBF H&rarr;cc and H&rarr;bb: the trigger is a real bottleneck</h3>
     <p class="note" style="margin:0">Acceptance: two Higgs-flavour jets (p<sub>T</sub>&nbsp;&gt;&nbsp;30, |&eta;|&nbsp;&lt;&nbsp;2.4) plus a VBF pair (m<sub>jj</sub>&nbsp;&gt;&nbsp;500, |&Delta;&eta;|&nbsp;&gt;&nbsp;3).</p></div>
   <div class="tablewrap"><table>
     <tr><th>Fraction of accepted events kept</th><th class="n">VBF H&rarr;cc</th><th class="n">VBF H&rarr;bb</th></tr>
     <tr><td>Acceptance (of all events)</td><td class="n">12.9%</td><td class="n">14.8%</td></tr>
-    <tr class="hl"><td><b>Planned menu (any hadronic seed)</b></td><td class="n"><b>57%</b></td><td class="n"><b>53%</b></td></tr>
+    <tr class="hl"><td><b>Planned menu (any hadronic seed), all events</b></td><td class="n"><b>57%</b></td><td class="n"><b>53%</b></td></tr>
     <tr><td>VBF seed <code>DoublePuppiJet160_35_mass620</code></td><td class="n">39%</td><td class="n">36%</td></tr>
 </table></div>
   <details class="more"><summary>Which planned seeds fire on VBF events</summary><div class="tablewrap"><table>
@@ -31,7 +31,7 @@
   <div class="col"><h3>A flavour-tagged VBF seed: what it adds at fixed rate</h3>
     <p class="note" style="margin:0">A looser VBF pair plus two tagged central jets, on top of the planned menu. Cuts chosen on even events, quoted on odd.</p></div>
   <figure>{img("vbf_tag_rate.png", "Fraction of VBF H to cc and H to bb events in the acceptance kept by the planned menu plus a looser VBF seed, against the added L1 rate; no tag, today's NN tag and the pixel tag")}
-    <figcaption><b>Tags help, lower thresholds do not.</b> At +2&nbsp;kHz: H&rarr;cc 58&nbsp;&rarr;&nbsp;62%, H&rarr;bb 51&nbsp;&rarr;&nbsp;61%.</figcaption></figure>
+    <figcaption><b>Tags help more than looser VBF cuts</b> (which add ~1 point). At +2&nbsp;kHz: H&rarr;cc 58&nbsp;&rarr;&nbsp;62%, H&rarr;bb 51&nbsp;&rarr;&nbsp;61%; the pixel gain over the NN is small for cc, larger for bb.</figcaption></figure>
   <div class="tablewrap"><table>
     <tr><th>Kept, of events in the acceptance (odd events)</th><th class="n">VBF H&rarr;cc</th><th class="n">VBF H&rarr;bb</th></tr>
     <tr><td>Planned menu</td><td class="n">58.0%</td><td class="n">51.4%</td></tr>
@@ -57,7 +57,7 @@
   </ul>
   <div class="col"><h3>Boosted ggH and ZH(&nu;&nu;): the planned menu already keeps them</h3></div>
   <figure>{img("menu_vs_pt.png", "Fraction of events kept by the planned Phase-2 L1 menu: left, boosted ggH to cc and bb against Higgs pT, reaching 98 to 100 percent above 200 GeV; right, ZH with Z to neutrinos against generator MET, reaching 93 to 100 percent above 150 GeV")}
-    <figcaption><b>L1 is not the limit here.</b> Boosted ggH above 200&nbsp;GeV and ZH(&nu;&nu;) above 150&nbsp;GeV MET: 96&ndash;100% kept.</figcaption></figure>
+    <figcaption><b>Little L1 loss remains in these regions.</b> Per-bin efficiencies; integrated: boosted ggH above 200&nbsp;GeV 98&ndash;100%, ZH(&nu;&nu;) above 150&nbsp;GeV 96&ndash;98%.</figcaption></figure>
   <details class="more"><summary>Large-jet tools and private samples</summary>  <ul class="tight">
     <li>The large-jet tools are in place should the 100&ndash;200&nbsp;GeV region matter: L1 R&nbsp;=&nbsp;0.8 seeded-cone jets with a mass from their PUPPI constituents (the L1 jet mass is not filled; merged H&rarr;cc jets peak at ~125&nbsp;GeV above a Higgs p<sub>T</sub> of 250&nbsp;GeV, minimum-bias jets at ~23&nbsp;GeV) and the two-prong score (median 0.99 for merged H&rarr;cc, 0.94 for minimum bias).</li>
     <li>Private samples (no Phase-2 ggH&rarr;bb/cc exists): Pythia8 H + jet with top-mass dependence, p&#770;<sub>T</sub>&nbsp;&gt;&nbsp;150&nbsp;GeV, and ZH with Z&rarr;&nu;&nu;, through the official Spring24 GEN-SIM &rarr; PU&nbsp;200 DIGI/L1/HLT recipe.</li>

@@ -273,7 +273,7 @@ FJ = "/scratch/submit/cms/novaka/l1pixels/derived/fatjet_parts"
 zh = json.load(open("zh_met.json"))
 fig, axs = plt.subplots(1, 2, figsize=(11, 4.2))
 edges = np.array([100, 150, 200, 250, 300, 400, 600])
-for name, col, lab in (("ggHcc_pt150", C["L1 pixel"], "ggH, H→cc"), ("ggHbb_pt150", C["NN"], "ggH, H→bb")):
+for name, col, lab in (("ggHcc_pt150", "#1baf7a", "ggH, H→cc"), ("ggHbb_pt150", "#6250d6", "ggH, H→bb")):  # decay colours, not tagger colours
     E = np.concatenate([np.load(f)["ev"] for f in sorted(glob.glob(f"{FJ}/{name}_*.npz"))])
     hpt, menu = E[:, 2], (E[:, 6] > 0) | (E[:, 7] > 0)
     idx = np.digitize(hpt, edges) - 1
@@ -288,7 +288,7 @@ for name, col, lab in (("ggHcc_pt150", C["L1 pixel"], "ggH, H→cc"), ("ggHbb_pt
 axs[0].set_xlabel("Higgs pT (generator jets of the Higgs flavour within ΔR < 0.8) [GeV]")
 axs[0].set_ylabel("kept by the planned menu [%]")
 axs[0].set_title("Boosted ggH: SingleJet230 or HT450 already fire", loc="left", fontsize=10, color=INK)
-for name, col, lab in (("ZHnunu_cc", C["L1 pixel"], "ZH(νν), H→cc"), ("ZHnunu_bb", C["NN"], "ZH(νν), H→bb")):
+for name, col, lab in (("ZHnunu_cc", "#1baf7a", "ZH(νν), H→cc"), ("ZHnunu_bb", "#6250d6", "ZH(νν), H→bb")):
     rows = [r for r in zh[name]["by_genmet"] if r["n"]]
     lo = np.array([r["genmet"][0] for r in rows]); hi = np.array([min(r["genmet"][1], 600) for r in rows])
     for key, fmt, mfc, sub in (("menu", "o", col, "menu"), ("MET200", "s", "white", "PuppiMET200 alone")):

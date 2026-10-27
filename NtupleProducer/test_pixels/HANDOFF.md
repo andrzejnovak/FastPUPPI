@@ -36,6 +36,12 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    lower mass either: ≤ 6% of windowed signal lies below L1 HT 150. **Perfect-b-tag ceiling corrected**
    (`perfect_ceiling.py`): its minimum-bias rate now comes from QCD P(n_b | L1 HT); at +2.5 kHz HT > 150 with ≥ 3 b
    (0.33 kHz): 82.2% of all events (was 92.6%), 98.9% of offline-selected below 400 GeV (was 99.5%).
+   **Update 2026-10-27:** with the seed-added background taken from QCD binned in seed score (default
+   `BKG_MODEL=score`), NN and pixel seeds tie at the SM (1.73 / 1.71 sigma) and the pixel seed leads for kl = 5 (SM
+   excluded 1.75 vs 1.4 sigma); the per-class model was a small-sample artefact. The mock offline selection loses low
+   m_HH (jets > 30, |m1 - m2| pairing): a jets > 20 + chi2-pairing selection captures 2.1x the kl information for 1.4x
+   QCD and keeps the pixel lead (`offline/offline_lowmass.py`). Readout with whole chips: ~68 chips, 73 / 28 Gb/s,
+   ~9 us per crossing on one e-link (`analysis/chip_readout.py`, `chipgeo.py`).
 6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.

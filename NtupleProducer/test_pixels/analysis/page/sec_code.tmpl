@@ -1,4 +1,7 @@
 <section class="panel" role="tabpanel" id="p-code" aria-labelledby="t-code" hidden>
+  <div class="callout"><b>Start here.</b> Read <code>NtupleProducer/test_pixels/HANDOFF.md</code> on <code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code>. To remake any figure:
+    <code>cd /work/submit/novaka/l1pixels/analysis &amp;&amp; pixi run python make_story_plots.py recovery</code> (pixi environment in <code>analysis/pixi.toml</code>; CMSSW only for producing ntuples).
+    Every figure&#39;s &ldquo;How this was made&rdquo; box names its script; the table below lists them all.</div>
   <div class="col">
     <p style="margin:0">Everything is on the branch <code>andrzejnovak/FastPUPPI:17_0_X_pixelTracks</code>, in <code>NtupleProducer/test_pixels/</code>; paths below are relative to it. Start with <code>HANDOFF.md</code> there. The working copies on subMIT are in <code>/work/submit/novaka/l1pixels/</code> (<code>analysis/</code> mirrors <code>test_pixels/analysis/</code>; <code>offline/</code> is <code>test_pixels/analysis/offline/</code>). Scripts carry absolute <code>/work</code> and <code>/ceph</code> paths; anything longer than a minute runs on Slurm (<code>--partition=submit</code>), not on the login node.</p>
   </div>

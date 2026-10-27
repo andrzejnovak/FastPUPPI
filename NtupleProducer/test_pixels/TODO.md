@@ -51,4 +51,19 @@
 - [ ] Firmware latency and resources of the track extension (FPGA study).
 - [ ] Same-definition comparison with the published CMS b-tag NN seed (PoS(ICHEP2022)639, fig. 4: NN @ 15 kHz vs
       QuadJet+HT @ 11 kHz vs m_HH).
+- [ ] Tagging performance without barrel layer 1 (its chips set the request readout time: ~6 us per chip on one
+      e-link; chip_readout.json): rerun make_l1ext_lists / tag_compare with layer 1 dropped from the extension.
+
+## From the 2026-10-27 page overhaul, Codex design audit and follow-ups
+- [x] Codex design audit for a first-year CMS grad student (review/design_2026-10-27/codex_design_review.md); most edits applied.
+- [x] Background model: seed-added events' 4b/3b fractions from QCD binned in the same seed score (scouting.py BKG_MODEL=score);
+      the earlier per-class model (27-49 QCD events) made the pixel seed look worse than the NN: an artefact.
+      Result: NN 1.73 sigma, pixel 1.71 at the SM; kl = 5: SM excluded 1.4 (NN) vs 1.75 sigma (pixel).
+- [ ] Tune the NN and pixel seeds for analysis sensitivity (not efficiency) at +2.5 kHz; pixel inputs include the NN's.
+- [x] Low-mass offline study (offline/offline_lowmass.py): jets > 30 GeV and |m1 - m2| pairing kill low m_HH; jets > 20 +
+      chi2 pairing: 2.1x kappa_lambda information for 1.4x QCD; pixel/NN information ratio 1.26 -> 1.31.
+- [ ] Adopt a low-mass-optimised offline selection in the kappa_lambda fit (scouting.py uses L1-object kinematics).
+- [x] Chip-granular readout (analysis/chip_readout.py): ~68 whole chips, 73 / 28 Gb/s at HT > 140 / 200, ~9 us per crossing
+      on one e-link (barrel layer 1 chips ~8 kbit each).
+- [ ] Regenerate the seed-plane figure (its 20 kHz numbers, 55/68%, disagree with rate_case.py's 65/76%); removed from the page.
 

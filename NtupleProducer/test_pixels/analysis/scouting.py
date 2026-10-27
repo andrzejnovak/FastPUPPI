@@ -12,7 +12,9 @@ crossings). Each event stands for N_BX(3000/fb) / MB_TOTAL crossings, so tagged 
 probabilities (flavour x pT maps, "truth tagging") instead of cuts; closure is checked against direct cuts. The
 m_4j shape comes from all minimum-bias events in the Higgs window (see background()).
 Streams:
-  trig_<seed>   L1 accept (menu, menu + 2.5 kHz NN / pixel / perfect seed, thresholds from seed_plane sums as in
+  trig_<seed>   (BKG_MODEL=score, default: the seed-added events' 4b/3b fractions from QCD events binned in the same
+                seed score; BKG_MODEL=strata: from the few QCD events the seed adds)
+                L1 accept (menu, menu + 2.5 kHz NN / pixel / perfect seed, thresholds from seed_plane sums as in
                 direct_rate.py, chosen on even events), then offline-like tags (UParT-like probabilities b 0.84,
                 c 0.12, light 0.01 per jet, flavour from the lists) on the L1 jets. Background 4b / 3b fractions
                 from QCD events passing the same L1 acceptance (offline jets truth-tagged, see offline_tagprob;
@@ -340,7 +342,9 @@ def main():
         bias flavour labels are empty (pileup interactions carry no generator record), so the flavour content of the
         background comes from QCD only."""
         tot, first = None, None
-        for k, (mb_mask, q_mask) in enumerate(strata):
+        for k, entry in enumerate(strata):
+            mb_mask, q_mask = entry[:2]
+            key = entry[2] if len(entry) > 2 else None
             f4, f3, nq = qfrac_off(q_mask)
             if nq < 10 and first is not None:
                 f4, f3 = first
@@ -356,7 +360,22 @@ def main():
             print(f"  {name} stratum {k}: QCD offline P4 {f4:.2e} P3 {f3:.2e} ({nq} QCD events, {int(mb_mask.sum())} MB events); "
                   f"true-b count 0/1/2/3+ MB {np.bincount(np.minimum(nb_m, 3), minlength=4).tolist()} QCD "
                   f"{np.bincount(np.minimum(nb_q, 3), minlength=4).tolist()}; B4 strata {(w_mb[mb_mask]).sum() * f4:.3g} by-nb {alt4:.3g}", flush=True)
-            part = background(w_mb, mb_mask, [p4, p3], mb["m4j"], fixed=(f4, f3))
+            if key is not None and os.environ.get("BKG_MODEL", "score") == "score":
+                # each minimum-bias event gets the offline 4b / 3b fraction of QCD events with a similar seed score
+                # (score bins of ~650 QCD events), instead of the few QCD events the seed itself adds
+                qs = qcd[key][base_q & qcd["offcov"]]
+                edges = np.unique(np.quantile(qs, np.linspace(0, 1, 11)))
+                iq = np.clip(np.digitize(qs, edges[1:-1]), 0, len(edges) - 2)
+                f4b = np.array([qcd["off4"][base_q & qcd["offcov"]][iq == c].mean() for c in range(len(edges) - 1)])
+                f3b = np.array([qcd["off3"][base_q & qcd["offcov"]][iq == c].mean() for c in range(len(edges) - 1)])
+                im = np.clip(np.digitize(mb[key], edges[1:-1]), 0, len(edges) - 2)
+                e4, e3 = f4b[im], f3b[im]
+                print(f"  {name} stratum {k}: score-binned QCD P4 per {key} decile " + " ".join(f"{x:.1e}" for x in f4b)
+                      + f"; mean over these MB events {(w_mb * mb_mask * e4).sum() / max((w_mb * mb_mask).sum(), 1e-300):.2e}", flush=True)
+                res["setup"].setdefault("score_binned", {})[f"{name}_{k}"] = {"key": key, "edges": edges.tolist(), "P4": f4b.tolist(), "P3": f3b.tolist()}
+                part = background(w_mb, mb_mask, [e4, e3], mb["m4j"])
+            else:
+                part = background(w_mb, mb_mask, [p4, p3], mb["m4j"], fixed=(f4, f3))
             tot = part if tot is None else tuple(np.concatenate([x, y]) for x, y in zip(tot, part))
         return tot
     # Higgs-candidate window from true 4b signal events
@@ -387,8 +406,8 @@ def main():
         coef = templates(w_kl, [hw * mh * h4, hw * mh * h3, hw * (ah & ~mh) * h4, hw * (ah & ~mh) * h3], hh["m4j"])
         # two strata as separate categories with their own QCD fractions: menu-accepted, and added by the seed
         # (b-enriched for tagged seeds)
-        b, b2, n = strata_bkg([(mw & seeds["menu"][1], qseeds["menu"]), (mw & am & ~seeds["menu"][1], qseeds[sd] & ~qseeds["menu"])],
-                              f"trig_{sd}", m4, m3)
+        added = (mw & am & ~seeds["menu"][1], qseeds[sd] & ~qseeds["menu"]) + ((f"sp_{sd}",) if sd in ("nn", "l1") else ())
+        b, b2, n = strata_bkg([(mw & seeds["menu"][1], qseeds["menu"]), added], f"trig_{sd}", m4, m3)
         trig[sd] = (coef, b, b2, n)
         curves[f"trig_{sd}"] = summarize(f"trig_{sd}", coef, b, b2, n, res)[::8].tolist()
 

@@ -36,20 +36,36 @@ for lvl, txt in ((1.0, "68%"), (3.84, "95%")):
 a.set(xlim=(-3, 8), ylim=(0, 6), xlabel=r"$\kappa_\lambda$", ylabel=r"$-2\,\Delta\ln L$ (Asimov, SM truth)")
 fig.legend(*a.get_legend_handles_labels(), loc="lower center", ncol=3, fontsize=8.5, bbox_to_anchor=(0.5, -0.12))
 
+def regions(q, lvl):
+    """All kappa_lambda ranges with -2 dlnL below lvl (disconnected regions drawn separately)."""
+    q = np.asarray(q)
+    ok = q < lvl
+    cross = lambda k: kl[k] + (lvl - q[k]) * (kl[k + 1] - kl[k]) / (q[k + 1] - q[k])  # linear crossing in [k, k+1]
+    out, start = [], None
+    for k, o in enumerate(ok):
+        if o and start is None:
+            start = cross(k - 1) if k > 0 else kl[0]
+        if (not o or k == len(ok) - 1) and start is not None:
+            out.append((start, cross(k - 1) if not o else kl[k]))
+            start = None
+    return out
+
+
 for i, (key, lab, col, ls) in enumerate(rows):
-    r = d[INT.get(key, key)]
+    q = d["curves"][key]
     y = len(rows) - 1 - i
-    lo95, hi95 = r["kl_95"]
-    lo68, hi68 = r["kl_68"]
-    b.plot([lo95, hi95], [y, y], color=col, lw=2, solid_capstyle="round", alpha=0.45 if ls != "-" else 0.6)
-    b.plot([lo68, hi68], [y, y], color=col, lw=7, solid_capstyle="round", alpha=0.9)
-    note = "  + 2nd minimum" if r["second_region_68"] else ""
-    b.text(8.2, y, f"[{lo68:+.2f}, {hi68:+.2f}]{note}", va="center", ha="left", fontsize=8.5, color=INK2)
+    for lo, hi in regions(q, 3.84):
+        b.plot([lo, hi], [y, y], color=col, lw=2, solid_capstyle="round", alpha=0.45 if ls != "-" else 0.6)
+    regs = regions(q, 1.0)
+    for lo, hi in regs:
+        b.plot([lo, hi], [y, y], color=col, lw=7, solid_capstyle="round", alpha=0.9)
+    txt = "  ∪  ".join(f"[{lo:+.1f}, {hi:+.1f}]" for lo, hi in regs)
+    b.text(8.2, y, txt, va="center", ha="left", fontsize=8.5, color=INK2)
 b.axvline(1.0, color="#c3c2b7", lw=1)
 b.set_yticks(range(len(rows)), [lab for _, lab, _, _ in rows][::-1], fontsize=8.5)
-b.set(xlim=(-4, 8), xlabel=r"$\kappa_\lambda$ interval (thick 68%, thin 95%)")
+b.set(xlim=(-4, 8), xlabel=r"allowed $\kappa_\lambda$ (thick 68%, thin 95%; every region drawn)")
 b.grid(axis="y", visible=False)
-fig.suptitle(r"HH$\to$4b, 3000 fb$^{-1}$, stat. only, L1-jet resolution; background: minimum bias $\times$ QCD tag fractions per L1 class (conservative model)",
+fig.suptitle(r"HH$\to$4b, 3000 fb$^{-1}$, stat. only, L1-jet resolution; background: minimum bias $\times$ QCD 4b fractions by seed score",
              fontsize=9.5, color=INK2)
 fig.tight_layout()
 fig.savefig(out, dpi=150, bbox_inches="tight")
