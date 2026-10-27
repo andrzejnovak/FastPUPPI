@@ -76,23 +76,50 @@ html = f"""<!doctype html>
 <header class="col" style="display:grid; gap:10px">
   <div class="eyebrow">Pilot study · Phase-2 L1 trigger · October 2026</div>
   <h1>L1 Pixel b-Tag Pilot</h1>
-  <p class="lede" style="margin:0">Pixel hits at L1 keep the soft, low-m<sub>HH</sub> HH&rarr;4b events that measure the Higgs self-coupling: 96% instead of 83% after offline selection.</p>
+  <p class="lede" style="margin:0">The planned Phase-2 L1 menu has no b tag in its hadronic seeds. How many HH&rarr;4b events does that cost, where in m<sub>HH</sub>, and can pixel information recover them, in the real-time L1 decision or in 40&nbsp;MHz scouting?</p>
 </header>
 
 <div>
 <div class="tabbar" role="tablist" aria-label="Sections">
-  <button role="tab" id="t-hh" aria-controls="p-hh" aria-selected="true">1 · HH&rarr;4b</button>
-  <button role="tab" id="t-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">2 · Information flow</button>
-  <button role="tab" id="t-tag" aria-controls="p-tag" aria-selected="false" tabindex="-1">3 · Tagging</button>
-  <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">4 · Rate</button>
-  <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">5 · Code</button>
-  <button role="tab" id="t-more" aria-controls="p-more" aria-selected="false" tabindex="-1">6 · Beyond HH&rarr;4b</button>
-  <button role="tab" id="t-kl" aria-controls="p-kl" aria-selected="false" tabindex="-1">7 · &kappa;<sub>&lambda;</sub> fit &amp; scouting fallback</button>
+  <button role="tab" id="t-gap" aria-controls="p-gap" aria-selected="true">1 · The gap</button>
+  <button role="tab" id="t-hh" aria-controls="p-hh" aria-selected="false" tabindex="-1">2 · Pixel seed: HH&rarr;4b</button>
+  <button role="tab" id="t-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">3 · Information flow</button>
+  <button role="tab" id="t-tag" aria-controls="p-tag" aria-selected="false" tabindex="-1">4 · Tagging</button>
+  <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">5 · Rate</button>
+  <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">6 · Code</button>
+  <button role="tab" id="t-more" aria-controls="p-more" aria-selected="false" tabindex="-1">7 · Beyond HH&rarr;4b</button>
+  <button role="tab" id="t-kl" aria-controls="p-kl" aria-selected="false" tabindex="-1">8 · &kappa;<sub>&lambda;</sub> fit &amp; scouting fallback</button>
 </div>
 </div>
 
 <!-- ============ TAB 1: HH->4b ============ -->
-<section class="panel" role="tabpanel" id="p-hh" aria-labelledby="t-hh">
+<!-- ============ TAB 1: the gap (the open question) ============ -->
+<section class="panel" role="tabpanel" id="p-gap" aria-labelledby="t-gap">
+  <div class="tiles">
+    <div><span class="k">SM HH&rarr;4b missed by the planned menu</span><span class="v">40%</span><span class="s">15k of 37k events in 3000&nbsp;fb<sup>&minus;1</sup>, at trigger level</span></div>
+    <div><span class="k">Below m<sub>HH</sub> = 400&nbsp;GeV</span><span class="v">64% missed</span><span class="s">where 78% of the &kappa;<sub>&lambda;</sub> information near the SM lives</span></div>
+    <div><span class="k">After an offline 4b + 3b selection</span><span class="v">16% missed</span><span class="s">40% below 400&nbsp;GeV: 37% of the &kappa;<sub>&lambda;</sub> information the analysis could use</span></div>
+  </div>
+  <figure>{img("gap_mhh.png", "Expected SM HH to 4b events in 3000 inverse femtobarns per 50 GeV of generator m_HH, split into kept and missed by the planned Phase-2 L1 menu without b tagging, at trigger level and among events an offline 4b plus 3b selection would keep; a strip on top shows the share of the kappa lambda information per bin")}
+    <figcaption><b>The menu loses the soft events, and those carry the self-coupling.</b> Grey: kept by the planned hadronic seeds; red: missed, with the share missed per bin. Top: share of the &kappa;<sub>&lambda;</sub> information per bin.</figcaption></figure>
+  <div class="col"><h3>What the planned menu has for HH&rarr;4b</h3>
+    <p class="note" style="margin:0">Phase-2 L1 menu seeds (step1_2024, online thresholds from the CMSSW scalings), emulated on seeded-cone PUPPI jets in CMSSW 17_0:</p></div>
+  <div class="tablewrap"><table>
+    <tr><th>Seed</th><th>Requirement (offline-equivalent)</th></tr>
+    <tr><td><code>PuppiHT450</code></td><td>H<sub>T</sub> of jets with p<sub>T</sub>&nbsp;&gt;&nbsp;30, |&eta;|&nbsp;&lt;&nbsp;2.4 above 450&nbsp;GeV</td></tr>
+    <tr><td><code>PuppiHT400</code> + <code>QuadJet70_55_40_40</code></td><td>H<sub>T</sub>&nbsp;&gt;&nbsp;400 and four jets above 70, 55, 40, 40&nbsp;GeV</td></tr>
+    <tr><td><b>Together</b></td><td>19&nbsp;kHz at PU&nbsp;200 <span class="muted">(TDR menu table: 20&nbsp;kHz)</span></td></tr>
+  </table></div>
+  <p class="note col" style="margin:0">No seed uses flavour. Total L1 budget 750&nbsp;kHz; the TDR menu uses 346 (450 with margin). Signal: SM ggF HH&rarr;4b, 36.7&nbsp;fb &times; 0.339 at 14&nbsp;TeV, Phase2Spring24 PU&nbsp;200; odd events (the seeds studied later are tuned on even ones). Offline selection: four PUPPI jets above 30&nbsp;GeV, UParT medium/loose tags, b-response-corrected Higgs-mass window (tab 2 details).</p>
+  <div class="col"><h3>The question, and the paths we compare</h3>
+  <ul class="tight">
+    <li><b>Today&#39;s plan:</b> the L1 NN jet tagger in a b-tagged seed. What it sees, and what it recovers.</li>
+    <li><b>Path A, L1 pixel:</b> pixel hits read around L1 objects in real time and fed to the tagger.</li>
+    <li><b>Path B, scouting:</b> no change to the real-time decision; pixel information used in 40&nbsp;MHz scouting.</li>
+  </ul></div>
+</section>
+
+<section class="panel" role="tabpanel" id="p-hh" aria-labelledby="t-hh" hidden>
   <div class="tiles">
     <div><span class="k">Low m<sub>HH</sub>, where &kappa;<sub>&lambda;</sub> is measured</span><span class="v">83% &rarr; 96%</span><span class="s">offline-selected events below 400&nbsp;GeV kept by L1, NN &rarr; pixel seed</span></div>
     <div><span class="k">Bandwidth for the same &kappa;<sub>&lambda;</sub> reach</span><span class="v">1 vs 15 kHz</span><span class="s">pixel seed at +1&nbsp;kHz &asymp; NN seed at +15&nbsp;kHz, for low-m<sub>HH</sub> events</span></div>
@@ -419,7 +446,7 @@ cd /work/submit/novaka/l1pixels/ngv2/CMSSW_17_0_0_pre2/src &amp;&amp; cmsenv    
   </details>
 </section>
 
-<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 5. Long-form notes: the pilot page.</p>
+<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 6. Long-form notes: the pilot page.</p>
 </div>
 
 <script>
