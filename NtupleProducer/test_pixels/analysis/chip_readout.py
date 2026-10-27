@@ -25,6 +25,9 @@ import make_jets as MJ
 
 HT_STORE = 140.0
 WIN = (0.08, 0.8, 0.8)  # narrow window: r-phi, z (barrel), r (disks) half-widths [cm]
+if os.environ.get("REQ_WIN", "narrow") == "wide":  # the windows the tagging lists use (l1ext defaults)
+    WIN = (0.15, 1.5, 1.5)
+REQ_JET_PTMIN = float(os.environ.get("REQ_JET_PTMIN", "30"))  # jets whose L1 tracks request (tagging lists: 15)
 NHIST = 400
 MAXEV = int(os.environ.get("MAXEV", "0"))  # testing: stop after this many crossings
 
@@ -122,7 +125,8 @@ for f in files:
                 hist[i] += np.bincount(np.minimum(cm[sel], NHIST).astype(int), minlength=NHIST + 1)
             jpt, jeta, jphi = (ak.to_numpy(e[f"L1NGJets_{k}"]) for k in ("pt", "eta", "phi"))
             js = (jpt > 30) & (abs(jeta) < 2.4)
-            ht = float(jpt[js].sum())
+            ht = float(jpt[js].sum())  # pre-selection HT as everywhere else (jets > 30)
+            js = (jpt > REQ_JET_PTMIN) & (abs(jeta) < 2.4)  # jets whose cones request
             if ht <= HT_STORE:
                 continue
             tpt, teta, tphi, tz0, tq = (ak.to_numpy(e[f"L1Tracks_{k}"]) for k in ("pt", "eta", "phi", "z0", "charge"))
@@ -130,6 +134,8 @@ for f in files:
             inc = np.zeros(len(tpt), bool)
             for j in np.where(js)[0]:
                 inc |= np.hypot(teta - jeta[j], MJ.dphi(tphi, jphi[j])) < 0.4
+            if os.environ.get("REQ_NOJET", "0") == "1":  # early request: every L1 track, no jet needed (jets come too late)
+                inc[:] = abs(teta) < 2.4
             req = np.where(inc & (tpt > 2) & (abs(tz0 - zl1) < 1.5))[0]
             X.WIN_RPHI, X.WIN_Z, X.WIN_R = WIN
             cl["idx"] = np.arange(len(cl["x"]))

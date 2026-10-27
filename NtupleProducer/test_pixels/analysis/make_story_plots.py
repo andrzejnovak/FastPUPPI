@@ -319,6 +319,51 @@ def reach():
     print("scout_reach written")
 
 
+def readout():
+    """Pixel readout for the regional request: volume and time per crossing, emulator vs corrected payload, link models
+    and request definitions (chip_readout*.json)."""
+    D = "/scratch/submit/cms/novaka/l1pixels/derived/chip_readout"
+    J = {t: json.load(open(f"{D}/chip_readout{t}.json"))["summary"]["ht>140"] for t in ("", "_fix20", "_j15w_fix20", "_nojetw_fix20")}
+    vol = [("into the tagger (64 bits per jet)", J[""]["Gbps"]["tagger"], C["L1 pixel"]),
+           ("whole chips, CMSSW emulator (bug)", J[""]["Gbps"]["full"], "#c9c6bd"),
+           ("whole chips, corrected: jets > 30, narrow windows", J["_fix20"]["Gbps"]["full"], "#9a9890"),
+           ("whole chips, corrected: jets > 15, wide windows (as tagged)", J["_j15w_fix20"]["Gbps"]["full"], INK2),
+           ("whole chips, corrected: every L1 track (early request)", J["_nojetw_fix20"]["Gbps"]["full"], INK)]
+    tim = [("emulator payload, 1 link per chip", J[""]["readout_time_us_chip_elink"], "#c9c6bd"),
+           ("corrected payload, 1 link per chip", J["_fix20"]["readout_time_us_chip_elink"], "#9a9890"),
+           ("corrected, real links per module", J["_fix20"]["readout_time_us_module_real_uplinks"], C["NN"]),
+           ("+ tagging's request (jets > 15, wide)", J["_j15w_fix20"]["readout_time_us_module_real_uplinks"], C["NN"]),
+           ("+ early request (every L1 track)", J["_nojetw_fix20"]["readout_time_us_module_real_uplinks"], C["NN"])]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(12.5, 4.0), gridspec_kw={"width_ratios": [1, 1], "wspace": 0.95})
+    for i, (lab, v, c) in enumerate(vol):
+        y = len(vol) - 1 - i
+        a.barh(y, v, color=c, height=0.6)
+        a.text(v * 1.15, y, f"{v:.3g} Gb/s", va="center", fontsize=8.5, color=INK2)
+    a.set_xscale("log")
+    a.set_xlim(0.01, 3000)
+    a.set_yticks(range(len(vol)), [v[0] for v in vol][::-1], fontsize=8.5)
+    a.set_xlabel("data out of the pixel detector at L1 H$_T$ > 140 (367 kHz) [Gb/s]")
+    a.grid(axis="y", visible=False)
+    a.set_title("Volume: tiny into the tagger, large out of the chips", loc="left", fontsize=10, color=INK)
+    for i, (lab, t, c) in enumerate(tim):
+        y = len(tim) - 1 - i
+        b.plot([t["median"], t["p90"]], [y, y], color=c, lw=6, alpha=0.5, solid_capstyle="round")
+        b.plot(t["median"], y, "o", color=c, ms=8)
+        b.text(max(t["p90"], t["median"]) + 0.3, y, f"median {t['median']:.1f} µs, {100 * t['frac_above_2p5us']:.0f}% > 2.5 µs",
+               va="center", fontsize=8.5, color=INK2)
+    b.axvspan(2.5, 3.0, color=C["missed"], alpha=0.12, lw=0)
+    b.text(3.1, -0.45, "time budget 2.5–3 µs", fontsize=8, color=C["missed"], va="center")
+    b.set_xlim(0, 16)
+    b.set_ylim(-0.8, len(tim) - 0.5)
+    b.set_yticks(range(len(tim)), [t[0] for t in tim][::-1], fontsize=8.5)
+    b.set_xlabel("readout time per crossing [µs] (dot: median, bar: to 90%)")
+    b.grid(axis="y", visible=False)
+    b.set_title("Time: fits once the payload and links are right", loc="left", fontsize=10, color=INK)
+    fig.savefig(f"{OUT}/readout2.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print("readout2 written")
+
+
 if __name__ == "__main__":
     if "recovery" in which:
         recovery()
@@ -326,6 +371,8 @@ if __name__ == "__main__":
         menu()
     if "rate" in which and os.path.exists("rate_case.json"):
         rate()
+    if "readout" in which:
+        readout()
     if "lowmass" in which:
         lowmass()
     if "scout" in which:

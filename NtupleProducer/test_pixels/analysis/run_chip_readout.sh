@@ -30,9 +30,9 @@ case $STAGE in
   readout)
     T=${SLURM_ARRAY_TASK_ID:-0}
     FILES=$(ls $S/local_mbsel_ext/perfNano_MinBiasSel_*.root | sort -V | sed -n "$((4 * T + 1)),$((4 * T + 4))p")
-    $PY $WD/chip_readout.py $D/chip_geom.npz $D/parts/part_$T.npz $FILES ;;
+    mkdir -p $D/${PARTS:-parts}; $PY $WD/chip_readout.py $D/chip_geom.npz $D/${PARTS:-parts}/part_$T.npz $FILES ;;
   merge)
-    $PY $WD/chip_readout_merge.py $D/chip_geom.npz "$D/parts/part_*.npz" /work/submit/novaka/l1pixels/itlinks \
-      $D/chip_readout.json $A/plots_page/readout_volume.png ;;
+    $PY $WD/chip_readout_merge.py $D/chip_geom.npz "$D/${PARTS:-parts}/part_*.npz" /work/submit/novaka/l1pixels/itlinks \
+      $D/chip_readout${OUTTAG}.json $A/plots_page/readout_volume${OUTTAG}.png ;;  # OUTTAG e.g. _fix20 with CHARGE_FIX=1
 esac
 cd /; rm -rf $WD

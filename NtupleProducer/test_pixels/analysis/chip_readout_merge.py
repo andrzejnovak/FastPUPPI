@@ -11,6 +11,7 @@ the chip outside the cluster tables. Readout time: each touched chip sends its p
 """
 import glob
 import json
+import os
 import sys
 
 import matplotlib
@@ -56,6 +57,22 @@ det = np.concatenate([e["detid"] for e in emu])
 chip = np.concatenate([e["chip"] for e in emu])
 bits = np.concatenate([e["bits"] for e in emu]).astype(float)
 evt = np.concatenate([e["event"] + 1000 * i for i, e in enumerate(emu)])
+# CHARGE_FIX=1: CMSSW's Phase2ITQCore::encodeQCore writes 4 ToT bits for all 16 pixels of a 4x4 quarter core, hit or
+# not (Phase2ITQCore.cc:158); the CROC sends ToT only for hit pixels. Per module and crossing: quarter cores
+# N_qc = bits / (64 + F), corrected bits = N_qc * F + 4 * (hit pixels), F = mean non-ToT bits per quarter core
+# (address, flags, hit-map tree; QCORE_OVERHEAD, default 20, scanned 12-30).
+CHARGE_FIX = os.environ.get("CHARGE_FIX", "0") == "1"
+QC_F = float(os.environ.get("QCORE_OVERHEAD", "20"))
+if CHARGE_FIX:
+    nd = np.concatenate([e["ndigi_module"] for e in emu]).astype(float)
+    key = evt * 10**10 + det
+    uk, inv = np.unique(key, return_inverse=True)
+    bm = np.bincount(inv, bits)
+    ndm = np.bincount(inv, nd) / np.bincount(inv)  # the module's hit pixels (repeated per chip row)
+    nqc = bm / (64 + QC_F)
+    scale = np.where(bm > 0, np.minimum((nqc * QC_F + 4 * ndm) / np.maximum(bm, 1e-9), 1.0), 1.0)
+    bits = bits * scale[inv]
+    print(f"charge-bit fix (F = {QC_F:g}): payload x{bits.sum() / (bm.sum()):.3f}", flush=True)
 n_emu = len(np.unique(evt))
 WHOLE_DET = bits.sum() / n_emu
 m_emu = np.searchsorted(G.detid, det)
@@ -118,6 +135,19 @@ E_chip = np.where(nchip_mod > 0, emu_mod / nchip_mod, 0)  # emulated mean bits p
 
 # ---- per crossing
 B = b_mod[:, None]
+# uplinks (1.28 Gb/s) per module, CMS IT system data flow (hstd13 Phase-2 IT talk): TBPX L1-L4 6/2/2/1, TFPX rings
+# 1-4 3/3/2/2 (rings assigned per disk by module radius, innermost first)
+upl = np.ones(G.nmod)
+for l, u in {1: 6, 2: 2, 3: 2, 4: 1}.items():
+    upl[alid == l] = u
+for dsk in np.unique(alid[alid > 10]):
+    m = np.where(alid == dsk)[0]
+    r = np.round(rc[m], 1)
+    ur = np.unique(r)
+    gaps = np.argsort(np.diff(ur))[::-1][:3]
+    cuts = np.sort(ur[gaps + 1])
+    rg = np.searchsorted(cuts, r, side="right")
+    upl[m] = np.array([3, 3, 2, 2])[np.clip(rg, 0, 3)]
 recs = []
 for mods, mask, ncl, nwin in evs:
     bit = (mask[:, None] >> np.arange(4)) & 1
@@ -134,6 +164,9 @@ for mods, mask, ncl, nwin in evs:
         "slowest_lid": int(abs(G.lid[mods[np.unravel_index(np.argmax(tb), tb.shape)[0]]])) if bit.any() else 0,
         "t_chip_noL1_us": float((tb * (abs(G.lid[mods]) != 1)[:, None]).max() / ELINK * 1e6) if bit.any() else 0.0,
         "t_module_us": float(modsum[bit.sum(1) > 0].max() / ELINK * 1e6) if bit.any() else 0.0,
+        "t_mod_upl_us": float((tb.sum(1) / (upl[mods] * ELINK)).max() * 1e6) if bit.any() else 0.0,
+        "t_mod_upl_noL1_us": float((tb.sum(1) / (upl[mods] * ELINK) * (abs(G.lid[mods]) != 1)).max() * 1e6) if bit.any() else 0.0,
+        "slowest_lid_upl": int(abs(G.lid[mods[np.argmax(tb.sum(1) / upl[mods])]])) if bit.any() else 0,
         "chips_hit": int((nwin > 0).sum()), "bits_hitchips": float(hb.sum()),
         "clus_touched": float((ncl * bit).sum()),
         "bits_win_chip": float((B[mods] * nwin).sum()), "nwin": float(nwin.sum())})
@@ -167,6 +200,17 @@ for cut, rate in RATES.items():
              "frac_above_2p5us": float((K["t_chip_us"][s] / 4 > 2.5).mean()), "frac_above_3us": float((K["t_chip_us"][s] / 4 > 3.0).mean())},
          "readout_time_us_chip_elink_without_TBPX_L1": stats(K["t_chip_noL1_us"][s]) | {
              "frac_above_2p5us": float((K["t_chip_noL1_us"][s] > 2.5).mean())},
+         "readout_time_us_module_real_uplinks": stats(K["t_mod_upl_us"][s]) | {
+             "frac_above_1p5us": float((K["t_mod_upl_us"][s] > 1.5).mean()), "frac_above_2p5us": float((K["t_mod_upl_us"][s] > 2.5).mean()),
+             "slowest_region_frac": {str(l): float((K["slowest_lid_upl"][s] == l).mean()) for l in np.unique(K["slowest_lid_upl"][s])}},
+         "readout_time_us_module_real_uplinks_without_TBPX_L1": stats(K["t_mod_upl_noL1_us"][s]) | {
+             "frac_above_1p5us": float((K["t_mod_upl_noL1_us"][s] > 1.5).mean()), "frac_above_2p5us": float((K["t_mod_upl_noL1_us"][s] > 2.5).mean())},
+         "charge_fix": CHARGE_FIX, "qcore_overhead_bits": QC_F,
+         "readout_time_us_chip_4lanes_without_TBPX_L1": stats(K["t_chip_noL1_us"][s] / 4) | {
+             "frac_above_1p5us": float((K["t_chip_noL1_us"][s] / 4 > 1.5).mean()),
+             "frac_above_2p5us": float((K["t_chip_noL1_us"][s] / 4 > 2.5).mean())},
+         "readout_time_us_chip_2lanes_without_TBPX_L1": stats(K["t_chip_noL1_us"][s] / 2) | {
+             "frac_above_2p5us": float((K["t_chip_noL1_us"][s] / 2 > 2.5).mean())},
          "slowest_chip_layer_frac": {str(l): float((K["slowest_lid"][s] == l).mean()) for l in np.unique(K["slowest_lid"][s])},
          "readout_time_us_module_elink": stats(K["t_module_us"][s]) | {
              "frac_above_2p5us": float((K["t_module_us"][s] > 2.5).mean()), "frac_above_3us": float((K["t_module_us"][s] > 3.0).mean())},

@@ -42,6 +42,13 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    m_HH (jets > 30, |m1 - m2| pairing): a jets > 20 + chi2-pairing selection captures 2.1x the kl information for 1.4x
    QCD and keeps the pixel lead (`offline/offline_lowmass.py`). Readout with whole chips: ~68 chips, 73 / 28 Gb/s,
    ~9 us per crossing on one e-link (`analysis/chip_readout.py`, `chipgeo.py`).
+   **After the Codex conclusions audit (2026-10-27, `review/conclusions_audit_codex.md`):** (i) the kappa_lambda NN-vs-pixel
+   ordering is background-model dependent (models A/B/C disagree): not established; (ii) the readout was wrong: CMSSW's
+   chip emulator writes ToT for unhit pixels (payload x0.25-0.41 after correction) and the real IT links (6 per barrel
+   L1 module) make serialisation ~1.2 us, none above 2.5 us; the missing pieces are regional commands, early seeds,
+   retention for the L1A and queueing; (iii) scouting: "no gain in the simple analysis tested", not a general no-go;
+   (iv) deliverables ranked in page tab 2 (bug report, NN-based dedicated seed, low-mass selection study, readout
+   requirements, refit package incl. a layer-1-less variant at 39/70% per jet).
 6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.

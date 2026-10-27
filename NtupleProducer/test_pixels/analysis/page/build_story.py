@@ -91,7 +91,7 @@ ul.bul li { font-size: 15.5px }
 
 roi_volume = os.path.exists(f"{PLOTS}/readout_volume.png")
 
-exec(open("tabs_main.py").read())  # tabs 1-4: tab_hh, tab_how, tab_flow, tab_rate
+exec(open("tabs_main2.py").read())  # tabs 1-5: tab_hh, tab_deliver, tab_how, tab_flow, tab_rate
 
 tab_more = template("sec_beyond.tmpl")
 tab_code = template("sec_code.tmpl")
@@ -110,23 +110,25 @@ html = f"""<!doctype html>
 <header class="col" style="display:grid;gap:12px">
   <div class="eyebrow">Pilot study · Phase-2 L1 trigger · October 2026</div>
   <h1>L1 Pixel b-Tag Pilot</h1>
-  <p class="lede" style="margin:0">The planned Phase-2 L1 menu has no b tag. How many HH&rarr;4b events does that cost, and can pixel information recover them, in the real-time decision (path A) or in 40&nbsp;MHz scouting (path B)?</p>
+  <p class="lede" style="margin:0">The planned Phase-2 L1 menu has no b tag. How many HH&rarr;4b events does that cost, can pixel information recover them (in real time, path A, or in 40&nbsp;MHz scouting, path B), and what can we deliver now?</p>
 </header>
 <nav class="tabbar" role="tablist" aria-label="Sections">
   <button role="tab" id="t-hh" aria-controls="p-hh" aria-selected="true">1 · HH&rarr;4b</button>
-  <button role="tab" id="t-how" aria-controls="p-how" aria-selected="false" tabindex="-1">2 · How path A works</button>
-  <button role="tab" id="t-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">3 · Getting the hits</button>
-  <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">4 · Rate</button>
-  <button role="tab" id="t-more" aria-controls="p-more" aria-selected="false" tabindex="-1">5 · Beyond HH&rarr;4b</button>
-  <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">6 · Code</button>
+  <button role="tab" id="t-deliver" aria-controls="p-deliver" aria-selected="false" tabindex="-1">2 · What we can deliver</button>
+  <button role="tab" id="t-how" aria-controls="p-how" aria-selected="false" tabindex="-1">3 · How path A works</button>
+  <button role="tab" id="t-flow" aria-controls="p-flow" aria-selected="false" tabindex="-1">4 · Getting the hits</button>
+  <button role="tab" id="t-rate" aria-controls="p-rate" aria-selected="false" tabindex="-1">5 · Rate</button>
+  <button role="tab" id="t-more" aria-controls="p-more" aria-selected="false" tabindex="-1">6 · Beyond HH&rarr;4b</button>
+  <button role="tab" id="t-code" aria-controls="p-code" aria-selected="false" tabindex="-1">7 · Code</button>
 </nav>
 {tab_hh}
+{tab_deliver}
 {tab_how}
 {tab_flow}
 {tab_rate}
 {tab_more}
 {tab_code}
-<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 6. Long-form notes: the pilot page.</p>
+<p class="foot">Simulation: Phase2Spring24 PU&nbsp;200 (HH&rarr;4b SM, QCD, 2.0M minimum bias), CMSSW 17_0_0_pre2 + FastPUPPI. Code: tab 7. Long-form notes: the pilot page.</p>
 </div>
 <script>
 (() => {{

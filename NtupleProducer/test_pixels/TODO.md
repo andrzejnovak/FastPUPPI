@@ -71,3 +71,19 @@
       (~10 MB events each). +2.5 kHz: NN 1.76 / pixel 1.84 sigma, kl5 SM excl. 1.6 / 2.2; +15 kHz: 1.73 / 1.72, 1.5 / 1.8.
       Minimum-bias statistics limit the fit to ~+-0.1 sigma: a larger high-HT minimum-bias sample would sharpen it.
 
+## After the Codex conclusions audit (2026-10-27; review/conclusions_audit_codex.md)
+- [x] CMSSW chip emulator: Phase2ITQCore::encodeQCore writes 4 ToT bits for all 16 pixels (Phase2ITQCore.cc:158);
+      Phase2ITQCoreProducer adjustEdges() takes the hit list by value (no effect). Corrected payload x0.25-0.41.
+      -> [ ] file a CMSSW issue / PR with a minimal reproduction.
+- [x] Readout with corrected payload and real uplinks per module (TBPX 6/2/2/1, TFPX 3/3/2/2): ~1.1-1.3 us median, none
+      above 2.5 us, for jet-based (25-46 Gb/s) and track-only early requests (~200 Gb/s). Open: regional command, early
+      seeds, keeping early-read data for the L1A, queueing behind normal readout (not modelled), back-end latency.
+- [x] Pixel tagging without barrel layer 1 (l1ext SKIP_LIDS=1): 39/70% per jet; offline-selectable low-mass 91% (+2.5 kHz).
+- [x] Outer-Tracker displacement summary on top of the NN: no seed gain (69.3 vs 69.5%).
+- [ ] kappa_lambda: background transfer unvalidated; models A/B/C give opposite NN-vs-pixel orderings. Need weighted low-HT
+      QCD, closure vs score/HT/mass, propagated finite-sample and transfer uncertainties, common seed definitions.
+- [ ] scouting.py: perfect seed still uses minimum-bias flavour; zero-fraction floor (1/N_MB) fabricates background;
+      the offline-tag scouting "ceiling" loses score categories. Fix before any scouting statement beyond "simple test".
+- [ ] Quantise the 8-number pixel summary to the 64-bit word and retest the seed.
+- [ ] Offline low-mass QCD proxy: use real UParT tags (not inclusive probabilities on score-selected jets), weighted QCD.
+

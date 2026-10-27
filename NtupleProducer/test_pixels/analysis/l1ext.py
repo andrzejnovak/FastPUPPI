@@ -15,6 +15,8 @@ d0 follows the CMS dxy sign convention (dxy = -x sin(phi) + y cos(phi) at the po
 Its uncertainty is a pT and eta parametrisation of the HLT pixel track dxy errors (same detector and hits),
 see D0_ERR; set by calibrate_err().
 """
+import os
+
 import numpy as np
 
 B_K = 0.01143  # |curvature| [1/cm] = B_K / pT[GeV] (3.81 T)
@@ -135,12 +137,16 @@ def d0_err(pt, eta):
     return np.hypot(a, b / (pt * np.sqrt(sin_t)))
 
 
+SKIP_LIDS = {int(x) for x in os.environ.get("SKIP_LIDS", "").split(",") if x}  # e.g. "1": drop barrel layer 1 (readout study)
+
+
 def clusters_of(ev, prefix="PixelClusters"):
     x, y, z = (np.asarray(ev[f"{prefix}_{c}"], float) for c in "xyz")
     sub, lay = np.asarray(ev[f"{prefix}_subdet"]), np.asarray(ev[f"{prefix}_layer"])
     lid = layers(sub, lay) * np.where((sub != 1) & (z < 0), -1, 1)
-    return {"x": x, "y": y, "z": z, "r": np.hypot(x, y), "phi": np.arctan2(y, x), "lid": lid,
-            "trk": np.asarray(ev[f"{prefix}_trkIdx"])}
+    cl = {"x": x, "y": y, "z": z, "r": np.hypot(x, y), "phi": np.arctan2(y, x), "lid": lid,
+          "trk": np.asarray(ev[f"{prefix}_trkIdx"])}
+    return subset(cl, ~np.isin(lid, list(SKIP_LIDS))) if SKIP_LIDS else cl
 
 
 def subset(cl, m):

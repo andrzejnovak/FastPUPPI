@@ -365,11 +365,12 @@ def main():
             if key is not None and os.environ.get("BKG_MODEL", "score") == "score":
                 # each minimum-bias event gets the offline 4b / 3b fraction of QCD events with a similar seed score
                 # (score bins of ~650 QCD events), instead of the few QCD events the seed itself adds
-                qs = qcd[key][base_q & qcd["offcov"]]
+                qsel = base_q & qcd["offcov"] & (qcd["ht"] < float(os.environ.get("QCD_HT_MAX", "1e9")))  # HT-restriction check
+                qs = qcd[key][qsel]
                 edges = np.unique(np.quantile(qs, np.linspace(0, 1, 11)))
                 iq = np.clip(np.digitize(qs, edges[1:-1]), 0, len(edges) - 2)
-                f4b = np.array([qcd["off4"][base_q & qcd["offcov"]][iq == c].mean() for c in range(len(edges) - 1)])
-                f3b = np.array([qcd["off3"][base_q & qcd["offcov"]][iq == c].mean() for c in range(len(edges) - 1)])
+                f4b = np.array([qcd["off4"][qsel][iq == c].mean() for c in range(len(edges) - 1)])
+                f3b = np.array([qcd["off3"][qsel][iq == c].mean() for c in range(len(edges) - 1)])
                 im = np.clip(np.digitize(mb[key], edges[1:-1]), 0, len(edges) - 2)
                 e4, e3 = f4b[im], f3b[im]
                 print(f"  {name} stratum {k}: score-binned QCD P4 per {key} decile " + " ".join(f"{x:.1e}" for x in f4b)
