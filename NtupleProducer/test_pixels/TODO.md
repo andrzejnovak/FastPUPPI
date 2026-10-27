@@ -24,7 +24,9 @@
       part only; page keeps the original summary. Open: pileup-robust z0 use (per-track vertex association).
 - [x] BSM truth in the κλ fit (κλ = 5: SM excluded 2.0σ NN → 3.7σ pixel) and the HT reach of scouting (`hh_ht_reach.py`:
       ≤ 6% of windowed signal below L1 HT 150).
-- [ ] Generator-Higgs table in the ntuples for future private samples (now a proxy from generator jets).
+- [x] Generator-boson table (2026-10-27): opt-in `step2_cfg.py genBosons=True` (`addGenBosons()`: H, Z, W last copy with
+      daughter pdgIds); tested on HH4b (2 x H->bb), ZH(nunu), ggH(bb); default/extended outputs unchanged. To use in
+      private production: add `genBosons=True` to the step2 line of `privgen/run_privgen.sh` (atomic replace only).
 - [x] HH→4b reframed around low m_HH (2026-10-26): κλ-information weighting (78% below 400 GeV), lower-HT control
       (`ht_control.py`), thesis-style plots (`seed_plane.py`, `make_page_plots.py` sections 9–13), softer offline scenarios
       (`offline/offline_scenarios.py`, `scen_ana.py`): pixel seed keeps ×1.26 the κλ information of the NN seed in every

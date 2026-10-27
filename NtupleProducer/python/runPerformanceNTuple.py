@@ -457,6 +457,33 @@ def addGenPi(pdgs=[211]):
 def addGenLep(pdgs=[11,13,22]):
     addGen(pdgs)
 
+def addGenBosons(pdgs=[25, 23, 24], name="GenBoson"):
+    """Generator bosons (default Higgs, Z, W), last copy only (i.e. after radiation, at the decay), with the
+    pdgIds of the first two daughters (e.g. 5/-5 for H->bb, 12/-12 for Z->nunu)."""
+    def _dau(i):
+        return Var("? numberOfDaughters() > %d ? daughter(%d).pdgId : 0" % (i, i), int,
+                   doc="pdgId of daughter %d (0 if none)" % i)
+    process.genBosonTable = cms.EDProducer("SimpleGenParticleFlatTableProducer",
+        src = cms.InputTag("genParticles"),
+        cut = cms.string("(%s) && statusFlags().isLastCopy()" % " || ".join("abs(pdgId) == %d" % p for p in pdgs)),
+        name = cms.string(name),
+        doc = cms.string("generator bosons (last copy)"),
+        singleton = cms.bool(False),
+        extension = cms.bool(False),
+        variables = cms.PSet(
+            pt   = Var("pt",   float, precision=10),
+            eta  = Var("eta",  float, precision=10),
+            phi  = Var("phi",  float, precision=10),
+            mass = Var("mass", float, precision=10),
+            pdgId = Var("pdgId", int, doc="PDG id"),
+            status = Var("status", int, doc="generator status"),
+            nDau = Var("numberOfDaughters", int, doc="number of daughters"),
+            dau0_pdgId = _dau(0),
+            dau1_pdgId = _dau(1),
+        )
+    )
+    process.extraPFStuff.add(process.genBosonTable)
+
 
 def addStaMu():
     process.staMuTable = cms.EDProducer("SimpleCandidateFlatTableProducer",

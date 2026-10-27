@@ -6,6 +6,8 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 opts = VarParsing("analysis")
 opts.register("extended", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
               "also store L1 tracks (standard and extended) and vertices, Layer-1 PF/PUPPI candidates, gen leptons")
+opts.register("genBosons", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+              "also store generator bosons (H, Z, W; last copy) with their daughter pdgIds (GenBoson table)")
 opts.register("out", "out.root", VarParsing.multiplicity.singleton, VarParsing.varType.string, "output file")
 opts.parseArguments()
 import runPerformanceNTuple as cfg
@@ -27,3 +29,5 @@ if opts.extended:
     process.extraPFStuff.add(process.l1TrackTable, process.l1TrackExtTable)
     cfg.saveCands()
     cfg.addGenLep([11, 13])
+if opts.genBosons:
+    cfg.addGenBosons()
