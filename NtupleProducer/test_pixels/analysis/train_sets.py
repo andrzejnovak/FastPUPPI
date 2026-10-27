@@ -46,6 +46,25 @@ def kin_weights(ref, d):
     return ratio[ip, ie]
 
 
+def pixel_summary(d, l1=False):
+    """8-number pixel summary of a list dict. With PIXSUM=v2, lists of L1 tracks with pixel hits (l1=True) use the
+    recalibrated 3D impact-parameter summary of charm_feats2.py (same 8 numbers and bits; its resolution table is
+    calibrated for the L1-track refit, so HLT pixel and Outer-Tracker-only lists keep the stored significance)."""
+    mode = os.environ.get("PIXSUM", "v1") if l1 else "v1"
+    if mode == "v2":
+        from charm_feats2 import summary2
+        return summary2(d["trk"], d["ntrk"], d["eta"])
+    if mode == "v2xy":  # recalibrated transverse significance only (no longitudinal term)
+        from charm_feats2 import track_views
+        t = track_views(d["trk"], d["ntrk"], d["eta"])
+        sxy = np.where(t["valid"], np.clip(t["sxy"], -50, 50), -50.0)
+        top = np.sort(sxy, axis=1)[:, ::-1][:, :3]
+        sipm = np.where(t["valid"], t["sip"], -1.0)
+        return np.column_stack([top, d["ntrk"], (sxy > 3).sum(1), (sxy > 5).sum(1), np.where(sxy > 0, sxy, 0).sum(1),
+                                sipm.max(1)]).astype(np.float32)
+    return summary_features(d["trk"], d["ntrk"])
+
+
 def summary_features(trk, ntrk):
     sig = np.where(np.arange(trk.shape[1])[None, :] < ntrk[:, None], trk[:, :, 5], -50.0)
     top = np.sort(sig, axis=1)[:, ::-1][:, :3]

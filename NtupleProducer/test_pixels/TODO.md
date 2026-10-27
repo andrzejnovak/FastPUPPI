@@ -19,8 +19,11 @@
 - [x] Charm-oriented pixel summary (2026-10-26, `charm_feats2.py`, `ctag_charm.py`): a charm word alone adds nothing;
       recalibrating the IP resolution (`l1ext.D0_ERR` ~3x too large) + 3D significance + charm word: 29 → 33.5% at 10%
       light. VBF H→cc seed unchanged (62%).
-- [ ] Propagate the recalibrated 3D impact parameter (b tag 48/78 → 55/83% at 1/10% light, `btag_v2check.py`) to the
-      HH→4b seeds (`seed_plane.py`, `direct_curves.py`, `scouting.py`) and the pages.
+- [x] Recalibrated impact parameter in the HH→4b seed (2026-10-27, `PIXSUM=v2|v2xy`): per-jet 48/78 → 55/83%, but the
+      seed at fixed rate gets worse with the z term (pileup jets in minimum bias) and +0.8 points with the transverse
+      part only; page keeps the original summary. Open: pileup-robust z0 use (per-track vertex association).
+- [x] BSM truth in the κλ fit (κλ = 5: SM excluded 2.0σ NN → 3.7σ pixel) and the HT reach of scouting (`hh_ht_reach.py`:
+      ≤ 6% of windowed signal below L1 HT 150).
 - [ ] Generator-Higgs table in the ntuples for future private samples (now a proxy from generator jets).
 - [x] HH→4b reframed around low m_HH (2026-10-26): κλ-information weighting (78% below 400 GeV), lower-HT control
       (`ht_control.py`), thesis-style plots (`seed_plane.py`, `make_page_plots.py` sections 9–13), softer offline scenarios

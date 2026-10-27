@@ -17,7 +17,7 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import roc_curve
 
-from train_sets import jet_features, kin_weights, load, summary_features
+from train_sets import jet_features, kin_weights, load, pixel_summary
 
 MIS = np.logspace(-3.5, 0, 60)
 res = {}
@@ -45,7 +45,7 @@ for spec in sys.argv[2:]:
     if "L1 NN" not in res:
         sc = d["scores"]
         store("L1 NN", y, sc[:, 0] / np.maximum(sc[:, 0] + sc[:, 2] + sc[:, 3], 1e-6), w)
-    for tag, X in (("NN only", jet_features(d)), (name, np.column_stack([jet_features(d), summary_features(d["trk"], d["ntrk"])]))):
+    for tag, X in (("NN only", jet_features(d)), (name, np.column_stack([jet_features(d), pixel_summary(d, l1=name == "L1 + pixel")]))):
         if tag in res:
             continue
         pred = np.zeros(len(y))

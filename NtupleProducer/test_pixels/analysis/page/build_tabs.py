@@ -217,6 +217,7 @@ html = f"""<!doctype html>
     <tr><td class="muted">Offline UParT</td><td class="n muted">84%</td><td class="n muted">94%</td><td class="muted">offline jets, full tracking; reference only</td></tr>
   </table></div>
   <p class="note col">"+" rows: small BDT on the NN scores plus the pixel summary. b jets from HH&rarr;4b, light jets from QCD.</p>
+  <div class="callout"><b>Better per-jet tags do not automatically mean a better seed.</b> Recalibrating the refit impact-parameter error (tab 6) lifts the per-jet tag to 54% / 83%, but the HH&rarr;4b seed at +2.5&nbsp;kHz keeps 75.7% of events instead of 77.8%: the longitudinal term makes pileup jets in minimum bias look displaced, and the seed rate is set by minimum-bias jets, not by the QCD light jets of the ROC. The transverse recalibration alone gives 78.6% (+0.8 points, at the statistical precision). The page keeps the original summary.</div>
   <figure>{img("jet_eff.png", "Per-jet b efficiency and light mistag against L1 jet pT and eta at a fixed 10 percent inclusive light mistag, for today's NN, HLT pixel tracks and L1 tracks with pixel hits")}
     <figcaption><b>Pixels tag soft jets.</b> At 10% light mistag the NN tags almost no b jet below 40&nbsp;GeV.</figcaption></figure>
   <details class="more"><summary>Why not a network on raw hits?</summary><p style="margin:0">Tried: a network on loose hits gave no gain up to the training sizes we had (22&ndash;45k jets); grouping hits into tracks is what recovers displacement. A jet cone holds ~660 pixel clusters at PU&nbsp;200 (1,400 at 90%), and FPGA graph networks exceed 4&nbsp;&micro;s above ~900 hits (arXiv:2112.02048). Seeding on L1 tracks avoids the pattern recognition.</p></details>
@@ -258,6 +259,7 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
     <tr><td>Tab 3: jet efficiency vs p<sub>T</sub>, &eta;; tab 4: seed plane</td><td><code>analysis/seed_plane.py</code> (<code>run_seed_plane.sh</code>, tier3; same training as <code>direct_curves.py</code>), <code>make_page_plots.py</code> (sections 11, 12)</td><td><code>seed_plane.npz</code>, <code>plots_page/seed_plane.png</code>, <code>jet_eff.png</code></td></tr>
     <tr><td>Tab 1: offline selection (UParT, b response, pairing)</td><td><code>offline/dump_offline.py</code> (MINIAOD), <code>offline_sel.py</code></td><td><code>offline/b_response.json</code>, <code>offline_flags2.npz</code></td></tr>
     <tr><td>Tab 7: &kappa;<sub>&lambda;</sub> fit with background, triggered and scouting streams</td><td><code>analysis/scouting.py</code> (<code>run_scouting.sh</code>, tier3), <code>qcd_tagfrac.py</code> (QCD 4b / 3b fractions), <code>plot_scouting.py</code></td><td><code>scouting.json</code>, <code>qcd_tagfrac.json</code>, <code>plots_page/kl_scan.png</code></td></tr>
+    <tr><td>Tab 7: BSM truths; signal below the HT reach; tab 3: recalibrated summary in the seed</td><td><code>analysis/scouting.py</code> (<code>TRUTHS</code>), <code>hh_ht_reach.py</code>; <code>run_v2.sh</code>, <code>run_v2xy.sh</code> (<code>PIXSUM=v2|v2xy</code> in <code>train_sets.pixel_summary</code>)</td><td><code>hh_ht_reach.json</code>, <code>.../derived/analysis_v2/</code></td></tr>
     <tr><td>Tab 6: menu rates from stored 14_0 jets</td><td><code>analysis/rate_check.py</code> (<code>run_rate_check.sh</code>) on <code>.../l1pixels/mbjscan</code> (<code>production/mbsel/scan_jets.py</code>)</td><td><code>rate_check.json</code></td></tr>
     <tr><td>Tab 6: charm-oriented summary, recalibrated 3D impact parameter</td><td><code>analysis/charm_feats2.py</code> (resolution table, words), <code>ctag_charm.py</code> (<code>run_ctag_charm.sh</code>), <code>vbf_ctag_charm.py</code>, <code>btag_v2check.py</code></td><td><code>ctag_charm.json</code>, <code>ctag_charm_out/</code></td></tr>
     <tr><td>Tab 2: bit budget</td><td><code>analysis/bits_budget.py</code></td><td><code>bits_mb.json</code></td></tr>
@@ -386,7 +388,7 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
   <div class="tiles">
     <div><span class="k">&kappa;<sub>&lambda;</sub> at 68% CL, 3000&nbsp;fb<sup>&minus;1</sup>, HH&rarr;4b alone</span><span class="v">[0.43, 1.90] &rarr; [0.53, 1.75]</span><span class="s">NN seed &rarr; pixel seed (menu alone: [0.23, 2.33] plus a second minimum near 5)</span></div>
     <div><span class="k">Interval width vs the NN seed</span><span class="v">&minus;17%</span><span class="s">perfect L1 b tag: &minus;42%; the gain survives a real background</span></div>
-    <div><span class="k">Scouting with L1 objects only</span><span class="v">Z = 0.26 vs 2.0</span><span class="s">L1 tags too weak for a 4b analysis; adds nothing on top of the triggered stream</span></div>
+    <div><span class="k">If &kappa;<sub>&lambda;</sub> = 5: SM excluded at</span><span class="v">2.0&sigma; &rarr; 3.7&sigma;</span><span class="s">NN &rarr; pixel seed; scouting on top adds nothing (L1 tags too weak, little signal below HT 150)</span></div>
   </div>
   <figure>{img("kl_scan.png", "Left: Asimov minus two delta log likelihood against kappa lambda for the planned menu, the NN seed, the pixel seed, a perfect-tag seed and a scouting analysis with L1 pixel tags only. Right: the 68 and 95 percent intervals")}
     <figcaption><b>With background, the pixel seed tightens &kappa;<sub>&lambda;</sub> by 17% over the NN seed</b> and removes the menu&#39;s second minimum. Statistical only, L1-jet resolution.</figcaption></figure>
@@ -401,11 +403,24 @@ cd /work/submit/novaka/l1pixels/analysis                                   <span
     <tr><td>Triggered (pixel seed) + scouting of the rest</td><td class="n">5.8k</td><td class="n">1.4&times;10<sup>9</sup></td><td class="n">2.0</td><td class="n">[0.53, 1.75]</td><td class="n">[0.15, 4.25]</td></tr>
   </table></div>
   <p class="note col" style="margin:0">* plus a second 68% region near &kappa;<sub>&lambda;</sub>&nbsp;&asymp;&nbsp;5. Signal: SM ggF HH&rarr;4b (36.7&nbsp;fb &times; 0.339) after &ge;&nbsp;4 L1 jets, the Higgs-candidate window and 3 or 4 tags.</p>
+  <div class="col"><h3>If &kappa;<sub>&lambda;</sub> is not 1: where the pixel seed matters most</h3>
+    <p class="note" style="margin:0">Same analysis with &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 as the truth (signal piles up near threshold): the interval around 5, and how strongly the SM is excluded.</p></div>
+  <div class="tablewrap"><table>
+    <tr><th>Truth &kappa;<sub>&lambda;</sub> = 5</th><th class="n">Signal</th><th class="n">of which m<sub>4j</sub>&nbsp;&lt;&nbsp;400</th><th class="n">&kappa;<sub>&lambda;</sub> 68%</th><th class="n">SM excluded at</th></tr>
+    <tr><td>Planned menu</td><td class="n">3.6k</td><td class="n">2.0k</td><td class="n">[3.35, 5.80]</td><td class="n">0.8&sigma;</td></tr>
+    <tr><td>+ NN seed</td><td class="n">8.3k</td><td class="n">6.5k</td><td class="n">[4.45, 5.45]</td><td class="n">2.0&sigma;</td></tr>
+    <tr class="hl"><td><b>+ pixel seed</b></td><td class="n"><b>12.5k</b></td><td class="n"><b>10.4k</b></td><td class="n"><b>[4.68, 5.28]</b></td><td class="n"><b>3.7&sigma;</b></td></tr>
+    <tr><td class="muted">+ perfect-tag seed</td><td class="n muted">14.2k</td><td class="n muted">12.0k</td><td class="n muted">[4.78, 5.20]</td><td class="n muted">5.1&sigma;</td></tr>
+    <tr><td>Scouting, L1 pixel tags</td><td class="n">8.2k</td><td class="n">7.0k</td><td class="n">[&minus;2.1, 7.4]</td><td class="n">0.3&sigma;</td></tr>
+    <tr><td>Pixel seed + scouting of the rest</td><td class="n">13.0k</td><td class="n">10.9k</td><td class="n">[4.68, 5.28]</td><td class="n">3.7&sigma;</td></tr>
+  </table></div>
+  <p class="note col" style="margin:0">&kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;2.45: SM excluded at 1.0 / 1.3 / 1.4 / 1.8&sigma; (menu / NN / pixel / perfect). Statistical only.</p>
   <div class="col"><h3>Why scouting does not rescue HH&rarr;4b</h3>
   <ul class="tight">
     <li><b>The tags are the limit, not the trigger.</b> At its best working point (5% light mistag) the L1 pixel tag keeps ~60% of b jets; four of them keep ~13%. Offline tags keep 84% at 1%.</li>
     <li><b>The events scouting adds are the soft ones the trigger drops</b>, where QCD is largest: once the pixel seed is in the menu, scouting the remaining crossings adds no sensitivity.</li>
-    <li>Scouting with L1 objects pays where the trigger, not the tag, is the limit: for HH&rarr;4b the pixel seed already closes most of that gap (tab 1).</li>
+    <li><b>Scouting cannot reach much lower in mass than the pixel seed.</b> Four L1 jets above 20&nbsp;GeV in the Higgs window already imply L1 HT above ~150: only 1.8% (SM), 3.2% (&kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;2.45) and 5.6% (&kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5) of such events lie below it (<code>hh_ht_reach.py</code>). The low-m<sub>HH</sub> reach is set by jet thresholds and acceptance, which scouting does not change.</li>
+    <li>Even for BSM couplings (table above) scouting adds ~550 &kappa;<sub>&lambda;</sub>&nbsp;=&nbsp;5 events on top of the pixel seed, buried in background.</li>
   </ul></div>
   <details class="more"><summary>Method and caveats</summary>
     <p style="margin-top:8px"><b>Analysis at L1-object level</b> (<code>analysis/scouting.py</code>). Four leading L1 jets (p<sub>T</sub>&nbsp;&gt;&nbsp;20, |&eta;|&nbsp;&lt;&nbsp;2.4) paired by smallest |m<sub>1</sub>&nbsp;&minus;&nbsp;m<sub>2</sub>|, window radius 1.6&sigma; around (124,&nbsp;114)&nbsp;GeV, m<sub>4j</sub> as the m<sub>HH</sub> proxy; categories 4 and exactly 3 tags. All streams require L1 HT&nbsp;&gt;&nbsp;150&nbsp;GeV, where the re-simulated minimum bias is complete and where the pixel region-of-interest request would fire. Triggered stream: L1 accept, then offline-like tags (b 0.84, c 0.12, light 0.01 per jet, as UParT medium). Scouting stream: L1 tag scores only.</p>

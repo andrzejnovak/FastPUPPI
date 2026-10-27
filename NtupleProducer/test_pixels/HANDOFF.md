@@ -29,13 +29,17 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    vs QCD 1.2e-5). Stat-only κλ 68%, 3000/fb, HH→4b alone: menu [0.23, 2.33] + second minimum, NN seed [0.43, 1.90],
    **pixel seed [0.53, 1.75] (17% narrower)**, perfect [0.65, 1.50]. Scouting every crossing with L1 HT > 150 and L1
    tags only: Z 0.26 vs 2.0 triggered, and adds nothing on top of the pixel seed: the L1 tags, not the trigger, limit it.
+   **BSM truth κλ = 5** (`TRUTHS` in scouting.py): SM excluded at 0.8 / 2.0 / **3.7** / 5.1σ (menu / NN / pixel / perfect
+   seed); scouting on top still adds nothing (~550 events in background). Scouting cannot go much lower in mass: of
+   HH→4b events with 4 L1 jets > 20 GeV in the Higgs window, only 1.8% (SM) / 5.6% (κλ = 5) have L1 HT < 150
+   (`hh_ht_reach.py`); the low-m_HH reach is set by jet thresholds and acceptance.
 6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.
 
 Open: whether pixel front-ends can answer a regional request mid-latency (needs pixel experts); firmware cost;
 HLT emulation (can only lower the gain); a real b-jet regression; systematics and offline resolution in the κλ fit
-(tab 7 is stat-only at L1-jet resolution); propagating the recalibrated 3D impact parameter (below) to the HH→4b seeds.
+(tab 7 is stat-only at L1-jet resolution); a pileup-robust longitudinal impact parameter (vertex association per track) before using z0 in the seed.
 
 ## Pages
 
@@ -102,7 +106,11 @@ chain, so a pixel-refit d0 could fill the existing field.
   88 µm floor) is ~3× the real L1-refit resolution (17–85 µm from minimum-bias negative-IP tails); with that and the
   refit z0 (3D significance) + a 61-bit charm word: c-eff 33.5% at 10% light, 66% vs b at 30% (`charm_feats2.py`,
   `ctag_charm.py` → `ctag_charm.json`). b tag with the same inputs: 48/78 → 55/83% at 1/10% light (`btag_v2check.py`),
-  NOT yet propagated to the HH→4b seeds. VBF H→cc seed unchanged (62% at +2 kHz; ~50 events separate the seeds).
+  VBF H→cc seed unchanged (62% at +2 kHz; ~50 events separate the seeds). **In the HH→4b seed** (`PIXSUM=v2|v2xy` in
+  `train_sets.pixel_summary`, `run_v2.sh`, `run_v2xy.sh` → `.../derived/analysis_v2/`): the 3D version is WORSE at
+  fixed rate (+2.5 kHz: 75.7% of events vs 77.8%; the longitudinal term makes pileup jets in minimum bias look
+  displaced, and minimum-bias jets set the rate), the transverse recalibration alone +0.8 points (78.6%). Page and
+  headline keep the original summary.
 - **VBF H→cc / bb:** the planned menu keeps only 57% / 53% of events in a generator VBF + cc/bb acceptance
   (`analysis/vbf_menu.py`). A looser VBF pair + two tagged central jets at ~+2 kHz on top of the menu
   (`analysis/vbf_ctag.py`, `run_vbf_ctag.sh WHICH=cc|bb`, minimum bias `local_mbsel_ext` + `local_mbnew` + `local_mbvbf`):

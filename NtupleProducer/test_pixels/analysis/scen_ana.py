@@ -7,12 +7,13 @@ information per event: (d ln s_i / d kl)^2 at kl = 1 of its generator m_HH bin, 
 """
 import glob
 import json
+import os
 import re
 import sys
 
 import numpy as np
 
-fl = dict(np.load("curves_flags.npz")); odd = fl["odd"]
+fl = dict(np.load(os.environ.get("CURVES_FLAGS", "curves_flags.npz"))); odd = fl["odd"]
 g = {k: np.concatenate([np.load(f)[k] for f in sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"))]) for k in ("lumi", "event", "mhh")}
 pos = {(l, e): i for i, (l, e) in enumerate(zip(g["lumi"], g["event"]))}
 mhh = np.array([g["mhh"][pos[(l, e)]] for l, e in zip(fl["lumi"], fl["event"])])

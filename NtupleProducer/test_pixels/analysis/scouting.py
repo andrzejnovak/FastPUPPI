@@ -51,6 +51,8 @@ PT_BINS = np.array([20, 30, 40, 50, 65, 80, 100, 130, 170, 250, 1e9])
 M4J_BINS = np.array([0, 250, 300, 350, 400, 450, 500, 575, 650, 800, 1000, 1e9])
 KL_SCAN = np.linspace(-6, 14, 801)
 N_MIN = 10
+TRUTHS = (1.0, 2.45, 5.0)  # Asimov truths: SM first
+LOW_M4J = 400.0
 BR = ["luminosityBlock", "event", "L1NGJets_pt", "L1NGJets_eta", "L1NGJets_phi", "L1NGJets_mass",
       "L1NGJets_score_b", "L1NGJets_score_uds", "L1NGJets_score_g"]
 
@@ -180,18 +182,18 @@ def merge(coef, b, b2, n):
     return agg(coef), np.array([b[g].sum() for g in groups]), np.array([b2[g].sum() for g in groups])
 
 
-def scan(coef, b):
+def scan(coef, b, truth=1.0):
     s = lambda k: np.maximum(coef[0] + coef[1] * k + coef[2] * k ** 2, 0)
-    n = s(1.0) + b
+    n = s(truth) + b
     q = np.array([2 * np.sum(np.where(n > 0, (s(k) + b) - n + n * np.log(np.maximum(n, 1e-300) / np.maximum(s(k) + b, 1e-300)), 0))
                   for k in KL_SCAN])
     return q
 
 
-def interval(q, lvl):
+def interval(q, lvl, center=1.0):
     ok = KL_SCAN[q < lvl]
-    # report the connected interval around kl = 1 and whether a second minimum is allowed
-    i1 = np.argmin(abs(KL_SCAN - 1))
+    # report the connected interval around the true kl and whether a second region is allowed
+    i1 = np.argmin(abs(KL_SCAN - center))
     lo = i1
     while lo > 0 and q[lo - 1] < lvl:
         lo -= 1
@@ -202,6 +204,10 @@ def interval(q, lvl):
 
 
 def summarize(name, coef, b, b2, n, res):
+    nb = len(M4J_BINS) - 1
+    low = np.tile(M4J_BINS[1:nb + 1] <= LOW_M4J, len(b) // nb)  # unmerged bins below LOW_M4J (all categories)
+    s_at = lambda c, k: c[0] + c[1] * k + c[2] * k ** 2
+    s_low = {k: float(s_at(coef, k)[low].sum()) for k in TRUTHS}
     coef, b, b2 = merge(coef, b, b2, n)
     q = scan(coef, b)
     s1 = coef[0] + coef[1] + coef[2]
@@ -211,7 +217,18 @@ def summarize(name, coef, b, b2, n, res):
     neff = float(b.sum() ** 2 / max(b2.sum(), 1e-300))
     res[name] = {"S": float(s1.sum()), "B": float(b.sum()), "Z_SM": float(z), "kl_68": i68, "kl_95": i95,
                  "width_68_total": w68, "second_region_68": two68, "width_95_total": w95, "second_region_95": two95,
-                 "mb_neff": neff, "S_bins": s1.tolist(), "B_bins": b.tolist(), "q": q[::8].tolist()}
+                 "mb_neff": neff, "S_bins": s1.tolist(), "B_bins": b.tolist(), "q": q[::8].tolist(),
+                 "S_low_m4j": s_low, "bsm": {}}
+    # BSM truth: kl = t generated; interval around t, and how strongly the SM is excluded
+    for t in TRUTHS[1:]:
+        qt = scan(coef, b, truth=t)
+        st = s_at(coef, t)
+        res[name]["bsm"][str(t)] = {"S": float(st.sum()), "S_low_m4j": s_low[t], "kl_68": interval(qt, 1.0, t)[0],
+                                    "kl_95": interval(qt, 3.84, t)[0], "Z_exclude_SM": float(np.sqrt(max(np.interp(1.0, KL_SCAN, qt), 0))),
+                                    "q": qt[::8].tolist()}
+        r = res[name]["bsm"][str(t)]
+        print(f"{'':22s} truth kl={t:g}: S {r['S']:8.1f} (m4j<{LOW_M4J:g}: {r['S_low_m4j']:7.1f})  kl 68% [{r['kl_68'][0]:+.2f}, {r['kl_68'][1]:+.2f}]"
+              f"  SM excluded at {r['Z_exclude_SM']:.2f} sigma", flush=True)
     print(f"{name:22s} S {s1.sum():8.1f}  B {b.sum():10.3g} (MB n_eff {neff:7.1f})  Z {z:5.2f}  "
           f"kl 68% [{i68[0]:+.2f}, {i68[1]:+.2f}]{' +2nd' if two68 else ''}  95% [{i95[0]:+.2f}, {i95[1]:+.2f}]{' +2nd' if two95 else ''}",
           flush=True)
@@ -222,7 +239,7 @@ def main():
     out, hh_pat, mb_pat, l1lists, sp_path, gen_glob, kl_glob = sys.argv[1:8]
     fh, fq, fm1, fm2 = l1lists.split(":")
     print("training the L1 pixel tagger (as seed_plane.py)", flush=True)
-    lh, lq, lm, (s_h, s_q, s_m) = tagger(fh, fq, f"{fm1},{fm2}")
+    lh, lq, lm, (s_h, s_q, s_m) = tagger(fh, fq, f"{fm1},{fm2}", l1=True)
     hh, mb = read(hh_pat), read(mb_pat)
     print(f"HH {len(hh['ht'])}, MB {len(mb['ht'])} events", flush=True)
     attach(hh, lh, s_h)

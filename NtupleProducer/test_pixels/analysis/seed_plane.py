@@ -14,7 +14,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 
 import direct_rate as D
 from direct_curves import load_mb
-from train_sets import jet_features, kin_weights, load, summary_features
+from train_sets import jet_features, kin_weights, load, pixel_summary
 
 
 def nn_score(d):
@@ -22,7 +22,7 @@ def nn_score(d):
     return sc[:, 0] / np.maximum(sc[:, 0] + sc[:, 2] + sc[:, 3], 1e-6)
 
 
-def tagger(fh, fq, fmb):
+def tagger(fh, fq, fmb, l1=False):
     lh, lq, lm = load(fh), load(fq), load_mb(fmb)
     b = {k: v[(lh["flav"] == 5) & (lh["event"] % 2 == 0)] for k, v in lh.items()}
     l = {k: v[(lq["flav"] == 0) & (lq["event"] % 2 == 0)] for k, v in lq.items()}
@@ -30,7 +30,7 @@ def tagger(fh, fq, fmb):
     y = np.concatenate([np.ones(len(b["pt"])), np.zeros(len(l["pt"]))])
     w = np.concatenate([np.ones(len(b["pt"])), kin_weights(b, l)])
     w[y == 0] *= y.sum() / w[y == 0].sum()
-    feats = lambda d: np.column_stack([jet_features(d), summary_features(d["trk"], d["ntrk"])])
+    feats = lambda d: np.column_stack([jet_features(d), pixel_summary(d, l1)])
     clf = HistGradientBoostingClassifier(max_iter=300, max_leaf_nodes=31, random_state=1).fit(feats(tr), y, sample_weight=w)
     return lh, lq, lm, (clf.predict_proba(feats(d))[:, 1] for d in (lh, lq, lm))
 
@@ -42,7 +42,7 @@ def main():
     res = {f"{p}_{k}": d[k] for p, d in (("hh", hh), ("mb", mb)) for k in ("lumi", "event", "ht", "menu")}
     res["hh_nn"], res["mb_nn"] = hh["nn_sum"], mb["nn_sum"]
     for name, key, (fh, fq, fm1, fm2) in (("HLT pixel", "hlt", hlt), ("L1 pixel", "l1", l1)):
-        lh, lq, lm, (s_h, s_q, s_m) = tagger(fh, fq, f"{fm1},{fm2}")
+        lh, lq, lm, (s_h, s_q, s_m) = tagger(fh, fq, f"{fm1},{fm2}", l1=key == "l1")
         res[f"hh_{key}"], res[f"mb_{key}"] = D.jet_scores(hh, lh, s_h), D.jet_scores(mb, lm, s_m)
         if key == "l1":
             res["hh_perfect"] = D.jet_scores(hh, lh, (lh["flav"] == 5).astype(float))

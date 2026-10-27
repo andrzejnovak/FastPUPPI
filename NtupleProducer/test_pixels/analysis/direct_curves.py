@@ -20,7 +20,7 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 
 import direct_rate as D
-from train_sets import jet_features, kin_weights, load, summary_features
+from train_sets import jet_features, kin_weights, load, pixel_summary
 
 STANDALONE = (2.0, 3.0, 5.0, 7.5, 10.0, 14.0, 20.0, 30.0)
 ADDED = (0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0, 15.0)
@@ -31,7 +31,7 @@ def load_mb(spec):
     return {k: np.concatenate([p[k] for p in parts]) for k in parts[0]}
 
 
-def pixel_tagger(fh, fq, fmb):
+def pixel_tagger(fh, fq, fmb, l1=False):
     lh, lq, lm = load(fh), load(fq), load_mb(fmb)
     b = {k: v[(lh["flav"] == 5) & (lh["event"] % 2 == 0)] for k, v in lh.items()}
     l = {k: v[(lq["flav"] == 0) & (lq["event"] % 2 == 0)] for k, v in lq.items()}
@@ -39,7 +39,7 @@ def pixel_tagger(fh, fq, fmb):
     y = np.concatenate([np.ones(len(b["pt"])), np.zeros(len(l["pt"]))])
     w = np.concatenate([np.ones(len(b["pt"])), kin_weights(b, l)])
     w[y == 0] *= y.sum() / w[y == 0].sum()
-    feats = lambda d: np.column_stack([jet_features(d), summary_features(d["trk"], d["ntrk"])])
+    feats = lambda d: np.column_stack([jet_features(d), pixel_summary(d, l1)])
     clf = HistGradientBoostingClassifier(max_iter=300, max_leaf_nodes=31, random_state=1).fit(feats(tr), y, sample_weight=w)
     return lh, lm, clf.predict_proba(feats(lh))[:, 1], clf.predict_proba(feats(lm))[:, 1]
 
@@ -56,7 +56,7 @@ def main():
 
     sums = {"NN": (hh["nn_sum"], mb["nn_sum"])}
     for name, (fh, fq, fm1, fm2) in (("HLT pixel", hlt), ("L1 pixel", l1)):
-        lh, lm, s_hh, s_mb = pixel_tagger(fh, fq, f"{fm1},{fm2}")
+        lh, lm, s_hh, s_mb = pixel_tagger(fh, fq, f"{fm1},{fm2}", l1=name == "L1 pixel")
         sums[name] = (D.jet_scores(hh, lh, s_hh), D.jet_scores(mb, lm, s_mb))
         if name == "L1 pixel":  # perfect tagger from the same jets (generator flavour; unmatched pileup jets = not b)
             sums["perfect"] = (D.jet_scores(hh, lh, (lh["flav"] == 5).astype(float)),

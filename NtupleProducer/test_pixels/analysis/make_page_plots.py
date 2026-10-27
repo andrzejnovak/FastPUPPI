@@ -9,6 +9,7 @@ blue = + today's L1 NN seed (planned), orange = + L1 tracks with pixel hits, aqu
 """
 import glob
 import json
+import os
 import re
 
 import awkward as ak
@@ -21,6 +22,16 @@ import uproot
 import l1ext as X
 
 OUT = "plots_page"
+V2DIR = "/scratch/submit/cms/novaka/l1pixels/derived/analysis_v2"
+
+
+def inp(name):
+    """Tagger-dependent inputs: with PIXSUM=v2, the recalibrated-summary outputs of run_v2.sh."""
+    if os.environ.get("PIXSUM", "v1") != "v2":
+        return name
+    stem, ext = os.path.splitext(name)
+    return f"{V2DIR}/{stem.replace('_flags', '')}_v2{'_flags' if stem.endswith('_flags') else ''}{ext}"
+
 C = {"menu": "#9a9890", "NN": "#2a78d6", "L1 pixel": "#eb6834", "HLT pixel": "#1baf7a", "perfect": "#0b0b0b",
      "OT only": "#eda100", "offline": "#6250d6", "missed": "#e34948"}
 INK, INK2 = "#0b0b0b", "#52514e"
@@ -29,8 +40,8 @@ plt.rcParams.update({"font.size": 10, "axes.edgecolor": "#c3c2b7", "axes.labelco
                      "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False})
 ADD = "2.5"
 
-curves = json.load(open("curves.json"))
-fl = dict(np.load("curves_flags.npz"))
+curves = json.load(open(inp("curves.json")))
+fl = dict(np.load(inp("curves_flags.npz")))
 odd = fl["odd"]
 
 
@@ -162,7 +173,7 @@ plt.close(fig)
 
 
 # ---------- 4. ROC chain ----------
-tc = json.load(open("tag_chain.json"))
+tc = json.load(open(inp("tag_chain.json")))
 fig, ax = plt.subplots(figsize=(6.4, 4.6))
 spec = [("L1 NN", "today's L1 NN (baseline)", C["NN"], "-"), ("OT only", "+ Outer Tracker displaced tracks", C["OT only"], "-"),
         ("L1 + pixel", "+ L1 tracks with pixel hits", C["L1 pixel"], "-"), ("HLT pixel", "+ HLT pixel tracks", C["HLT pixel"], "-"),
@@ -470,8 +481,8 @@ plt.close(fig)
 
 
 # ---------- 11. thesis-style seed plane: HT vs sum of 4 jet b scores, iso-rate contours (seed_plane.py) ----------
-if os.path.exists("seed_plane.npz"):
-    sp = dict(np.load("seed_plane.npz"))
+if os.path.exists(inp("seed_plane.npz")):
+    sp = dict(np.load(inp("seed_plane.npz")))
     wmb = 2760 * 11.245 / 1999360
     s_edges, h_edges = np.linspace(0, 4, 201), np.arange(100, 705, 5)
     rate_levels = (2.0, 5.0, 10.0, 20.0)
