@@ -32,3 +32,8 @@
 - [x] κλ interval with background (2026-10-26, `scouting.py`, page tab 7): L1-object level, minimum-bias background with
       QCD 4b/3b fractions; stat-only 68%: NN [0.43, 1.90] → pixel [0.53, 1.75]. Open: systematics, offline resolution.
 - [x] Scouting prototype (same script): L1-only 4b scouting Z 0.26 vs 2.0 triggered, adds nothing on top of the trigger.
+- [x] Scouting as a fallback for real-time pixel tagging (2026-10-27, tab 7): recovers nothing (menu 1.61 → 1.61σ).
+- [ ] Background flavour content for seed-added events: minimum bias has no flavour truth; QCDFlat has 27–49 events in
+      the seed-added class. Need a QCD (or b-enriched) sample at L1 HT 150–400, or the HH→4b group's background model,
+      to settle pixel vs NN at analysis level (models A/B in tab 7).
+- [ ] Perfect-tag ceilings (tab 1) use minimum-bias rate with empty flavour labels: redo with a flavour-aware rate model.

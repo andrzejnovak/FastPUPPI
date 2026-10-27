@@ -22,17 +22,19 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    seed keeps ×1.26–1.30 the κλ information of the NN seed in every scenario. Background not modelled.
    Rate: the pixel seed matches the NN seed's +2.3 kHz efficiency with ~0.3 kHz on top of the menu (standalone 2.7 vs
    9.6 kHz), but that is ~1% of the TDR menu (346 kHz, 450 with margin, of 750): the case is efficiency, not bandwidth.
-5. **κλ with a background, and a scouting prototype** (`analysis/scouting.py`, `run_scouting.sh`, `qcd_tagfrac.py`,
-   `plot_scouting.py`; page tab 7). L1-object level: 4 leading L1 jets, Higgs-candidate window, m_4j shape, 4 / 3 tags;
-   background = the minimum bias itself (6.2e8 crossings per event at 3000/fb), with the triggered 4b / 3b fractions from
-   QCD offline UParT tags (the ~110 accepted minimum-bias events cannot hold the bb̄bb̄ content: own 4-tag fraction 1e-8
-   vs QCD 1.2e-5). Stat-only κλ 68%, 3000/fb, HH→4b alone: menu [0.23, 2.33] + second minimum, NN seed [0.43, 1.90],
-   **pixel seed [0.53, 1.75] (17% narrower)**, perfect [0.65, 1.50]. Scouting every crossing with L1 HT > 150 and L1
-   tags only: Z 0.26 vs 2.0 triggered, and adds nothing on top of the pixel seed: the L1 tags, not the trigger, limit it.
-   **BSM truth κλ = 5** (`TRUTHS` in scouting.py): SM excluded at 0.8 / 2.0 / **3.7** / 5.1σ (menu / NN / pixel / perfect
-   seed); scouting on top still adds nothing (~550 events in background). Scouting cannot go much lower in mass: of
-   HH→4b events with 4 L1 jets > 20 GeV in the Higgs window, only 1.8% (SM) / 5.6% (κλ = 5) have L1 HT < 150
-   (`hh_ht_reach.py`); the low-m_HH reach is set by jet thresholds and acceptance.
+5. **κλ with a background; scouting as a fallback** (`analysis/scouting.py`, `run_scouting.sh`, `qcd_tagfrac.py`,
+   `hh_ht_reach.py`, `plot_scouting.py`; page tab 7). L1-object level (4 leading L1 jets, Higgs window, m_4j, 4 / 3 tags),
+   background shape and normalisation = the minimum bias (6.2e8 crossings per event at 3000/fb), 4b/3b fractions from
+   QCD events passing the same L1 seeds. **The minimum bias has no flavour truth** (99.5% of its L1 jets unmatched: the
+   pileup interactions carry no generator record), so the flavour content of the background is only known from QCD, which
+   has 27–49 events in the seed-added class. Two models: A (one QCD fraction everywhere) / B (fraction and category per
+   L1 class). SM Z: menu 1.59/1.61, NN seed 1.90/1.99, pixel seed 2.01/1.62; κλ = 5 truth, SM excluded at 0.8/0.8,
+   2.0/2.3, 3.7/1.0σ. The pixel seed adds b-rich QCD (4-tag fraction 40× the menu's in B): **its analysis-level κλ gain
+   over the NN seed is model-dependent**, from 17% narrower to none. **Scouting as a fallback** (no pixel tag in the real-
+   time decision, pixel tags only in 40 MHz scouting) recovers nothing in either model (menu 1.61 → 1.61, NN 1.99 →
+   1.99): scouted events stay at L1 quality. It would also still need the regional pixel readout. Scouting cannot reach
+   lower mass either: ≤ 6% of windowed signal lies below L1 HT 150. **"Perfect b tag" ceilings that use minimum-bias
+   rate (tab 1) are overestimates** for the same no-flavour reason.
 6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.

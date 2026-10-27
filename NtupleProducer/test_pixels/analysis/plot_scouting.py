@@ -22,8 +22,10 @@ plt.rcParams.update({"font.size": 10, "axes.edgecolor": "#c3c2b7", "axes.labelco
 d = json.load(open(src))
 kl = np.array(d["curves"]["kl"])
 rows = [("trig_menu", "planned menu", C["menu"], "-"), ("trig_nn", "+ NN seed (2.5 kHz)", C["NN"], "-"),
-        ("trig_l1", "+ pixel seed (2.5 kHz)", C["L1 pixel"], "-"), ("trig_perfect", "+ perfect-tag seed", C["perfect"], ":"),
-        ("scout_l1", "scouting, L1 pixel tags only", C["L1 pixel"], "--")]
+        ("trig_l1", "+ pixel seed (2.5 kHz)", C["L1 pixel"], "-"),
+        ("comb_menu_l1", "menu + pixel tags in scouting (fallback)", C["L1 pixel"], "--"),
+        ("scout_l1", "scouting alone, L1 pixel tags", C["L1 pixel"], ":")]
+INT = {"comb_menu_l1": "comb_menu+scout_l1"}  # curve key -> result key
 
 fig, (a, b) = plt.subplots(1, 2, figsize=(10, 3.9), gridspec_kw={"width_ratios": [1.25, 1]})
 for key, lab, col, ls in rows:
@@ -32,10 +34,10 @@ for lvl, txt in ((1.0, "68%"), (3.84, "95%")):
     a.axhline(lvl, color="#c3c2b7", lw=1)
     a.text(-2.9, lvl + 0.08, txt, ha="left", va="bottom", color=INK2, fontsize=9)
 a.set(xlim=(-3, 8), ylim=(0, 6), xlabel=r"$\kappa_\lambda$", ylabel=r"$-2\,\Delta\ln L$ (Asimov, SM truth)")
-fig.legend(*a.get_legend_handles_labels(), loc="lower center", ncol=5, fontsize=8.5, bbox_to_anchor=(0.5, -0.07))
+fig.legend(*a.get_legend_handles_labels(), loc="lower center", ncol=3, fontsize=8.5, bbox_to_anchor=(0.5, -0.12))
 
 for i, (key, lab, col, ls) in enumerate(rows):
-    r = d[key]
+    r = d[INT.get(key, key)]
     y = len(rows) - 1 - i
     lo95, hi95 = r["kl_95"]
     lo68, hi68 = r["kl_68"]
@@ -47,7 +49,7 @@ b.axvline(1.0, color="#c3c2b7", lw=1)
 b.set_yticks(range(len(rows)), [lab for _, lab, _, _ in rows][::-1], fontsize=8.5)
 b.set(xlim=(-4, 8), xlabel=r"$\kappa_\lambda$ interval (thick 68%, thin 95%)")
 b.grid(axis="y", visible=False)
-fig.suptitle(r"HH$\to$4b, 3000 fb$^{-1}$, statistical only, L1-jet resolution; background = minimum bias, QCD 4b/3b tag fractions",
+fig.suptitle(r"HH$\to$4b, 3000 fb$^{-1}$, stat. only, L1-jet resolution; background: minimum bias $\times$ QCD tag fractions per L1 class (conservative model)",
              fontsize=9.5, color=INK2)
 fig.tight_layout()
 fig.savefig(out, dpi=150, bbox_inches="tight")
