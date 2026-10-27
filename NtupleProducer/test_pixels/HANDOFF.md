@@ -22,13 +22,20 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    seed keeps ×1.26–1.30 the κλ information of the NN seed in every scenario. Background not modelled.
    Rate: the pixel seed matches the NN seed's +2.3 kHz efficiency with ~0.3 kHz on top of the menu (standalone 2.7 vs
    9.6 kHz), but that is ~1% of the TDR menu (346 kHz, 450 with margin, of 750): the case is efficiency, not bandwidth.
-5. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
+5. **κλ with a background, and a scouting prototype** (`analysis/scouting.py`, `run_scouting.sh`, `qcd_tagfrac.py`,
+   `plot_scouting.py`; page tab 7). L1-object level: 4 leading L1 jets, Higgs-candidate window, m_4j shape, 4 / 3 tags;
+   background = the minimum bias itself (6.2e8 crossings per event at 3000/fb), with the triggered 4b / 3b fractions from
+   QCD offline UParT tags (the ~110 accepted minimum-bias events cannot hold the bb̄bb̄ content: own 4-tag fraction 1e-8
+   vs QCD 1.2e-5). Stat-only κλ 68%, 3000/fb, HH→4b alone: menu [0.23, 2.33] + second minimum, NN seed [0.43, 1.90],
+   **pixel seed [0.53, 1.75] (17% narrower)**, perfect [0.65, 1.50]. Scouting every crossing with L1 HT > 150 and L1
+   tags only: Z 0.26 vs 2.0 triggered, and adds nothing on top of the pixel seed: the L1 tags, not the trigger, limit it.
+6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.
 
 Open: whether pixel front-ends can answer a regional request mid-latency (needs pixel experts); firmware cost;
-HLT emulation (can only lower the gain); a real b-jet regression; a κλ interval from an m_HH-shape fit (needs a
-background model after the 4b selection).
+HLT emulation (can only lower the gain); a real b-jet regression; systematics and offline resolution in the κλ fit
+(tab 7 is stat-only at L1-jet resolution); propagating the recalibrated 3D impact parameter (below) to the HH→4b seeds.
 
 ## Pages
 
@@ -91,6 +98,11 @@ chain, so a pixel-refit d0 could fill the existing field.
 
 - **Charm:** pixels make L1 charm tagging possible: c efficiency at 10% light mistag 16% (NN) → 29% (L1 tracks + pixel
   hits), c vs b at 30% b: 41% → 61% (`analysis/ctag_compare.py`, `run_ctag.sh` → `ctag_chain.json`; QCD jets).
+  Charm word on the same inputs: no gain. **Recalibrated impact parameter**: `l1ext.D0_ERR` (fit to HLT pixel dxyErr,
+  88 µm floor) is ~3× the real L1-refit resolution (17–85 µm from minimum-bias negative-IP tails); with that and the
+  refit z0 (3D significance) + a 61-bit charm word: c-eff 33.5% at 10% light, 66% vs b at 30% (`charm_feats2.py`,
+  `ctag_charm.py` → `ctag_charm.json`). b tag with the same inputs: 48/78 → 55/83% at 1/10% light (`btag_v2check.py`),
+  NOT yet propagated to the HH→4b seeds. VBF H→cc seed unchanged (62% at +2 kHz; ~50 events separate the seeds).
 - **VBF H→cc / bb:** the planned menu keeps only 57% / 53% of events in a generator VBF + cc/bb acceptance
   (`analysis/vbf_menu.py`). A looser VBF pair + two tagged central jets at ~+2 kHz on top of the menu
   (`analysis/vbf_ctag.py`, `run_vbf_ctag.sh WHICH=cc|bb`, minimum bias `local_mbsel_ext` + `local_mbnew` + `local_mbvbf`):
@@ -103,7 +115,9 @@ chain, so a pixel-refit d0 could fill the existing field.
   Higgs pT > 200 (`fatjet_parts.py`, `fatjet_ana.py`) and 96–98% of ZH with generator MET > 150 (`zh_met.py`).
   Large-jet mass from PUPPI constituents works (merged H→cc ~125 GeV). Private samples: `production/privgen/`.
 - **Menu rates vs TDR (CMS-TDR-021, PU 200):** our emulation HT + quad-jet 19 kHz (TDR 20), DoubleJet112 95 (71),
-  VBF 22 (40). Added-rate comparisons are unaffected.
+  VBF 22 (40). The stored 14_0 emulator jets of all 2.0M minimum-bias events with the same thresholds give DoubleJet 72,
+  VBF 15 (`analysis/rate_check.py` on `.../l1pixels/mbjscan`): 17_0 jets respond ~6% higher; the TDR VBF seed differs.
+  Added-rate comparisons are unaffected.
 - **OSG** (`production/osg/`): works for CMS xrootd inputs only with `X509_CERT_DIR`/`X509_VOMS_DIR` from cvmfs (in the
   runners; without them xrootd falls back to tokens: "Auth failed"). Exclude FANDM-ITS and SU-ITS for the private
   production. `sweep_held_mb.sh` moves held OSG jobs to Slurm.

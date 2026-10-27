@@ -11,15 +11,21 @@
       menu, pixel-tagged VBF seed 58 → 62% (cc), 51 → 61% (bb); today's NN 61% / 56%; looser VBF without tag ~+1 point.
 - [x] Menu rates vs the TDR table (CMS-TDR-021, PU 200; 2026-10-26): ours HT + quad-jet 19 kHz (TDR 20), DoubleJet112
       95 (71), VBF 22 (40). Whole TDR menu 346 kHz (450 with margin) of 750: saving a few kHz on HH→4b is ~1%, so the
-      case is efficiency at fixed rate, not bandwidth. Open: understand the DoubleJet/VBF offsets (14_0 vs 17_0 jets).
+      case is efficiency at fixed rate, not bandwidth. Offsets explained (`rate_check.py`, stored 14_0 jets of all
+      2M events): DoubleJet 72 kHz = TDR; 17_0 jets ~6% higher response; the TDR VBF seed is defined differently.
 - [x] ZH(νν) H→bb/cc (2026-10-26, `analysis/zh_met.py` → `zh_met.json`, first 22 files): the menu keeps 96–98% of
       fiducial events with generator MET > 150 (PuppiMET200 alone 93–95%); 82% at 100–150. Not L1-limited for the
       standard 0-lepton selection; full samples (50 files each) give 96% / 98%.
-- [ ] Charm-oriented pixel summary (moderate-significance track counts, vertex mass) to push the c-tag beyond 29%.
+- [x] Charm-oriented pixel summary (2026-10-26, `charm_feats2.py`, `ctag_charm.py`): a charm word alone adds nothing;
+      recalibrating the IP resolution (`l1ext.D0_ERR` ~3x too large) + 3D significance + charm word: 29 → 33.5% at 10%
+      light. VBF H→cc seed unchanged (62%).
+- [ ] Propagate the recalibrated 3D impact parameter (b tag 48/78 → 55/83% at 1/10% light, `btag_v2check.py`) to the
+      HH→4b seeds (`seed_plane.py`, `direct_curves.py`, `scouting.py`) and the pages.
 - [ ] Generator-Higgs table in the ntuples for future private samples (now a proxy from generator jets).
 - [x] HH→4b reframed around low m_HH (2026-10-26): κλ-information weighting (78% below 400 GeV), lower-HT control
       (`ht_control.py`), thesis-style plots (`seed_plane.py`, `make_page_plots.py` sections 9–13), softer offline scenarios
       (`offline/offline_scenarios.py`, `scen_ana.py`): pixel seed keeps ×1.26 the κλ information of the NN seed in every
       scenario; with the softest selection L1 bites (pixel 85%, perfect 95%).
-- [ ] κλ interval from an m_HH-shape fit: needs a background model after the 4b selection (HL-LHC HH→4b projection or a
-      3b-based estimate); the page quotes the signal-dominated limit.
+- [x] κλ interval with background (2026-10-26, `scouting.py`, page tab 7): L1-object level, minimum-bias background with
+      QCD 4b/3b fractions; stat-only 68%: NN [0.43, 1.90] → pixel [0.53, 1.75]. Open: systematics, offline resolution.
+- [x] Scouting prototype (same script): L1-only 4b scouting Z 0.26 vs 2.0 triggered, adds nothing on top of the trigger.
