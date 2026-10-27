@@ -103,6 +103,8 @@
       phase 2 = step1 on offline-pre-selected events of all files (offline_w dumps of all 30-120 files: slurm_offline_w2.sh).
 - [x] Low-mass offline selection with weighted QCD (offline_lowmass_w.py): softer selections triple the kappa_lambda information
       but take 5-10x the weighted QCD: S/sqrt(B) x1.0-1.15 only (the earlier x1.44 used unweighted QCDFlat). Real tags: n_eff <= 13.
-- [x] L1 (40 MHz) scouting: no pixel data at 40 MHz; even perfect tags Z 0.24 alone, +0 on top of the trigger; offline tags
-      on every HT>150 crossing 1.62 vs menu 1.61. No case for HH->4b. HLT scouting dropped (user: L1 scouting is the question).
+- [~] L1 (40 MHz) scouting: the earlier "perfect tags Z 0.24" came from a one-event background floor (QCDFlat 4b fraction 0)
+      and NN scouting from a default working point (scouting.py bugs). scout_check.py with weighted QCD: realistic NN tags
+      still give nothing; the perfect-tag ceiling is NOT determined (genuine 4b QCD in the window = 1 simulated event);
+      QCD/minimum-bias normalisation off by x1.47 (unresolved). Needs a 4b-enriched QCD sample. HLT scouting dropped.
 - [ ] Firmware (HLS) latency/resources of the extension; vertex robustness; one-hit d0 error.

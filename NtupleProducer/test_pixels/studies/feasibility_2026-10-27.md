@@ -138,17 +138,45 @@ Results:
   discrimination (tagging or kinematics), not looser cuts.
 - Caveats: QCD only (no ttbar), truth tags assume independent jets, and no pT-hat < 30.
 
-## L1 (40 MHz) scouting: no case for HH→4b, with or without pixels
+## L1 (40 MHz) scouting: what the earlier result really shows (revised after a bug check)
 
-- Pixel hits leave the CROC only for L1-accepted crossings, so L1 scouting cannot carry pixel information at all.
-- Even with ideal tags it adds nothing (`scouting.py`, `derived/scouting/scouting.json`, every crossing with L1 HT > 150):
-  - perfect b-tags in scouting: Z = 0.24 alone; on top of the triggered stream 2.26 → 2.26;
-  - pixel-quality tags: 0.14;
-  - NN: 0.02;
-  - offline-quality tags on every crossing: 1.62 vs the triggered menu's 1.61.
-- The limit is L1-jet kinematics (m_4j, Higgs window) and the multijet background, not tagging.
-- Caveat: minimum-bias background with QCD tag fractions (unvalidated model). A 10× smaller background still leaves
-  perfect-tag scouting < 1σ alone.
+### Bugs in scouting.py's scouting streams
+
+1. **Perfect tags.** The QCDFlat 4-tag fraction is exactly 0, so `background()` substituted a one-minimum-bias-event
+   floor (1/2577 of the window, 6e8 events at 3000/fb) in the most sensitive category.
+   The earlier "perfect tags: Z 0.24" was set by that floor.
+2. **NN working point.** The scan keeps the narrowest-interval working point but defaults to the first (0.2% mistag,
+   3.7% b efficiency) when none gives a finite interval. "NN scouting 0.02σ" was not optimised.
+3. **Flavour transfer.** Minimum bias has no flavour, so every scouting background used one unweighted QCDFlat tag
+   fraction.
+
+### Check with flavour-labelled, cross-section-weighted QCD
+
+`scout_check.py` → `derived/scout_check.json`. QCD pT-hat 30–470, 140k events; L1-jet flavour from generator jets.
+
+**Normalisation.** QCD window yield 2.35e12 vs minimum bias 1.60e12, i.e. ×1.47.
+- QCD should be a subset of minimum bias, so this does not close.
+- Suspects: the lowest bin (42 window events carry 40% of the yield), minimum-bias pre-selection completeness, L1 HT
+  definition.
+- Unresolved; it also lowers the triggered menu's Z to 1.07 (QCD background) from 1.61 (minimum bias).
+
+**Genuine 4b QCD in the window.** 1 simulated event (QCDPt120) → fraction 2.4e-5 ± 100%; 3 true b: 3.3e-4 (9 events).
+The 4b background cannot be measured with this sample.
+
+| Scouting tags | All crossings, Z | Menu-rejected part, Z | Menu + menu-rejected scouting |
+|---|---|---|---|
+| perfect | 0.56 (direct) – 0.76 (factorised) | 0.09 | 1.07 → 1.07 |
+| NN, 5% light mistag (b eff ~35%/jet) | 0.06–0.10 | 0.04–0.05 | 1.07 → 1.07 |
+| NN, 0.2% / 1% mistag | S = 50 / 126 events, B unmeasurable (0 QCD events) | | |
+
+### Reading
+
+- **Realistic L1 taggers.** Hopeless in scouting: a 4-tag requirement at mistags that suppress the 1e12 window
+  background leaves (b eff)^4 of a few % of the signal.
+- **Perfect tags.** The ceiling is not determined. It rests on the genuine-4b QCD rate in the window, which this sample
+  measures with one event; pileup b jets (no generator record) are missing on top.
+- **Expert intuition.** It can only be tested with a 4b-enriched QCD sample (generator-level bbbb or a b-enriched
+  filter) at L1 HT 150–360.
 
 ## Background for the κλ projection and scouting
 
