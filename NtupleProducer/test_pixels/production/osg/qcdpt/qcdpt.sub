@@ -1,0 +1,23 @@
+# condor_submit qcdpt.sub   (pT-binned QCD for the background validation; one job per line of jobs.txt)
+universe = vanilla
+executable = run_v3_osg.sh
+arguments = $(sample) $(idx) $(lfn) $(redir) $(nev)
+transfer_input_files = cmssw.tgz
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files = perfNano_$(sample)_$(idx).root
+transfer_output_remaps = "perfNano_$(sample)_$(idx).root = /scratch/submit/cms/novaka/l1pixels/local_qcdpt/perfNano_$(sample)_$(idx).root"
+use_x509userproxy = True
+x509userproxy = /home/submit/novaka/x509up_u248613
+output = logs/$(sample)_$(idx).out
+error = logs/$(sample)_$(idx).err
+log = logs/qcdpt.log
+request_cpus = 4
+request_memory = 8000
+request_disk = 8000000
+max_retries = 2
++ProjectName = "MIT_submit"
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/cmssw/el9:x86_64"
++SingularityBindCVMFS = True
+Requirements = (HAS_CVMFS_unpacked_cern_ch == True) && (HAS_SINGULARITY == True) && (HAS_CVMFS_cms_cern_ch == True) && (Microarch >= "x86_64-v3")
+queue sample, idx, lfn, redir, nev from jobs.txt

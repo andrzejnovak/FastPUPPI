@@ -21,8 +21,8 @@ import numpy as np
 
 B_K = 0.01143  # |curvature| [1/cm] = B_K / pT[GeV] (3.81 T)
 SIG_RPHI, SIG_Z, SIG_R = 0.0010, 0.0025, 0.0025  # cluster resolution [cm]: r-phi, z (barrel), r (disks)
-WIN_RPHI, WIN_Z, WIN_R = 0.15, 1.5, 1.5  # candidate windows [cm]
-NBEST, MIN_HITS = 3, 2
+WIN_RPHI, WIN_Z, WIN_R = 0.15, float(os.environ.get("WIN_Z", 1.5)), 1.5  # candidate windows [cm]
+NBEST, MIN_HITS = 3, int(os.environ.get("MIN_HITS", 2))  # MIN_HITS=1: one-hit extension (L1 phi0 fixes the line)
 MISS_PENALTY = 2.0  # added to chi2/ndof per pixel layer with candidates but no hit used
 MAX_LAYERS = 4  # only the innermost layers with candidates enter the combinatorics (they set d0)
 PHI_WIN = 0.12  # [rad] cluster preselection around the track direction (bending to r = 16 cm at 2 GeV: 0.05)
@@ -114,6 +114,10 @@ def extend(trk, cl):
     det = np.where(det > 1e-9, det, 1e-9)
     phi0 = (S * Sry - Sr * Sy) / det
     d0 = (Srr * Sy - Sr * Sry) / det
+    one = nh == 1  # one hit: phi0 from the L1 track, d0 = the hit's r-phi offset from that line
+    if one.any():
+        phi0 = np.where(one, trk["phi"], phi0)
+        d0 = np.where(one, Sy - Sr * trk["phi"], d0)
     chi2 = (m * (y - rr * phi0[:, None] - d0[:, None]) ** 2).sum(1) / SIG_RPHI**2
     # r-z: z = z0 + cot s with a soft constraint on cot from the L1 track
     ss = np.where(abs(k) > 1e-9, 2 * aa / (k if abs(k) > 1e-9 else 1.0), rr)
@@ -138,6 +142,8 @@ def d0_err(pt, eta):
 
 
 SKIP_LIDS = {int(x) for x in os.environ.get("SKIP_LIDS", "").split(",") if x}  # e.g. "1": drop barrel layer 1 (readout study)
+KEEP_LIDS = {int(x) for x in os.environ.get("KEEP_LIDS", "").split(",") if x}  # e.g. "1": barrel layer 1 only (replacement-layer study)
+HIT_LOSS = float(os.environ.get("HIT_LOSS", "0"))  # fraction of pixel clusters dropped at random (robustness study)
 
 
 def clusters_of(ev, prefix="PixelClusters"):
@@ -146,7 +152,12 @@ def clusters_of(ev, prefix="PixelClusters"):
     lid = layers(sub, lay) * np.where((sub != 1) & (z < 0), -1, 1)
     cl = {"x": x, "y": y, "z": z, "r": np.hypot(x, y), "phi": np.arctan2(y, x), "lid": lid,
           "trk": np.asarray(ev[f"{prefix}_trkIdx"])}
-    return subset(cl, ~np.isin(lid, list(SKIP_LIDS))) if SKIP_LIDS else cl
+    keep = ~np.isin(lid, list(SKIP_LIDS)) if SKIP_LIDS else np.ones(len(x), bool)
+    if KEEP_LIDS:
+        keep &= np.isin(abs(lid), list(KEEP_LIDS))
+    if HIT_LOSS > 0:  # random cluster loss (chip inefficiency, buffer overflow); reproducible per event
+        keep &= np.random.default_rng(int(abs(x).sum() * 1e4) % 2**32).random(len(x)) >= HIT_LOSS
+    return cl if keep.all() else subset(cl, keep)
 
 
 def subset(cl, m):

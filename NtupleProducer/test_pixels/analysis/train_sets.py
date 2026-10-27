@@ -49,7 +49,8 @@ def kin_weights(ref, d):
 def pixel_summary(d, l1=False):
     """8-number pixel summary of a list dict. With PIXSUM=v2, lists of L1 tracks with pixel hits (l1=True) use the
     recalibrated 3D impact-parameter summary of charm_feats2.py (same 8 numbers and bits; its resolution table is
-    calibrated for the L1-track refit, so HLT pixel and Outer-Tracker-only lists keep the stored significance)."""
+    calibrated for the L1-track refit, so HLT pixel and Outer-Tracker-only lists keep the stored significance).
+    PIXSUM=q8: the original summary quantised to 8 bits per feature (64 bits per jet)."""
     mode = os.environ.get("PIXSUM", "v1") if l1 else "v1"
     if mode == "v2":
         from charm_feats2 import summary2
@@ -62,6 +63,8 @@ def pixel_summary(d, l1=False):
         sipm = np.where(t["valid"], t["sip"], -1.0)
         return np.column_stack([top, d["ntrk"], (sxy > 3).sum(1), (sxy > 5).sum(1), np.where(sxy > 0, sxy, 0).sum(1),
                                 sipm.max(1)]).astype(np.float32)
+    if mode == "q8":  # the 64-bit word: 8 features x 8 bits, as the firmware would send it (quantize_summary)
+        return quantize_summary(summary_features(d["trk"], d["ntrk"]))
     return summary_features(d["trk"], d["ntrk"])
 
 

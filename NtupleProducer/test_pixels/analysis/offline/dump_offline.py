@@ -3,19 +3,21 @@
 
     python3 dump_offline.py OUT.npz LFN
 Per jet: pT, eta, phi, mass, UParT / ParticleNet / DeepJet b scores, hadron flavour, constituent counts and
-energy fractions (for a loose jet ID).
+energy fractions (for a loose jet ID). Per event: generator weight and pT-hat; per file: the generator cross-section
+(GenRunInfoProduct, pb) so pT-binned QCD can be weighted.
 """
 import sys
 
 import numpy as np
-from DataFormats.FWLite import Events, Handle
+from DataFormats.FWLite import Events, Handle, Runs
 
 out, lfn = sys.argv[1], sys.argv[2]
 h = Handle("std::vector<pat::Jet>")
+hg = Handle("GenEventInfoProduct")
 UPART, PNET = "pfUnifiedParticleTransformerAK4DiscriminatorsJetTags:BvsAll", \
     "pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:BvsAll"
 DJ = ["pfDeepFlavourJetTags:probb", "pfDeepFlavourJetTags:probbb", "pfDeepFlavourJetTags:problepb"]
-cols = {k: [] for k in ("lumi", "event", "njet", "pt", "eta", "phi", "mass", "upart", "pnet", "deepjet", "flav",
+cols = {k: [] for k in ("lumi", "event", "genweight", "pthat", "njet", "pt", "eta", "phi", "mass", "upart", "pnet", "deepjet", "flav",
                         "nconst", "chf", "nhf", "nemf")}
 for e in Events("root://cms-xrd-global.cern.ch/" + lfn):
     e.getByLabel("slimmedJetsPuppi", h)
@@ -23,6 +25,9 @@ for e in Events("root://cms-xrd-global.cern.ch/" + lfn):
     js = [j for j in h.product() if j.pt() > 20 and abs(j.eta()) < 2.5]
     cols["lumi"].append(a.luminosityBlock())
     cols["event"].append(a.event())
+    gen = e.getByLabel("generator", hg) and hg.isValid()
+    cols["genweight"].append(hg.product().weight() if gen else 1.0)
+    cols["pthat"].append(hg.product().qScale() if gen else -1.0)
     cols["njet"].append(len(js))
     for j in js:
         cols["pt"].append(j.pt())
@@ -37,5 +42,11 @@ for e in Events("root://cms-xrd-global.cern.ch/" + lfn):
         cols["chf"].append(j.chargedHadronEnergyFraction())
         cols["nhf"].append(j.neutralHadronEnergyFraction())
         cols["nemf"].append(j.neutralEmEnergyFraction())
-np.savez(out, **{k: np.array(v) for k, v in cols.items()})
+xsec = [-1.0, -1.0]
+hr = Handle("GenRunInfoProduct")
+for r in Runs("root://cms-xrd-global.cern.ch/" + lfn):
+    if r.getByLabel("generator", hr) and hr.isValid():
+        xsec = [hr.product().internalXSec().value(), hr.product().internalXSec().error()]
+    break
+np.savez(out, xsec=np.array(xsec), **{k: np.array(v) for k, v in cols.items()})
 print(f"{len(cols['lumi'])} events, {len(cols['pt'])} jets -> {out}")

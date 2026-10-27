@@ -149,11 +149,14 @@ for dsk in np.unique(alid[alid > 10]):
     rg = np.searchsorted(cuts, r, side="right")
     upl[m] = np.array([3, 3, 2, 2])[np.clip(rg, 0, 3)]
 recs = []
+req_mods, req_bits = [], []  # per crossing: modules the request reads and their bits (QUEUE_DUMP)
 for mods, mask, ncl, nwin in evs:
     bit = (mask[:, None] >> np.arange(4)) & 1
     acc = G.accept[mods]
     cb = B[mods] * ncl + (1 - acc) * E_chip[mods][:, None] * (acc > 0)
     tb = cb * bit
+    req_mods.append(mods[bit.sum(1) > 0])
+    req_bits.append(tb.sum(1)[bit.sum(1) > 0])
     hb = cb * (nwin > 0)
     modsum = (cb * (acc > 0)).sum(1)
     recs.append({
@@ -172,6 +175,13 @@ for mods, mask, ncl, nwin in evs:
         "bits_win_chip": float((B[mods] * nwin).sum()), "nwin": float(nwin.sum())})
 K = {k: np.array([r[k] for r in recs]) for k in recs[0]}
 ht = R["ht"]
+if os.environ.get("QUEUE_DUMP"):  # inputs of readout_queue.py: normal-readout and request load per module
+    E = np.zeros((n_emu, G.nmod))
+    ue = np.unique(evt)
+    np.add.at(E, (np.searchsorted(ue, evt[known]), m_emu[known]), bits[known])
+    np.savez_compressed(os.environ["QUEUE_DUMP"], upl=upl, lid=G.lid, emu_bits=E.astype(np.float32), ht=ht,
+                        req_off=np.cumsum([0] + [len(m) for m in req_mods]), req_mod=np.concatenate(req_mods),
+                        req_bits=np.concatenate(req_bits).astype(np.float32), charge_fix=CHARGE_FIX, qc_f=QC_F)
 K["bits_tagger"] = B_TAGGER_JET * R["njet"]
 K["bits_win_compact"] = B_COMPACT * R["nwin_sum"]
 K["bits_win_130"] = 130 * R["nwin_sum"]

@@ -84,6 +84,22 @@
       QCD, closure vs score/HT/mass, propagated finite-sample and transfer uncertainties, common seed definitions.
 - [ ] scouting.py: perfect seed still uses minimum-bias flavour; zero-fraction floor (1/N_MB) fabricates background;
       the offline-tag scouting "ceiling" loses score categories. Fix before any scouting statement beyond "simple test".
-- [ ] Quantise the 8-number pixel summary to the 64-bit word and retest the seed.
+- [x] Quantise the 8-number pixel summary to the 64-bit word and retest the seed (2026-10-27, `PIXSUM=q8`): no loss
+      (per jet 46.9/77.5, seed +2.5 kHz 77.6 vs 77.8%). 10% random hit loss: 43/75, seed 77.2%. studies/feasibility_2026-10-27.md
 - [ ] Offline low-mass QCD proxy: use real UParT tags (not inclusive probabilities on score-selected jets), weighted QCD.
 
+
+## Feasibility (2026-10-27, studies/feasibility_2026-10-27.md)
+- [x] CROC trigger architecture (RD53B manual v2.21 sec. 7.4, 9): hits leave the chip only at one programmed latency
+      after a trigger (two-level mode: RdTrig only marks; readout at the global countdown). An early regional read and
+      the 12.5 us L1 accept for all other crossings cannot coexist: path A / pixel scouting blocked in Phase-2 as built.
+      -> [ ] confirm with IT DAQ / CROC v2 experts (CROC-specific manual).
+- [x] Request latency with queueing (readout_queue.py): request served first ~1.9 us median, p99 2.7 us (incl. 0.78 us
+      chip minimum); shared FIFO fails (hot modules 60-97% busy with normal readout; corrected payload).
+- [x] Barrel layer 1 only (replaceable layer; one-hit extension, KEEP_LIDS=1 MIN_HITS=1): 18/45 per jet, seed 70.3% vs
+      NN 69.5%: one fast layer is not enough.
+- [ ] Weighted pT-binned QCD background (OSG cluster 3824054 on submit05, osg/qcdpt; offline_w dumps): run_qcdbkg.sh
+      merge + fit; closure vs minimum bias; bootstrap. Low pT-hat bins (30-120) are weaker per event than minimum bias:
+      phase 2 = step1 on offline-pre-selected events of all files (offline_w dumps of all 30-120 files: slurm_offline_w2.sh).
+- [ ] Low-mass offline selection with weighted QCD and real UParT tags (offline_lowmass_w.py, queued after the dumps).
+- [ ] Firmware (HLS) latency/resources of the extension; vertex robustness; one-hit d0 error.
