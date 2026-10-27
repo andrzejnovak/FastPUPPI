@@ -33,8 +33,9 @@ Collaborator: Marc Huwiler. Audience: PI + an undergrad who may take it over.
    over the NN seed is model-dependent**, from 17% narrower to none. **Scouting as a fallback** (no pixel tag in the real-
    time decision, pixel tags only in 40 MHz scouting) recovers nothing in either model (menu 1.61 → 1.61, NN 1.99 →
    1.99): scouted events stay at L1 quality. It would also still need the regional pixel readout. Scouting cannot reach
-   lower mass either: ≤ 6% of windowed signal lies below L1 HT 150. **"Perfect b tag" ceilings that use minimum-bias
-   rate (tab 1) are overestimates** for the same no-flavour reason.
+   lower mass either: ≤ 6% of windowed signal lies below L1 HT 150. **Perfect-b-tag ceiling corrected**
+   (`perfect_ceiling.py`): its minimum-bias rate now comes from QCD P(n_b | L1 HT); at +2.5 kHz HT > 150 with ≥ 3 b
+   (0.33 kHz): 82.2% of all events (was 92.6%), 98.9% of offline-selected below 400 GeV (was 99.5%).
 6. **Bit budget** (minimum bias, pre-selection HT > 140 / 200 GeV = 367 / 123 kHz): 15–18 requesting tracks,
    ~14 clusters per narrow track window → hits back ~2.7 / 1.2 Gb/s (whole-cone readout 32 / 12 Gb/s). Tagger:
    +1 sign bit per candidate (reuse 8-b √|dxy| field) or a 64-b jet summary; GT jet word unchanged.
@@ -67,9 +68,10 @@ HLT emulation (can only lower the gain); a real b-jet regression; systematics an
 | Gen m_HH | `.../genmhh/mhh_*.npz`; κλ shapes `analysis/klreweight/nano_mhh_kl*.npz` |
 | Key results | `analysis/curves.json` (+`curves_flags.npz`), `direct_rate2.json`, `direct_rate_l1ext.json`, `tag_chain.json`, `offline_flags2.npz`, `bits_mb.json` |
 
-All scripts carry absolute `/work`, `/ceph` paths; run from `analysis/` with
-`source /cvmfs/cms.cern.ch/cmsset_default.sh; cd .../hitdev/CMSSW_17_0_0_pre2/src; cmsenv`. Production on Slurm
-(`submit` partition) only, never on the login node.
+All scripts carry absolute `/work`, `/scratch` paths; run analysis scripts from `analysis/` in the pixi environment
+(`analysis/pixi.toml`, pinned to the versions the results were made with: `pixi run python <script>.py`; works on the
+`tier3` partition too). CMSSW (`ngv2`, `cmsenv`) only for ntuple production and FWLite scans of RAW. Production on
+Slurm only, never on the login node.
 
 ## Pipeline
 

@@ -38,4 +38,6 @@
 - [ ] Background flavour content for seed-added events: minimum bias has no flavour truth; QCDFlat has 27–49 events in
       the seed-added class. Need a QCD (or b-enriched) sample at L1 HT 150–400, or the HH→4b group's background model,
       to settle pixel vs NN at analysis level (models A/B in tab 7).
-- [ ] Perfect-tag ceilings (tab 1) use minimum-bias rate with empty flavour labels: redo with a flavour-aware rate model.
+- [x] Perfect-tag ceiling with a flavour-aware rate (2026-10-27, `perfect_ceiling.py`): 92.6 → 82.2% of all events at
+      +2.5 kHz; 99.5 → 98.9% of offline-selected below 400 GeV. Still an upper bound (pileup b jets unlabelled).
+- [x] Analysis environment moved to pixi (`analysis/pixi.toml`); CMSSW only for production and FWLite.

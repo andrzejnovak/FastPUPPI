@@ -13,7 +13,20 @@ import sys
 
 import numpy as np
 
-fl = dict(np.load(os.environ.get("CURVES_FLAGS", "curves_flags.npz"))); odd = fl["odd"]
+def perfect_fix(fl):
+    """Replace the perfect-tag seed flags with perfect_ceiling.py's (flavour-aware minimum-bias rate), by event."""
+    if not os.path.exists("perfect_ceiling_flags.npz"):
+        return fl
+    pf = np.load("perfect_ceiling_flags.npz")
+    pos = {(l, e): i for i, (l, e) in enumerate(zip(pf["lumi"], pf["event"]))}
+    ix = np.array([pos[(l, e)] for l, e in zip(fl["lumi"], fl["event"])])
+    for k in pf.files:
+        if k.startswith("perfect|"):
+            fl[k] = pf[k][ix]
+    return fl
+
+
+fl = perfect_fix(dict(np.load(os.environ.get("CURVES_FLAGS", "curves_flags.npz")))); odd = fl["odd"]
 g = {k: np.concatenate([np.load(f)[k] for f in sorted(glob.glob("/scratch/submit/cms/novaka/l1pixels/genmhh/mhh_*.npz"))]) for k in ("lumi", "event", "mhh")}
 pos = {(l, e): i for i, (l, e) in enumerate(zip(g["lumi"], g["event"]))}
 mhh = np.array([g["mhh"][pos[(l, e)]] for l, e in zip(fl["lumi"], fl["event"])])

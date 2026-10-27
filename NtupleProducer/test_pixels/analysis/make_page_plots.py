@@ -40,8 +40,21 @@ plt.rcParams.update({"font.size": 10, "axes.edgecolor": "#c3c2b7", "axes.labelco
                      "axes.spines.top": False, "axes.spines.right": False, "legend.frameon": False})
 ADD = "2.5"
 
+def perfect_fix(fl):
+    """Replace the perfect-tag seed flags with perfect_ceiling.py's (flavour-aware minimum-bias rate), by event."""
+    if not os.path.exists("perfect_ceiling_flags.npz"):
+        return fl
+    pf = np.load("perfect_ceiling_flags.npz")
+    pos = {(l, e): i for i, (l, e) in enumerate(zip(pf["lumi"], pf["event"]))}
+    ix = np.array([pos[(l, e)] for l, e in zip(fl["lumi"], fl["event"])])
+    for k in pf.files:
+        if k.startswith("perfect|"):
+            fl[k] = pf[k][ix]
+    return fl
+
+
 curves = json.load(open(inp("curves.json")))
-fl = dict(np.load(inp("curves_flags.npz")))
+fl = perfect_fix(dict(np.load(inp("curves_flags.npz"))))
 odd = fl["odd"]
 
 
