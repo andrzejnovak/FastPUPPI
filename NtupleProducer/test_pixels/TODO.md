@@ -108,3 +108,6 @@
       still give nothing; the perfect-tag ceiling is NOT determined (genuine 4b QCD in the window = 1 simulated event);
       QCD/minimum-bias normalisation off by x1.47 (unresolved). Needs a 4b-enriched QCD sample. HLT scouting dropped.
 - [ ] Firmware (HLS) latency/resources of the extension; vertex robustness; one-hit d0 error.
+- [~] 4b-enriched QCD (privgen QCD4b, OSG cluster 3829520 + Slurm 7059747; osg4b/collect.sh): first 825 events -> perfect-tag
+      scouting of menu-rejected events Z 0.30, menu 1.07 -> 1.11 (scout4b.py). Rerun at full statistics. Normalisation
+      x1.47 explained: double counting below L1 HT 300 (norm_check.py).

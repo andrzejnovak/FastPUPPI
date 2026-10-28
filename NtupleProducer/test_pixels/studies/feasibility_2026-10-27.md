@@ -194,6 +194,37 @@ The 4b background cannot be measured with this sample.
 - Jobs: `run_privgen_4b.sh` + `slurm_privgen_4b.sh` record the generated count, the cross-section before the filter and
   per-event weight / pT-hat (`dump_genweight.py`).
 
+### First result with the 4b-enriched sample (2026-10-28, 825 accepted events from 131 jobs)
+
+`scout4b.py` → `derived/scout4b.json`. Background composition:
+- genuine 4b from QCD4b;
+- everything else from pT-binned QCD without its genuine-4b events;
+- yields below L1 HT 300 scaled to minimum bias (double counting).
+
+**Genuine 4b in the window:** 3.5e7 events at 3000/fb, i.e. 2.2e-5 of the window yield.
+- Built from 4 events (n_eff 2.8); pT-hat median 109 GeV, 10–90%: 90–187 GeV.
+- The pT-binned QCD's single event gave 5.7e7, consistent.
+- Only 0.5% of the filtered events land in the window with 4 b-matched leading L1 jets: the b-quark filter is loose, and
+  only 26% of accepted events have ≥ 4 b generator jets.
+
+| Scouting tags | All crossings, Z | Menu-rejected, Z | Menu (QCD bkg) 1.07 + menu-rejected scouting |
+|---|---|---|---|
+| perfect | 0.71 (B 7.2e8, 4-tag 3.5e7) | 0.30 (B 6.5e8, 4-tag 2.9e7 from 3 events) | 1.11 |
+| NN 5% mistag | 0.06 | 0.04 | 1.07 |
+| NN 0.2% / 1% | S = 43 / 126, no QCD event passes | | 1.07 |
+
+**Reading.**
+- Even perfect b-tagging at 40 MHz adds ~0.04σ (×1.04) to the HT seeds.
+- The 3-tag category (3 true b among the 4 leading jets: 6e8 events, pT-binned QCD) dominates the background of the
+  rejected events.
+- A 4-tag background lower by 2σ (×4) would raise the rejected-event Z to ~0.6 and the sum to ~1.2: modest either way.
+
+**Open:**
+- full statistics (~3300 accepted events);
+- pileup b jets (no generator record): a lower bound on the background;
+- pT-hat < 30;
+- L1-jet resolution sets the window width; an "offline-quality kinematics" ceiling has not been run.
+
 ## Background for the κλ projection and scouting
 
 Pending: `analysis/kl_qcdbkg.py` (`run_qcdbkg.sh`).
