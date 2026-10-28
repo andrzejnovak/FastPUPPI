@@ -1,0 +1,22 @@
+# condor_submit privgen_4b_osg.sub   (QCD4b; one job per line of jobs.txt: sample idx ngenerated)
+universe = vanilla
+executable = run_privgen_4b_osg.sh
+arguments = $(sample) $(idx) $(nev)
+transfer_input_files = cmssw1409_4b.tgz, cmssw.tgz
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+transfer_output_files = out_$(sample)_$(idx)
+use_x509userproxy = True
+x509userproxy = /home/submit/novaka/x509up_u248613
+output = logs/osg_$(sample)_$(idx).out
+error = logs/osg_$(sample)_$(idx).err
+log = logs/privgen_4b_osg.log
+request_cpus = 1
+request_memory = 16000
+request_disk = 25000000
+max_retries = 2
++ProjectName = "MIT_submit"
++SingularityImage = "/cvmfs/unpacked.cern.ch/registry.hub.docker.com/cmssw/el9:x86_64"
++SingularityBindCVMFS = True
+Requirements = (TARGET.GLIDEIN_Site =!= "FANDM-ITS") && (TARGET.GLIDEIN_Site =!= "SU-ITS") && (HAS_CVMFS_unpacked_cern_ch == True) && (HAS_SINGULARITY == True) && (HAS_CVMFS_cms_cern_ch == True) && (Microarch >= "x86_64-v3")
+queue sample, idx, nev from jobs.txt

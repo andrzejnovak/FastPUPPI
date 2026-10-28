@@ -1,5 +1,5 @@
-# Pythia8 CP5, 14 TeV: inclusive hard QCD (pT-hat > 30, biased towards high pT-hat as pT-hat^4.5 / 30^4.5, event weights
-# compensate), filtered at generator level for >= 4 b quarks (last copy) with pT > 15 GeV, |eta| < 2.6: the genuine-4b
+# Pythia8 CP5, 14 TeV: inclusive hard QCD (30 < pT-hat < 300, biased towards high pT-hat as (pT-hat / 30)^3, event weights
+# compensate; above 300 the L1 HT is beyond the HT seeds' reach for scouting purposes), filtered at generator level for >= 4 b quarks (last copy) with pT > 15 GeV, |eta| < 2.6: the genuine-4b
 # multijet background of HH->4b at L1-object level (private, for L1 trigger / scouting studies). Weight per event:
 # sigma(generated) x w / N_generated (N_generated from the job's TrigReport, not the filtered count).
 import FWCore.ParameterSet.Config as cms
@@ -18,8 +18,9 @@ generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
         processParameters=cms.vstring(
             "HardQCD:all = on",
             "PhaseSpace:pTHatMin = 30.",
+            "PhaseSpace:pTHatMax = 300.",
             "PhaseSpace:bias2Selection = on",
-            "PhaseSpace:bias2SelectionPow = 4.5",
+            "PhaseSpace:bias2SelectionPow = 3.0",
             "PhaseSpace:bias2SelectionRef = 30.",
         ),
         parameterSets=cms.vstring("pythia8CommonSettings", "pythia8CP5Settings", "processParameters"),
