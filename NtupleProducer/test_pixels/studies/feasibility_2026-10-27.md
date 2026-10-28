@@ -156,9 +156,16 @@ Results:
 
 **Normalisation.** QCD window yield 2.35e12 vs minimum bias 1.60e12, i.e. ×1.47.
 - QCD should be a subset of minimum bias, so this does not close.
-- Suspects: the lowest bin (42 window events carry 40% of the yield), minimum-bias pre-selection completeness, L1 HT
-  definition.
-- Unresolved; it also lowers the triggered menu's Z to 1.07 (QCD background) from 1.61 (minimum bias).
+- Resolved by `norm_check.py` (→ `derived/norm_check.json`). QCD/minimum bias per L1 HT bin
+  (150, 200, 250, 300, 360, 450, 600+):
+  - ≥ 4 jets: 1.53, 1.44, 1.46, 1.10, 0.98, 0.94, 1.03;
+  - window: 1.50, 1.60, 1.15, 0.92, 2.08 (few events), 1.84, 0.28.
+- Above HT 300 it closes. Below, the pT-hat 30–80 bins dominate, and their events are built from pileup jets: in the
+  30–50 bin, 25 of 42 window events have ≤ 1 of the 4 leading L1 jets matched to the hard scatter.
+- This is double counting by construction. "One hard scatter + 200 minimum-bias" counts a crossing once per hard
+  scatter it contains, and pT-hat 30–50 scatters occur ~0.3 times per crossing.
+- Rule: below L1 HT 300 take normalisation and shape from minimum bias, flavour from QCD; above 300 QCD can stand alone.
+- It also explains the triggered menu's Z = 1.07 with the QCD background vs 1.61 with minimum bias.
 
 **Genuine 4b QCD in the window.** 1 simulated event (QCDPt120) → fraction 2.4e-5 ± 100%; 3 true b: 3.3e-4 (9 events).
 The 4b background cannot be measured with this sample.
@@ -177,6 +184,15 @@ The 4b background cannot be measured with this sample.
   measures with one event; pileup b jets (no generator record) are missing on top.
 - **Expert intuition.** It can only be tested with a 4b-enriched QCD sample (generator-level bbbb or a b-enriched
   filter) at L1 HT 150–360.
+
+**4b-enriched private sample (2026-10-28).**
+- Generation: `privgen/fragments/QCD4b_fragment.py`. Pythia8 CP5, HardQCD:all, pT-hat > 30 with a pT-hat^4.5 bias
+  (event weights).
+- Filter: ≥ 4 last-copy b quarks with pT > 15, |eta| < 2.6, applied before SIM.
+- GEN test: filter efficiency 1.35e-3 (unweighted), 52 ms per generated event → ~180 s per accepted event through
+  GEN-SIM-DIGI (PU 200) and the ntuples.
+- Jobs: `run_privgen_4b.sh` + `slurm_privgen_4b.sh` record the generated count, the cross-section before the filter and
+  per-event weight / pT-hat (`dump_genweight.py`).
 
 ## Background for the κλ projection and scouting
 
