@@ -109,5 +109,6 @@
       QCD/minimum-bias normalisation off by x1.47 (unresolved). Needs a 4b-enriched QCD sample. HLT scouting dropped.
 - [ ] Firmware (HLS) latency/resources of the extension; vertex robustness; one-hit d0 error.
 - [~] 4b-enriched QCD (privgen QCD4b, OSG cluster 3829520 + Slurm 7059747; osg4b/collect.sh): first 825 events -> perfect-tag
-      scouting of menu-rejected events Z 0.30, menu 1.07 -> 1.11 (scout4b.py). Rerun at full statistics. Normalisation
+      scouting of menu-rejected events Z 0.30, menu 1.07 -> 1.11 (scout4b.py). Full statistics (2599 events, genuine 4b
+      n_eff 8): Z 0.24, menu 1.07 -> 1.10. Open: kinematics ceiling (offline-quality jets + perfect tags), pileup b. Normalisation
       x1.47 explained: double counting below L1 HT 300 (norm_check.py).

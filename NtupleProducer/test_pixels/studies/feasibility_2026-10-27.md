@@ -225,6 +225,23 @@ The 4b background cannot be measured with this sample.
 - pT-hat < 30;
 - L1-jet resolution sets the window width; an "offline-quality kinematics" ceiling has not been run.
 
+### Full statistics (2026-10-28, 2599 accepted events from 396 jobs; first result kept as `scout4b_825ev.json`)
+
+**Genuine 4b in the window:** 5.1e7 events at 3000/fb (3.1e-5 of the window yield).
+- 15 events, n_eff 8 (±35%); pT-hat median 114 GeV, 10–90%: 83–180 GeV.
+- The pT-binned QCD's single event gave 5.7e7.
+
+| Scouting tags | All crossings, Z | Menu-rejected, Z | Menu 1.07 + menu-rejected scouting |
+|---|---|---|---|
+| perfect | 0.60 (B 7.3e8, 4-tag 5.1e7) | 0.24 (B 6.7e8, 4-tag 4.8e7 from 13 events) | 1.10 |
+| NN 5% mistag | 0.06 | 0.04 | 1.07 |
+
+**Conclusion (lower bound on the background: pileup b jets unlabelled; pT-hat > 30 only).**
+- With L1-object kinematics, even perfect b-tagging at 40 MHz adds ~3% to the HH→4b sensitivity of the HT seeds.
+- Realistic L1 tags add nothing.
+- The rejected events' background is dominated by 3-true-b crossings (~6e8), not by genuine 4b.
+- Untested ceiling: offline-quality kinematics (narrower window) together with perfect tags.
+
 ## Background for the κλ projection and scouting
 
 Pending: `analysis/kl_qcdbkg.py` (`run_qcdbkg.sh`).
