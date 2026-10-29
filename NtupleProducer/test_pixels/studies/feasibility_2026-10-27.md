@@ -242,6 +242,33 @@ The 4b background cannot be measured with this sample.
 - The rejected events' background is dominated by 3-true-b crossings (~6e8), not by genuine 4b.
 - Untested ceiling: offline-quality kinematics (narrower window) together with perfect tags.
 
+### Is it the L1-jet resolution? (2026-10-29, `scout_kin.py` → `derived/scout_kin.json`)
+
+Perfect tags (true b among the 4 leading jets) with better jets. The triggered menu stream is analysed with the same jets
+and offline tags, in one likelihood with the scouting of rejected events.
+
+| Jets | Higgs window (true-4b signal) | Menu stream Z | Rejected events, perfect tags, Z | Menu + rejected |
+|---|---|---|---|---|
+| L1 (scout4b.py) | 124 ± 29, 114 ± 30 | 1.07 (L1 kinematics) | 0.24 | 1.10 |
+| offline PUPPI (+ b response) | 130 ± 34, 120 ± 34 | 1.39 | 0.09 (3-tag only, see below) | 1.39 |
+| generator jets (no pileup jets, perfect resolution) | 121 ± 13, 116 ± 18 | 1.08 | 0.35 | 1.14 |
+
+**Offline jets.**
+- The window is not narrower than with L1 jets. Pileup jets among the 4 leading and b-jet response limit it: the L1-jet
+  resolution is not the bottleneck.
+- The 4-tag background is 0 events (no genuine-4b offline sample), so the fit drops that category. The 0.09 is 3-tag only,
+  so the offline row is inconclusive for 4 tags.
+
+**Generator jets (an absolute ceiling).**
+- The window halves; the background drops 6× (2.7e11 vs 1.6e12) because there are no pileup jets.
+- Scouting the rejected events still adds only ~5% to the triggered stream (1.08 → 1.14).
+
+**Reading.**
+- The background of the rejected events is QCD with 3–4 true b at ~6e8 events, against ~3k signal events.
+- Even ideal tagging and ideal kinematics leave S/√B ≈ 0.3 there.
+- The menu-stream Z values move by ±30% between variants with the background statistics (n_eff 2–7); the scouting
+  increment is small in every variant.
+
 ## Background for the κλ projection and scouting
 
 Pending: `analysis/kl_qcdbkg.py` (`run_qcdbkg.sh`).
