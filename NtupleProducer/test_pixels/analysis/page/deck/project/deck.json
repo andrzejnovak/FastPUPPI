@@ -1,0 +1,76 @@
+{
+  "v": 4,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-31T16:00:00Z"
+  },
+  "lists": "css",
+  "title": "Pixel L1 Trigger Group Meeting",
+  "cover": "cover",
+  "order": [
+    "cover",
+    "question",
+    "why_hh",
+    "trigger",
+    "gap",
+    "btag",
+    "algorithm",
+    "tagging",
+    "seed",
+    "robust",
+    "chip",
+    "scouting",
+    "scout_result",
+    "nnseed",
+    "other",
+    "summary",
+    "glossary",
+    "bandwidth",
+    "rate",
+    "menu",
+    "bkg",
+    "scout_method",
+    "offline",
+    "vbf",
+    "boosted",
+    "charm",
+    "samples"
+  ],
+  "sections": {
+    "s1": {
+      "description": "The problem: low-mass HH→4b and the hardware trigger",
+      "start": "cover"
+    },
+    "s2": {
+      "description": "Idea A: pixel hits in the hardware b-tag",
+      "start": "btag"
+    },
+    "s3": {
+      "description": "Idea B: 40 MHz scouting",
+      "start": "scouting"
+    },
+    "s4": {
+      "description": "What works, and summary",
+      "start": "nnseed"
+    },
+    "s5": {
+      "description": "Backup",
+      "start": "glossary"
+    }
+  },
+  "faces": {
+    "eb-garamond": {
+      "family": "EB Garamond",
+      "href": "https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap"
+    },
+    "ibm-plex-sans": {
+      "family": "IBM Plex Sans",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"
+    },
+    "ibm-plex-mono": {
+      "family": "IBM Plex Mono",
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap"
+    }
+  },
+  "designSystems": []
+}
