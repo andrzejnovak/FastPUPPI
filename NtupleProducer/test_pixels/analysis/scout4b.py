@@ -9,7 +9,8 @@ Background per crossing class:
     sum w(all) = sum w(passed) x sigma_before / sigma_after per job (bias weights do not average to 1);
   - everything else: the pT-binned QCD (as scout_check.py) without its genuine-4b events, its yields below L1 HT 300
     scaled by minimum bias / QCD (norm_check.json: "one hard scatter + PU 200" double counts there).
-Pileup b jets have no generator record anywhere: a lower bound on the b content. pT-hat < 30 is missing.
+BKG_MODE=factorised: per tag category, the m_4j shape of all its background events x its weighted tag fraction
+(keeps the m_4j binning when few tagged events exist; default "direct"). Pileup b jets have no generator record anywhere: a lower bound on the b content. pT-hat < 30 is missing.
 Tags: perfect (true b) and the L1 NN at weighted-QCD light-jet mistags (0.2%, 1%, 5%). Same signal, window, binning and
 likelihood as scouting.py; scouting of all crossings and of the menu-rejected ones (+ triggered menu).
 """
@@ -171,7 +172,7 @@ def main():
         nh, nb = th.sum(1), tb.sum(1)
         for scope, sh, sb in (("all crossings", np.ones(len(mh), bool), np.ones(len(B["ht"]), bool)), ("menu-rejected", ~mh, ~B["menu"])):
             coef = SC.templates(w_kl, [hw * sh * (nh == 4), hw * sh * (nh == 3)], hh["m4j"])
-            b = SCK.bkg(B, [(bw & sb, (nb == 4).astype(float)), (bw & sb, (nb == 3).astype(float))], "direct")
+            b = SCK.bkg(B, [(bw & sb, (nb == 4).astype(float)), (bw & sb, (nb == 3).astype(float))], os.environ.get("BKG_MODE", "direct"))
             r = SCK.fit(coef, *b)
             r["B4"] = float((B["w"] * bw * sb * (nb == 4)).sum())
             r["B4_raw"] = int((bw & sb & (nb == 4)).sum())

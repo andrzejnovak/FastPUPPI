@@ -269,6 +269,18 @@ and offline tags, in one likelihood with the scouting of rejected events.
 - The menu-stream Z values move by ±30% between variants with the background statistics (n_eff 2–7); the scouting
   increment is small in every variant.
 
+### Background shape model (2026-10-31, `BKG_MODE=factorised`, `derived/scout4b_fact.json`, `scout_kin_fact.json`)
+
+The per-bin ("direct") background collapses the m_4j fit to about one bin per tag category when few tagged events exist.
+With the factorised model (untagged shape × tagged fraction):
+- L1 jets: rejected-event scouting Z 0.24, menu 1.07 → 1.10 (unchanged);
+- generator jets: 0.47, menu 1.08 → 1.18 (+9%; +5% with the direct model).
+
+Summary range for the page: +2.5% (L1 jets), +5–9% (generator jets). Offline jets: no four-b background event, inconclusive.
+
+Presentation page: https://claude.ai/artifact/CXmo6qG2WgYKU4tpZBAGNg (source `analysis/page/present.tmpl.html`, build
+`build_present.py`). Codex audit: `review/present_2026-10-31/codex_review.md`, fixes applied (`apply_review.py`).
+
 ## Background for the κλ projection and scouting
 
 Pending: `analysis/kl_qcdbkg.py` (`run_qcdbkg.sh`).

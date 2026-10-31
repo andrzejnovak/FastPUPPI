@@ -1,0 +1,476 @@
+<title>Pixel Tracking for HH→4b Triggers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column (~70ch) under a sticky tab rail; each tab = one answer sentence, one key figure, a few bullets, collapsible provenance. */
+:root {
+  --bg: #f6f7f8; --surface: #ffffff; --ink: #14181d; --ink2: #4a525c; --ink3: #727b86; --rule: #d9dde2;
+  --accent: #0d5f7a; --accent-soft: #e2eef2; --plate: #ffffff;
+  --ht: #8e8b84; --nn: #2a78d6; --pix: #e0612b; --perfect: #14181d; --miss: #d94343;
+  --ok: #1d7a4f; --warn: #a36a00; --stop: #b23a3a;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151a; --surface: #181d23; --ink: #e7eaee; --ink2: #b3bac3; --ink3: #8a939e; --rule: #2c333b;
+  --accent: #5fb4d0; --accent-soft: #16313b; --plate: #f4f5f6;
+  --ht: #aaa69e; --nn: #5b9be6; --pix: #f0814f; --perfect: #e7eaee; --miss: #ef6b6b;
+  --ok: #4fbf8a; --warn: #e0a640; --stop: #ec7a7a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11151a; --surface: #181d23; --ink: #e7eaee; --ink2: #b3bac3; --ink3: #8a939e; --rule: #2c333b;
+  --accent: #5fb4d0; --accent-soft: #16313b; --plate: #f4f5f6;
+  --ht: #aaa69e; --nn: #5b9be6; --pix: #f0814f; --perfect: #e7eaee; --miss: #ef6b6b;
+  --ok: #4fbf8a; --warn: #e0a640; --stop: #ec7a7a; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 15.5px/1.6 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface) }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header.top { background: var(--surface); border-bottom: 1px solid var(--rule) }
+header.top .wrap { padding-block: 26px 18px; display: grid; gap: 8px }
+.kicker { font: 500 12px/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent) }
+h1 { font: 700 clamp(26px, 4vw, 36px)/1.15 var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+.lede { color: var(--ink2); max-width: 70ch; margin: 0 }
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--rule) }
+nav.tabs .wrap { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: thin }
+nav.tabs button { font: 500 13.5px/1 var(--f-body); color: var(--ink2); background: none; border: 0; border-bottom: 2.5px solid transparent;
+  padding: 14px 12px 12px; cursor: pointer; white-space: nowrap }
+nav.tabs button .n { font: 500 11px var(--f-mono); color: var(--ink3); margin-right: 6px }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent) }
+nav.tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
+main .wrap { padding-block: 28px 64px }
+section.tab { display: grid; gap: 22px; max-width: 760px }
+section.tab[hidden] { display: none }
+h2 { font: 700 clamp(21px, 2.6vw, 26px)/1.2 var(--f-display); margin: 0; text-wrap: balance }
+h3 { font: 600 16.5px/1.3 var(--f-display); margin: 6px 0 0 }
+p { margin: 0; max-width: 70ch }
+.answer { font-size: 17px; line-height: 1.55; border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; max-width: 68ch }
+ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 70ch }
+li::marker { color: var(--ink3) }
+b, strong { font-weight: 600 }
+.num { font-family: var(--f-mono); font-size: .93em; font-variant-numeric: tabular-nums }
+figure { margin: 0; display: grid; gap: 8px }
+figure .plate { background: var(--plate); border-radius: 6px; padding: 10px; overflow-x: auto }
+figure .plate img { display: block; width: 100%; height: auto; min-width: 560px }
+figcaption { font-size: 13.5px; color: var(--ink2); max-width: 70ch }
+details { border-top: 1px solid var(--rule); padding-top: 6px }
+details summary { cursor: pointer; font: 500 12.5px var(--f-mono); color: var(--accent); letter-spacing: .02em; list-style: none }
+details summary::-webkit-details-marker { display: none }
+details summary::before { content: "+ " }
+details[open] summary::before { content: "− " }
+details .body { font-size: 13.5px; color: var(--ink2); display: grid; gap: 6px; padding-top: 6px }
+details code, .mono { font: 12.5px var(--f-mono); color: var(--ink) }
+.aside { background: var(--accent-soft); border-radius: 6px; padding: 12px 14px; font-size: 14px; display: grid; gap: 4px; max-width: 70ch }
+.aside .lab { font: 600 11.5px var(--f-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--accent) }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0 }
+.card .lab { font: 600 11.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink3) }
+.verdict { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--f-mono); letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; border: 1px solid currentColor; width: fit-content }
+.v-ok { color: var(--ok) } .v-warn { color: var(--warn) } .v-stop { color: var(--stop) }
+.tablewrap { overflow-x: auto }
+table { border-collapse: collapse; font-size: 14px; min-width: 520px; width: 100% }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top }
+th { font: 600 12px var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--ink3) }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums }
+.diagram { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 10px; overflow-x: auto }
+.diagram svg { display: block; width: 100%; min-width: 640px; height: auto }
+.diagram svg text { fill: var(--ink); font-family: var(--f-body) }
+.diagram .sub { fill: var(--ink2); font-size: 11.5px }
+.diagram .box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.2 }
+.diagram .box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2 }
+.diagram .box-stop { fill: var(--surface); stroke: var(--stop); stroke-width: 1.4; stroke-dasharray: 4 3 }
+.diagram .ln { stroke: var(--ink3); stroke-width: 1.3; fill: none }
+.diagram .ln-acc { stroke: var(--accent); stroke-width: 2; fill: none }
+.diagram .ln-stop { stroke: var(--stop); stroke-width: 1.6; fill: none; stroke-dasharray: 5 4 }
+.diagram .tick { stroke: var(--ink3); stroke-width: 1 }
+.diagram .arrowhead { fill: var(--ink3) } .diagram .arrowhead-acc { fill: var(--accent) } .diagram .arrowhead-stop { fill: var(--stop) }
+.bars { display: grid; gap: 10px }
+.bar-row { display: grid; grid-template-columns: minmax(150px, 230px) 1fr 64px; align-items: center; gap: 10px; font-size: 13.5px }
+.bar-row .track { position: relative; height: 18px; background: color-mix(in srgb, var(--rule) 45%, transparent); border-radius: 3px }
+.bar-row .fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px }
+.bar-row .val { font: 500 13px var(--f-mono); text-align: right }
+.bar-group { display: grid; gap: 6px; padding-block: 4px }
+.bar-group .lab { font: 600 12px var(--f-mono); letter-spacing: .05em; text-transform: uppercase; color: var(--ink3) }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--ink2) }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 5px }
+dl.gloss { display: grid; grid-template-columns: minmax(130px, 200px) 1fr; gap: 8px 16px; margin: 0; font-size: 14px }
+dl.gloss dt { font-weight: 600 } dl.gloss dd { margin: 0; color: var(--ink2) }
+@media (max-width: 560px) { dl.gloss { grid-template-columns: 1fr } dl.gloss dd { margin-bottom: 6px } .bar-row { grid-template-columns: 1fr 52px } .bar-row .name { grid-column: 1 / -1 } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important } }
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="kicker">CMS Phase-2 · Level-1 trigger · simulation study</div>
+  <h1>Can pixel-detector information recover the HH→4b events the hardware trigger loses?</h1>
+  <p class="lede">Low-mass di-Higgs events carry most of the information on the Higgs self-coupling modifier κ<sub>λ</sub> = λ<sub>HHH</sub>/λ<sub>HHH</sub><sup>SM</sup>, and the planned hardware trigger drops many of them. We tested two ways to use pixel tracking: inside the hardware trigger decision, and in a 40 MHz scouting stream. Private simulation study.</p>
+</div></header>
+
+<nav class="tabs" aria-label="Sections"><div class="wrap" role="tablist">
+  <button role="tab" id="t-summary" aria-controls="summary" aria-selected="true"><span class="n">1</span>Summary</button>
+  <button role="tab" id="t-gap" aria-controls="gap" aria-selected="false"><span class="n">2</span>The trigger gap</button>
+  <button role="tab" id="t-where" aria-controls="where" aria-selected="false"><span class="n">3</span>Where pixel data exist</button>
+  <button role="tab" id="t-pathA" aria-controls="pathA" aria-selected="false"><span class="n">4</span>Pixels in the L1 decision</button>
+  <button role="tab" id="t-pathB" aria-controls="pathB" aria-selected="false"><span class="n">5</span>40 MHz scouting</button>
+  <button role="tab" id="t-works" aria-controls="works" aria-selected="false"><span class="n">6</span>A b-tagged L1 seed</button>
+  <button role="tab" id="t-other" aria-controls="other" aria-selected="false"><span class="n">7</span>Other channels</button>
+  <button role="tab" id="t-methods" aria-controls="methods" aria-selected="false"><span class="n">8</span>Methods &amp; glossary</button>
+</div></nav>
+
+<main><div class="wrap">
+
+<!-- ============================== 1 SUMMARY ============================== -->
+<section class="tab" id="summary" role="tabpanel" aria-labelledby="t-summary">
+  <h2>Summary</h2>
+  <p class="answer">In simulation, adding pixel hits to the hardware-trigger tracks raises the b-jet efficiency from 15% to 47% at 1% light-jet mistag, but the pixel readout chips offer no early readout path to deliver those hits in time. In the scouting analysis we tested, even ideal b-tags add only 2.5–9% to the expected HH→4b significance. The practical step is a b-tagged hardware seed built from the tracks already planned for the CMS hardware trigger.</p>
+  <div class="grid2">
+    <div class="card"><div class="lab">The gap</div><span class="verdict v-warn">real</span>
+      <p>The planned pair of HT-based hardware seeds (19 kHz) keeps <span class="num">60%</span> of simulated SM gluon-fusion HH→4b events and <span class="num">36%</span> of those below m<sub>HH</sub> = 400 GeV, the region with 78% of the (signal-only) κ<sub>λ</sub> information.</p></div>
+    <div class="card"><div class="lab">Pixels in the L1 decision</div><span class="verdict v-stop">no early readout path</span>
+      <p>The algorithm works in simulation: <span class="num">47%</span> b-jet efficiency at 1% light mistag, against <span class="num">15%</span> for the baseline L1 tagger. The readout chips select hits at one programmed latency, set for the normal L1 accept, and provide no separate early read.</p></div>
+    <div class="card"><div class="lab">40 MHz scouting</div><span class="verdict v-stop">small gain in the tested analysis</span>
+      <p>Analysing the crossings the trigger rejects, with ideal b-tags, adds <span class="num">2.5%</span> to the expected HH→4b significance with L1 jets and <span class="num">5–9%</span> with idealised generator-level jets. Multijet events with 3–4 genuine b-jets dominate.</p></div>
+    <div class="card"><div class="lab">Practical step</div><span class="verdict v-ok">uses planned L1 inputs</span>
+      <p>A b-tagged L1 seed with the baseline L1 tagger, at a measured +16 kHz, raises the share of offline-selectable events below 400 GeV kept from <span class="num">60%</span> to <span class="num">93%</span>. Firmware and full-menu integration remain to be shown.</p></div>
+  </div>
+  <div class="aside"><div class="lab">For readers outside CMS</div>
+    <p>CMS's Phase-2 hardware trigger ("Level-1", L1) accepts 750 kHz of the 40 MHz crossings within 12.5 µs. Unlike ATLAS's Phase-2 L0 it has charged-particle tracks: the outer tracker's paired-sensor modules let FPGAs find tracks above 2 GeV for every crossing (ATLAS uses ITk tracks only after L0, in the Event Filter). The CMS pixel detector (inner tracker) is not part of that; it is read out only after an L1 accept. CMS terms are explained where they first appear and in tab 8.</p></div>
+  <p style="color: var(--ink2); font-size: 14px">Each figure has a "How this was made" box with the code and inputs; tab 8 gives the samples, background modelling, confidence of each result and open items.</p>
+</section>
+
+<!-- ============================== 2 GAP ============================== -->
+<section class="tab" id="gap" role="tabpanel" aria-labelledby="t-gap" hidden>
+  <h2>The trigger gap</h2>
+  <p class="answer">The tested pair of HT seeds (19 kHz, no b-tagging) keeps <span class="num">60%</span> of simulated SM HH→4b events and <span class="num">36%</span> of those below a generator-level m<sub>HH</sub> of 400 GeV.</p>
+  <figure>
+    <div class="plate"><img alt="SM HH to 4b events per 50 GeV of generator m_HH, kept and missed by the planned HT seeds, for all events and for events an offline 4b plus 3b selection would keep; top panels show the share of kappa-lambda information per bin" src="{{IMG:gap_mhh.png}}"></div>
+    <figcaption>Left: all SM HH→4b events in 3000 fb<sup>−1</sup>. Right: events an offline selection with 3–4 b-tags would keep. Grey ("planned menu" in the figure): kept by the HT-seed pair; red: missed. Top panels, identical in both: the share of the generator-level, signal-only κ<sub>λ</sub> information in each m<sub>HH</sub> bin for all events. The last bin includes events above 1 TeV.</figcaption>
+    <details><summary>How this was made</summary><div class="body">
+      <p>Signal: SM gluon-fusion HH→4b, Phase-2 simulation with 200 pileup interactions; L1 emulated in CMSSW 17 (the CMS simulation software), with L1 jets built from particle candidates weighted by PUPPI (pileup-per-particle identification) in the L1 correlator, the processor that combines tracker, calorimeter and muon trigger data.</p>
+      <p>HT-seed pair: HT &gt; 450 GeV, or HT &gt; 400 GeV with four jets above 70/55/40/40 GeV. Seed names quote offline-equivalent thresholds; the emulator applies HT &gt; 361 and 316 GeV. Together 19 kHz, against 20 kHz in the CMS L1 Technical Design Report table. The full menu also contains muon and other seeds not included here.</p>
+      <p>κ<sub>λ</sub> information per bin: (∂σ/∂κ<sub>λ</sub>)²/σ at κ<sub>λ</sub> = 1 from generator m<sub>HH</sub> shapes at κ<sub>λ</sub> = 0, 1, 2.45 (signal only). 78% of it lies below 400 GeV.</p>
+      <p>Code: <code>analysis/plot_gap.py</code> on <code>curves_flags.npz</code>; offline-like selection in <code>offline/offline_sel.py</code>.</p></div></details>
+  </figure>
+  <ul>
+    <li>Low-mass events have softer jets, so an HT threshold removes them first. These are the events most sensitive to the self-coupling.</li>
+    <li>At analysis level the loss is smaller, because the offline selection also prefers hard jets. Of the events a mock offline selection keeps (four jets, four medium or three medium plus one loose b-tags, both Higgs candidates in a mass window), the trigger keeps <span class="num">60%</span> below 400 GeV, and <span class="num">63%</span> of their κ<sub>λ</sub> information over all masses.</li>
+    <li>Spending extra rate on lower HT thresholds recovers less than b-tagging does: about +15 kHz on lower HT cuts keeps <span class="num">78%</span> of that information, a b-tagged seed at a similar rate <span class="num">92%</span> (tab 6).</li>
+  </ul>
+</section>
+
+<!-- ============================== 3 WHERE ============================== -->
+<section class="tab" id="where" role="tabpanel" aria-labelledby="t-where" hidden>
+  <h2>Where pixel data exist</h2>
+  <p class="answer">In normal running, pixel hits leave the readout chips only for crossings the L1 trigger accepts. Using them in the L1 decision would need an early, partial pixel readout; the chips' documented architecture provides no such path.</p>
+  <div class="diagram" role="img" aria-label="Data flow of the CMS Phase-2 trigger: 40 MHz crossings; calorimeter, muon and outer-tracker data reach the Level-1 trigger every crossing; pixel hits wait in the chips and are read only after a Level-1 accept at 750 kHz; the high-level trigger stores about 7.5 kHz; 40 MHz scouting records Level-1 objects for every crossing.">
+  <svg viewBox="0 0 900 330" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+      <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-acc"/></marker>
+      <marker id="ahs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-stop"/></marker>
+    </defs>
+    <rect x="10" y="20" width="130" height="250" rx="6" class="box"/>
+    <text x="75" y="52" text-anchor="middle" font-weight="600" font-size="14">Collisions</text>
+    <text x="75" y="72" text-anchor="middle" class="sub">40 MHz crossings</text>
+    <text x="75" y="88" text-anchor="middle" class="sub">~200 pp per crossing</text>
+    <rect x="180" y="20" width="190" height="56" rx="6" class="box-acc"/>
+    <text x="275" y="44" text-anchor="middle" font-weight="600" font-size="13.5">Calorimeters, muons</text>
+    <text x="275" y="62" text-anchor="middle" class="sub">trigger data every crossing</text>
+    <rect x="180" y="92" width="190" height="56" rx="6" class="box-acc"/>
+    <text x="275" y="116" text-anchor="middle" font-weight="600" font-size="13.5">Outer tracker</text>
+    <text x="275" y="134" text-anchor="middle" class="sub">tracks pT &gt; 2 GeV every crossing</text>
+    <rect x="180" y="190" width="190" height="80" rx="6" class="box-stop"/>
+    <text x="275" y="214" text-anchor="middle" font-weight="600" font-size="13.5">Pixel detector</text>
+    <text x="275" y="232" text-anchor="middle" class="sub">hits wait in the readout chips</text>
+    <text x="275" y="248" text-anchor="middle" class="sub">for a fixed latency, then are</text>
+    <text x="275" y="264" text-anchor="middle" class="sub">read out (if accepted) or erased</text>
+    <rect x="420" y="20" width="200" height="128" rx="6" class="box-acc"/>
+    <text x="520" y="50" text-anchor="middle" font-weight="600" font-size="14">Level-1 trigger</text>
+    <text x="520" y="70" text-anchor="middle" class="sub">FPGA hardware, 12.5 µs</text>
+    <text x="520" y="86" text-anchor="middle" class="sub">jets, HT, tracks, NN b-tag</text>
+    <text x="520" y="102" text-anchor="middle" class="sub">accept 750 kHz</text>
+    <text x="520" y="132" text-anchor="middle" class="sub" font-style="italic">no pixel information</text>
+    <rect x="660" y="20" width="230" height="56" rx="6" class="box-acc"/>
+    <text x="775" y="44" text-anchor="middle" font-weight="600" font-size="13.5">40 MHz L1 scouting</text>
+    <text x="775" y="62" text-anchor="middle" class="sub">processes L1 objects of every crossing</text>
+    <rect x="660" y="190" width="230" height="80" rx="6" class="box"/>
+    <text x="775" y="214" text-anchor="middle" font-weight="600" font-size="13.5">Full readout → HLT</text>
+    <text x="775" y="232" text-anchor="middle" class="sub">all detectors incl. pixels, 750 kHz</text>
+    <text x="775" y="248" text-anchor="middle" class="sub">software farm, ~7.5 kHz stored</text>
+    <path d="M140,48 L176,48" class="ln-acc" marker-end="url(#aha)"/>
+    <path d="M140,120 L176,120" class="ln-acc" marker-end="url(#aha)"/>
+    <path d="M140,230 L176,230" class="ln" marker-end="url(#ah)"/>
+    <path d="M370,48 L416,48" class="ln-acc" marker-end="url(#aha)"/>
+    <path d="M370,120 L416,120" class="ln-acc" marker-end="url(#aha)"/>
+    <path d="M620,48 L656,48" class="ln-acc" marker-end="url(#aha)"/>
+    <path d="M520,148 L520,300 L640,300" class="ln" marker-end="url(#ah)"/>
+    <text x="528" y="292" class="sub">accept → read</text>
+    <path d="M370,230 L656,230" class="ln" marker-end="url(#ah)"/>
+    <path d="M400,205 C 420,175 440,165 470,152" class="ln-stop" marker-end="url(#ahs)"/>
+    <text x="392" y="184" class="sub" fill="var(--stop)" style="fill: var(--stop)">needed: early pixel data</text>
+    <text x="10" y="318" class="sub">Accent arrows: data available for every crossing. Dashed red: early pixel delivery, needed for a pixel-assisted L1 decision.</text>
+  </svg></div>
+  <h3>Why the readout chip cannot do it</h3>
+  <div class="diagram" role="img" aria-label="Timeline of one crossing in the pixel readout chip: hits are stored at time zero; a regional request would need them at about 1 to 5 microseconds; the chip checks for a trigger only at its single programmed latency, up to 12.8 microseconds, then reads or erases them; the Level-1 accept arrives at 12.5 microseconds.">
+  <svg viewBox="0 0 900 230" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
+    <line x1="60" y1="120" x2="860" y2="120" class="ln" marker-end="url(#ah2)"/>
+    <g>
+      <line x1="80" y1="114" x2="80" y2="126" class="tick"/><text x="80" y="144" text-anchor="middle" class="sub">0</text>
+      <line x1="220" y1="114" x2="220" y2="126" class="tick"/><text x="220" y="144" text-anchor="middle" class="sub">2.5</text>
+      <line x1="360" y1="114" x2="360" y2="126" class="tick"/><text x="360" y="144" text-anchor="middle" class="sub">5</text>
+      <line x1="500" y1="114" x2="500" y2="126" class="tick"/><text x="500" y="144" text-anchor="middle" class="sub">7.5</text>
+      <line x1="640" y1="114" x2="640" y2="126" class="tick"/><text x="640" y="144" text-anchor="middle" class="sub">10</text>
+      <line x1="780" y1="114" x2="780" y2="126" class="tick"/><text x="780" y="144" text-anchor="middle" class="sub">12.5</text>
+      <text x="866" y="144" class="sub">µs</text>
+    </g>
+    <rect x="80" y="96" width="700" height="16" rx="3" style="fill: var(--accent-soft); stroke: var(--accent)"/>
+    <text x="90" y="88" font-size="13" font-weight="600">Hits held in the chip's latency buffers</text>
+    <rect x="136" y="150" width="200" height="22" rx="3" style="fill: none; stroke: var(--stop); stroke-dasharray: 4 3"/>
+    <text x="236" y="166" text-anchor="middle" class="sub" style="fill: var(--stop)">a pixel request would read here</text>
+    <line x1="780" y1="60" x2="780" y2="114" style="stroke: var(--accent); stroke-width: 2"/>
+    <text x="772" y="52" text-anchor="end" font-size="13" font-weight="600">L1 accept</text>
+    <line x1="780" y1="112" x2="780" y2="200" style="stroke: var(--ink); stroke-width: 1.5"/>
+    <text x="772" y="214" text-anchor="end" class="sub">one programmed latency, set to the L1 latency (max 511 crossings = 12.8 µs): trigger present → kept for readout; otherwise erased</text>
+    <text x="80" y="30" font-size="12.5" class="sub">One crossing in a pixel readout chip (RD53 family: CMS CROC, ATLAS ITkPix), normal single-level running</text>
+  </svg></div>
+  <ul>
+    <li><b>One selection latency per chip.</b> Each group of pixels stores the time stamp of its hits. When the single programmed latency is reached, the hits are kept only if a trigger is present, otherwise they are erased. Setting it early for a request would erase every crossing without an early trigger before the normal L1 decision could accept it.</li>
+    <li><b>The two-level mode does not help.</b> The RD53B design added a mode in which a first trigger marks crossings and a later "read trigger" command selects them; the command only flags a crossing, and readout follows a second programmed delay common to all crossings. It would need a first-level trigger for every crossing CMS might accept. Neither experiment's Phase-2 baseline uses two hardware trigger levels.</li>
+    <li><b>Bandwidth would matter only for a future chip.</b> In an idealised model where requests are served before normal data, the requested chips (about 70 per crossing on average) deliver in about <span class="num">1.9 µs</span> median, 2.7 µs for 99%, including the chip's minimum 0.78 µs output delay. Queued behind normal readout, the slowest 1% wait 34 µs: normal 750 kHz readout already fills the busiest links to about 97% in this model. This is not an end-to-end latency budget.</li>
+  </ul>
+  <div class="aside"><div class="lab">For ATLAS readers</div>
+    <p>CMS's CROC and ATLAS's ITkPix chips come from the joint RD53 development; the production versions (RD53C) share one digital design, with experiment-specific features set by configuration. The two-level mode was added for an L0/L1 option ATLAS considered.</p></div>
+  <details><summary>How this was made</summary><div class="body">
+    <p>Chip behaviour: RD53B manual v2.21 (June 2022), sec. 7.4 "Latency, Trigger and Readout block" and sec. 9 "Trigger" (one 9-bit latency, ≤ 511 crossings; two-level mode; minimum 31-crossing output delay, then queueing). For the production CMS chip (CROCv2 = RD53C-CMS), per-pixel trigger matching with one programmable 9-bit latency: <a href="https://indico.cern.ch/event/1255624/contributions/5443791/attachments/2724971/4735481/LP_TWEPP2023.pdf" target="_blank" rel="noopener">TWEPP 2023 talk</a>. The RD53C-CMS manual itself was not checked.</p>
+    <p>Readout timing: pixel clusters of re-simulated minimum-bias crossings (L1 HT &gt; 140 GeV), mapped onto chips with a geometry learned from the simulation. Payload per chip calibrated to the CMSSW chip emulator. The emulator writes charge bits for every pixel of a 4×4 core; counting hit pixels only, the payload drops to 25–41% of the emulator value (range from the assumed per-core overhead). Output links per module (6/2/2/1 in barrel layers 1–4, from a CMS inner-tracker system talk). Queueing simulated with normal readout at 750 kHz; normal payload from 20 emulated crossings; no link framing; accepted crossings assumed as busy as average ones. Code: <code>analysis/chip_readout.py</code>, <code>chip_readout_merge.py</code>, <code>readout_queue.py</code>.</p></div></details>
+</section>
+
+<!-- ============================== 4 PATH A ============================== -->
+<section class="tab" id="pathA" role="tabpanel" aria-labelledby="t-pathA" hidden>
+  <h2>Pixels in the L1 decision</h2>
+  <p class="answer">In simulation, extending L1 tracks into the pixel layers raises the L1 b-jet efficiency from 15% to 47% at 1% light-jet mistag, and a seed using it keeps nearly every offline-selectable low-mass event. It needs an early pixel readout (tab 3).</p>
+  <figure>
+    <div class="plate"><img alt="Event display of an L1 track extrapolated into the pixel layers with search windows, picked hits and the refitted trajectory" src="{{IMG:event_display.png}}"></div>
+    <figcaption>The algorithm on one selected simulated event: an L1 track (prompt fit, d<sub>0</sub> = 0) is extrapolated into the four barrel pixel layers, the best-matching clusters in a search window are picked, and the track is refitted to measure its transverse and longitudinal impact parameters d<sub>0</sub> and z<sub>0</sub>. Outer-tracker points are drawn along the fitted helix.</figcaption>
+    <details><summary>How this was made</summary><div class="body"><p>A selected HH→4b event (PU 200) from the extended ntuples; <code>analysis/event_display.py</code>.</p></div></details>
+  </figure>
+  <h3>Why the baseline L1 b-tag is weak</h3>
+  <ul>
+    <li>The baseline CMS L1 b-tagger is a small neural network on up to 16 particle candidates per jet, including outer-tracker tracks from a five-parameter fit in which d<sub>0</sub> is free.</li>
+    <li>The outer tracker starts at about 22 cm from the beam, so the d<sub>0</sub> of those tracks scatters by about <span class="num">545 µm</span> around the reference; b-hadron decay products are displaced by a few hundred µm. Adding pixel hits at 3–16 cm brings it to <span class="num">35 µm</span>.</li>
+  </ul>
+  <figure>
+    <div class="plate"><img alt="Transverse impact parameter difference to high-level-trigger pixel tracks: outer-tracker-only displaced L1 tracks, width 545 micrometres, and L1 tracks with pixel hits, width 35 micrometres" src="{{IMG:d0_resolution.png}}"></div>
+    <figcaption>d<sub>0</sub> of L1 tracks minus d<sub>0</sub> of the matched pixel-only track reconstructed in software after L1 (pT &gt; 2 GeV). Widths: 1.4826 × median absolute deviation. The reference shares pixel hits with the extended tracks, so 35 µm is a residual width, not a truth resolution. Edge bins hold the overflow.</figcaption>
+    <details><summary>How this was made</summary><div class="body"><p>HH→4b and QCD events at PU 200; L1 tracks matched to software pixel tracks in ΔR. <code>analysis/l1ext_validate.py</code>.</p></div></details>
+  </figure>
+  <figure>
+    <div class="plate"><img alt="b-jet efficiency versus light-jet mistag rate for the baseline L1 neural network, an outer-tracker displacement summary, L1 tracks with pixel hits, high-level-trigger pixel tracks and the offline tagger" src="{{IMG:roc_chain.png}}"></div>
+    <figcaption>Per-jet b-tagging on L1 jets: light-jet mistag (non-b, non-c jets, including gluons) against b-jet efficiency. Each "+" curve is a separately trained classifier on the baseline NN scores plus the named features. "HLT pixel tracks": pixel-only tracks reconstructed in software after L1, a reference. Legend: b efficiency at 1% mistag.</figcaption>
+    <details><summary>How this was made</summary><div class="body">
+      <p>b jets from HH→4b, light jets from QCD multijet (both PU 200), L1 jets with pT &gt; 15 GeV; two-fold: trained on one half of the events, evaluated on the other, both halves pooled. "+ L1 tracks with pixel hits": each L1 track (pT &gt; 2 GeV) picks pixel clusters in a window around its extrapolation, refits d<sub>0</sub> and z<sub>0</sub>, and the jet gets an 8-number summary (top three impact-parameter significances, track counts above 3σ and 5σ, sum of significances, largest impact parameter, number of tracks) combined with the NN scores in a gradient-boosted classifier.</p>
+      <p>Code: <code>analysis/l1ext.py</code>, <code>make_l1ext_lists.py</code>, <code>tag_compare.py</code> → <code>tag_chain.json</code>.</p></div></details>
+  </figure>
+  <h3>Robustness of the algorithm</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Variant</th><th class="r">b eff. at 1% / 10% mistag</th><th class="r">HH→4b kept, seed at +2.5 kHz target</th></tr></thead>
+    <tbody>
+      <tr><td>Eight track-summary features, floating point</td><td class="r num">47.3 / 77.7%</td><td class="r num">77.8%</td></tr>
+      <tr><td>Same features quantised into one 64-bit word (8 × 8 bits)</td><td class="r num">46.9 / 77.5%</td><td class="r num">77.6%</td></tr>
+      <tr><td>10% of pixel hits lost at random</td><td class="r num">43.0 / 74.6%</td><td class="r num">77.2%</td></tr>
+      <tr><td>Without barrel layer 1</td><td class="r num">39.1 / 69.7%</td><td class="r num">75.3%</td></tr>
+      <tr><td>Barrel layer 1 only (one hit per track)</td><td class="r num">17.7 / 45.1%</td><td class="r num">70.3%</td></tr>
+      <tr><td>Baseline L1 NN, for reference</td><td class="r num">14.7 / 34.5%</td><td class="r num">69.5%</td></tr>
+    </tbody></table></div>
+  <ul>
+    <li>Quantising the eight track-summary features to 64 bits per jet and moderate hit loss cost almost nothing.</li>
+    <li>The single-layer method tested gives little: with one hit the extrapolated L1 track direction is too uncertain at 2.9 cm and wrong hits cannot be rejected (light-jet track impact parameters: median 66 µm, against 19 µm with all layers). A useful design needs more than one fast layer.</li>
+    <li>Not studied: FPGA latency and resources of the extension.</li>
+  </ul>
+  <figure>
+    <div class="plate"><img alt="Share of HH to 4b kept by L1 in four populations for the HT seeds, lower HT cuts, the NN seed, the pixel seed and a perfect b-tag seed at plus 2.5 and plus 15 kHz" src="{{IMG:recovery.png}}"></div>
+    <figcaption>What each L1 option keeps, as a share of four populations; each row is a separate alternative added to the HT-seed pair. Filled: +2.5 kHz target; open: +15 kHz target (measured: NN 2.3 and 16.3 kHz, pixel 2.2 and 14.0 kHz). "Perfect b tag": generator-labelled b-jets, no inefficiency or mistag. Last panel: κ<sub>λ</sub> information of offline-selectable events at all masses.</figcaption>
+    <details><summary>How this was made</summary><div class="body">
+      <p>Each added seed requires HT and the summed b scores of the four leading L1 jets above thresholds, optimised on even events for the largest HH→4b efficiency at a target added rate, and evaluated on odd events. Rates from 1 999 360 minimum-bias crossings at PU 200, of which the 120 731 with L1 HT &gt; 150 GeV were re-simulated with pixel clusters.</p>
+      <p>The perfect-tag seed's rate uses the b content of QCD multijet events at the same HT, since pileup interactions in minimum bias carry no generator flavour.</p>
+      <p>Code: <code>analysis/direct_curves.py</code>, <code>make_story_plots.py</code>; numbers in <code>plots_page/recovery.json</code>.</p></div></details>
+  </figure>
+</section>
+
+<!-- ============================== 5 SCOUTING ============================== -->
+<section class="tab" id="pathB" role="tabpanel" aria-labelledby="t-pathB" hidden>
+  <h2>40 MHz scouting</h2>
+  <p class="answer">In the scouting analysis we tested, analysing the crossings the trigger rejects with ideal b-tags raises the expected SM HH→4b significance by 2.5% with L1 jets, and by 5–9% with idealised generator-level jets. Multijet events with 3–4 genuine b-jets in the Higgs mass window dominate.</p>
+  <div class="aside"><div class="lab">What 40 MHz scouting is</div>
+    <p>CMS's 40 MHz L1 scouting acquires and processes selected L1 trigger objects (jets, tracks, muons, …) for every crossing, independent of the L1 accept, for trigger-object-level analyses. ATLAS's trigger-level analyses work on events after its trigger selection; the difference is where selection happens. Pixel hits cannot enter L1 scouting (tab 3), so this tab asks a more generous question: <i>if</i> the scouting stream had ideal b-tagging, would the rejected crossings be worth analysing?</p></div>
+  <div class="bars" role="img" aria-label="HH to 4b significance at the Standard Model: triggered stream alone 1.07, plus scouting with NN tags 1.07, plus scouting with perfect tags 1.10 using L1 jets; with generator jets 1.08 alone and 1.14 with perfect-tag scouting">
+    <div class="legend"><span><i style="background: var(--ht)"></i>events the HT seeds accept, analysed offline</span><span><i style="background: var(--nn)"></i>+ scouting, baseline NN tags</span><span><i style="background: var(--perfect)"></i>+ scouting, perfect b-tags</span></div>
+    <div class="bar-group"><div class="lab">L1 jet kinematics</div>
+      <div class="bar-row"><span class="name">Triggered events only</span><span class="track"><span class="fill" style="width: 57.0%; background: var(--ht)"></span></span><span class="val">1.07σ</span></div>
+      <div class="bar-row"><span class="name">+ scouting, NN tags</span><span class="track"><span class="fill" style="width: 57.0%; background: var(--nn)"></span></span><span class="val">1.07σ</span></div>
+      <div class="bar-row"><span class="name">+ scouting, perfect tags</span><span class="track"><span class="fill" style="width: 58.7%; background: var(--perfect)"></span></span><span class="val">1.10σ</span></div>
+    </div>
+    <div class="bar-group"><div class="lab">Generator-level jets: no detector smearing, no pileup jets</div>
+      <div class="bar-row"><span class="name">Triggered events only</span><span class="track"><span class="fill" style="width: 57.6%; background: var(--ht)"></span></span><span class="val">1.08σ</span></div>
+      <div class="bar-row"><span class="name">+ scouting, perfect tags</span><span class="track"><span class="fill" style="width: 60.8%; background: var(--perfect)"></span><span class="fill" style="left: 60.8%; width: 2.1%; background: var(--perfect); opacity: .45"></span></span><span class="val">1.14–1.18σ</span></div>
+    </div>
+    <p style="font-size: 13px; color: var(--ink2)">Expected discovery significance of SM HH→4b at 3000 fb<sup>−1</sup> (Asimov, statistical only) from a binned fit of the reconstructed four-jet mass m<sub>4j</sub>. The range shows two background shape models (per-bin tagged events, or the untagged shape times the tagged fraction). Bars to scale on 0–1.875σ.</p>
+  </div>
+  <ul>
+    <li>The rejected crossings in the Higgs mass window hold about 3 800 signal events against about <span class="num">7×10<sup>8</sup></span> multijet events with 3 or 4 genuine b-jets among the four leading jets. With ideal tags those crossings alone give <span class="num">0.24σ</span> (0.35–0.47σ with generator-level jets).</li>
+    <li>Generator-level jets halve the Higgs mass window; the offline PUPPI jets we tried gave a wider window than L1 jets. The offline-jet test could not evaluate four tags: no simulated four-b background event passed.</li>
+    <li>With the baseline L1 tagger the gain is negligible: at 5% light mistag the significance moves from 1.070 to 1.070. Tighter working points leave too few simulated background events to evaluate.</li>
+    <li>Scope: a fixed analysis (four leading jets, mass pairing, m<sub>4j</sub> fit), so this is not a general bound on scouting. The four-b background rests on 16–19 simulated events, and b-jets from pileup collisions are unlabelled. The absolute significances shift by up to about 30% between background models; the scouting gain is small in every variant.</li>
+  </ul>
+  <details><summary>How this was made</summary><div class="body">
+    <p>Selection: four leading jets with pT &gt; 20 GeV, HT &gt; 150 GeV, two Higgs candidates paired by the smallest mass difference, an elliptical window √[((m<sub>1</sub>−124)/29)² + ((m<sub>2</sub>−114)/30)²] &lt; 1.6 for L1 jets (centres and scales from the signal), fit in m<sub>4j</sub> with categories of 4 and 3 tagged jets. Signal: SM ggF HH→4b, 3000 fb<sup>−1</sup>.</p>
+    <p>Background: QCD multijet simulated in bins of the hard-scattering scale p̂<sub>T</sub> (30–470 GeV) with generator cross-sections and flavour, plus a dedicated sample filtered for ≥ 4 b quarks (about 3 000 events after the full simulation) for the genuine-4b part. Below L1 HT 300 GeV the QCD yields are scaled to minimum bias (tab 8). b-jets from pileup interactions are unlabelled, so the b-rich background is a lower bound.</p>
+    <p>"Triggered events": crossings the HT seeds accept, with offline-quality b-tag probabilities (b 84%, c 12%, light 1% per jet). Scouting covers only the crossings they reject; the two are combined in one likelihood.</p>
+    <p>Code: <code>analysis/scout4b.py</code>, <code>scout_kin.py</code> (<code>BKG_MODE=factorised</code> for the second background shape model); outputs <code>derived/scout4b*.json</code>, <code>scout_kin*.json</code>.</p></div></details>
+</section>
+
+<!-- ============================== 6 WHAT WORKS ============================== -->
+<section class="tab" id="works" role="tabpanel" aria-labelledby="t-works" hidden>
+  <h2>A b-tagged L1 seed</h2>
+  <p class="answer">A b-tagged L1 seed using the baseline L1 tagger, at a measured +16 kHz, keeps <span class="num">93%</span> of offline-selectable HH→4b events below 400 GeV (HT seeds alone: <span class="num">60%</span>) and <span class="num">92%</span> of the κ<sub>λ</sub> information of offline-selectable events at all masses (<span class="num">63%</span>). Its inputs exist in the planned L1 design; firmware and full-menu integration remain to be shown.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Added to the HT-seed pair (target rate)</th><th class="r">All HH→4b</th><th class="r">Offline-selectable, m<sub>HH</sub> &lt; 400</th><th class="r">κ<sub>λ</sub> info, offline-selectable</th></tr></thead>
+    <tbody>
+      <tr><td>nothing (HT seeds, 19 kHz)</td><td class="r num">60%</td><td class="r num">60%</td><td class="r num">63%</td></tr>
+      <tr><td>+15 kHz on lower HT cuts</td><td class="r num">70%</td><td class="r num">81%</td><td class="r num">78%</td></tr>
+      <tr><td>+2.5 kHz NN b-tag seed (measured 2.3)</td><td class="r num">70%</td><td class="r num">83%</td><td class="r num">77%</td></tr>
+      <tr><td>+15 kHz NN b-tag seed (measured 16.3)</td><td class="r num">78%</td><td class="r num">93%</td><td class="r num">92%</td></tr>
+      <tr><td>+15 kHz perfect b-tag (upper bound)</td><td class="r num">91%</td><td class="r num">99.5%</td><td class="r num">99.5%</td></tr>
+    </tbody></table></div>
+  <ul>
+    <li>15 kHz is the rate CMS has shown for a standalone b-tag NN seed (a benchmark, not an allocation); it is 2% of the 750 kHz L1 budget (the CMS L1 TDR menu totals about 450 kHz including a 30% margin).</li>
+    <li>The same tagger can instead lower the rate: one HT + NN seed matches the HT seeds' efficiency at <span class="num">13.7 kHz</span> instead of 19.</li>
+    <li>On the analysis side, a softer offline selection (jets above 20 GeV, χ² pairing to the Higgs mass) up to triples the selected κ<sub>λ</sub> information, but the multijet background grows by ×4.6–9.8; the information-weighted figure of merit I/√B changes by only ×0.99–1.15. Low-mass gains need better discrimination, not looser cuts.</li>
+  </ul>
+  <figure>
+    <div class="plate"><img alt="HH to 4b efficiency against the rate of a single seed for HT only, HT plus NN, HT plus pixel and HT plus perfect b-tag, and the rate each needs to match the planned HT seeds" src="{{IMG:rate_case.png}}"></div>
+    <figcaption>Left: HH→4b efficiency of one seed against its rate. Right: the rate each seed needs to match the planned HT seeds (60% at 19 kHz).</figcaption>
+    <details><summary>How this was made</summary><div class="body">
+      <p>Standalone seeds (HT, or HT plus summed b scores of the four leading L1 jets), thresholds scanned on even events; rates from re-simulated minimum bias at PU 200; the rates matching 60% are interpolated. HT values in the figure are emulator (online) thresholds. Code: <code>analysis/rate_case.py</code> → <code>rate_case.json</code>.</p>
+      <p>Offline selection study: <code>offline/offline_lowmass_w.py</code> with QCD weighted by generator cross-sections (1.2 million events, pT-hat 30–470 GeV), truth-tag probabilities for the tags.</p></div></details>
+  </figure>
+  <figure>
+    <div class="plate"><img alt="Composition of the Phase-2 L1 menu by seed category from the CMS L1 TDR" src="{{IMG:menu_composition.png}}"></div>
+    <figcaption>Context: the Phase-2 L1 menu by category (CMS L1 TDR table, PU 200; labels like "SinglePuppijet" are single-jet seeds built from PUPPI-weighted particle candidates). Multijet HT seeds are a small part of the budget. This historical table uses a single-jet threshold of 180 GeV; tab 7 uses the planned 230 GeV.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================== 7 OTHER CHANNELS ============================== -->
+<section class="tab" id="other" role="tabpanel" aria-labelledby="t-other" hidden>
+  <h2>Other channels</h2>
+  <p class="answer">Among the tested channels, VBF H→bb gains most from better L1 flavour tagging; boosted Higgs and Z(νν)H are not limited by L1. Pixel-based versions face the same readout limit as HH→4b; the baseline NN tagger captures part of each gain.</p>
+  <div class="grid2">
+    <div class="card"><div class="lab">VBF H→bb</div><span class="verdict v-ok">L1-limited, tag helps</span>
+      <p>The planned menu keeps <span class="num">51%</span> of events in acceptance. A VBF seed with two b-tagged central jets at about +2 kHz: <span class="num">56%</span> with the baseline NN, <span class="num">61%</span> with pixel tags.</p></div>
+    <div class="card"><div class="lab">VBF H→cc</div><span class="verdict v-warn">+3–4 points, pixel ≈ NN</span>
+      <p>Menu <span class="num">58%</span>; with two c-tagged jets at about +2 kHz: <span class="num">61%</span> (NN), <span class="num">62%</span> (pixel).</p></div>
+    <div class="card"><div class="lab">Boosted ggH→bb/cc</div><span class="verdict v-ok">not L1-limited</span>
+      <p>The planned single-jet and HT seeds keep <span class="num">98–100%</span> of events with Higgs pT above 200 GeV.</p></div>
+    <div class="card"><div class="lab">Z(νν)H, H→bb/cc</div><span class="verdict v-ok">not L1-limited</span>
+      <p>The planned missing-energy and jet seeds together keep <span class="num">96–98%</span> of events with generator missing transverse momentum above 150 GeV, the usual offline cut (the missing-energy seed alone: 92–93%).</p></div>
+  </div>
+  <figure>
+    <div class="plate"><img alt="Fraction of VBF H to cc and H to bb events in acceptance kept by the planned menu plus a VBF seed with two flavour-tagged jets, against the added L1 rate" src="{{IMG:vbf_tag_rate.png}}"></div>
+    <figcaption>VBF H→cc (left) and H→bb (right): share of events in acceptance kept, against the L1 rate added to the planned menu. Grey: a looser VBF seed without tags. Error bars: statistical, on the efficiency (vertical) and the minimum-bias rate (horizontal).</figcaption>
+    <details><summary>How this was made</summary><div class="body">
+      <p>Acceptance (generator level): two central jets of the Higgs-decay flavour and a pair of other jets with large separation and invariant mass. Added seed: a looser VBF jet pair plus two central L1 jets above a flavour-tag threshold; working points on even events, results on odd; rates from minimum bias (including a VBF-enriched re-simulation). Code: <code>analysis/vbf_ctag.py</code>.</p></div></details>
+  </figure>
+  <figure>
+    <div class="plate"><img alt="Share of boosted ggH and ZH to nu nu events kept by the planned menu against Higgs pT and generator missing ET" src="{{IMG:menu_vs_pt.png}}"></div>
+    <figcaption>Where L1 is not the bottleneck: boosted gluon-fusion Higgs against Higgs pT (left; from generator jets of the Higgs-decay flavour) and Z(νν)H against generator missing transverse momentum (right). "SingleJet230", "HT450", "PuppiMET200": the planned single-jet, HT and missing-momentum seeds.</figcaption>
+    <details><summary>How this was made</summary><div class="body"><p>Private Phase-2 samples (Pythia 8, PU 200, about 5 000 events each) through the official CMS simulation and our L1 emulation. Code: <code>analysis/fatjet_ana.py</code>, <code>zh_met.py</code>.</p></div></details>
+  </figure>
+  <figure>
+    <div class="plate"><img alt="Charm tagging ROC curves at L1, c versus light and c versus b, for the L1 NN, outer-tracker displaced tracks, L1 tracks with pixel hits and high-level-trigger pixel tracks" src="{{IMG:ctag_roc.png}}"></div>
+    <figcaption>Charm tagging at L1: at 10% light mistag the c-jet efficiency is 16% with the baseline NN, 29% with L1 tracks plus pixel hits and 30% with software pixel tracks (reference). Each curve is a separately trained classifier.</figcaption>
+    <details><summary>How this was made</summary><div class="body"><p>c jets from VBF H→cc, b jets from HH→4b, light jets from QCD (PU 200); <code>analysis/ctag_compare.py</code> → <code>ctag_chain.json</code>.</p></div></details>
+  </figure>
+</section>
+
+<!-- ============================== 8 METHODS ============================== -->
+<section class="tab" id="methods" role="tabpanel" aria-labelledby="t-methods" hidden>
+  <h2>Methods &amp; glossary</h2>
+  <p class="answer">These are private simulation projections. Efficiencies, rates and sensitivities have different levels of validation; the table below gives each one's basis.</p>
+  <h3>Samples</h3>
+  <ul>
+    <li><b>Signal</b>: SM gluon-fusion HH→4b, official CMS Phase-2 simulation, 14 TeV, 200 pileup interactions per crossing; κ<sub>λ</sub> dependence from generator m<sub>HH</sub> shapes at κ<sub>λ</sub> = 0, 1, 2.45, 5.</li>
+    <li><b>Minimum bias</b> (L1 rates): 1 999 360 PU 200 crossings; the 120 731 with L1 HT &gt; 150 GeV re-simulated with pixel clusters.</li>
+    <li><b>QCD multijet</b>: official samples in bins of the hard-scattering scale p̂<sub>T</sub> (30–470 GeV) with generator cross-sections (1.2 million events with offline jets, 140 000 with L1 objects), and a private sample filtered for ≥ 4 b quarks (Pythia 8, p̂<sub>T</sub> 30–300 GeV, about 3 000 events through the full simulation).</li>
+    <li><b>Emulation</b>: CMSSW 17 L1 emulator (L1 tracks, PUPPI jets, NN b-tagger), plus our track extension into the pixel layers. Analysis in Python (numpy, awkward, scikit-learn).</li>
+  </ul>
+  <h3>Background modelling, and one pitfall</h3>
+  <ul>
+    <li>Rates come from minimum bias, which is the right mix of processes but has no flavour information for the pileup collisions.</li>
+    <li>Flavour comes from QCD samples. Below an L1 HT of 300 GeV these over-predict the minimum-bias yield of four-jet crossings by about 1.5×. Our interpretation: each simulated event is one hard scatter plus 200 pileup collisions that already contain hard scatters, so a crossing is counted once per hard scatter in it. Above 300 GeV the four-jet yields agree within 10% (in the Higgs mass window the high-HT bins have too few events to test). We scale QCD to minimum bias below 300 GeV.</li>
+    <li>b-jets from pileup collisions have no generator label anywhere: backgrounds that need true b-jets are lower bounds.</li>
+  </ul>
+  <h3>Confidence of the main numbers</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Statement</th><th>Type</th><th>Depends on</th></tr></thead>
+    <tbody>
+      <tr><td>HT seeds keep 60% of HH→4b; 36% below 400 GeV</td><td>signal efficiency</td><td>L1 emulation</td></tr>
+      <tr><td>NN seed at a measured +16 kHz keeps 93% of offline-selectable low-mass events</td><td>signal efficiency at a rate</td><td>minimum-bias rate; no firmware or full-menu overlap study</td></tr>
+      <tr><td>Pixel extension: 47% b efficiency at 1% mistag</td><td>algorithm level</td><td>no firmware study</td></tr>
+      <tr><td>No early pixel readout path in the readout chips</td><td>architecture, from documentation</td><td>RD53B manual and CROCv2 talk; to confirm with CROC experts</td></tr>
+      <tr><td>Scouting with ideal tags adds 2.5% (L1 jets) to 5–9% (generator jets)</td><td>tested analysis, not a general bound</td><td>QCD background (16–19 simulated four-b events), pileup b unlabelled</td></tr>
+      <tr><td>Absolute HH→4b significances (about 1.1σ at trigger-object level)</td><td>model-dependent</td><td>background model; up to ~30% between models</td></tr>
+    </tbody></table></div>
+  <h3>Open items</h3>
+  <ul>
+    <li>FPGA implementation (latency, resources) of the pixel extension.</li>
+    <li>Confirmation of the chip behaviour for the CMS-specific chip version.</li>
+    <li>b-jets from pileup collisions in the multijet background.</li>
+    <li>A CMSSW bug report for the pixel chip emulator's payload (charge bits written for every pixel of a 4×4 core).</li>
+    <li>The effect of the high-level trigger and of the final offline selection on the L1 gains; ttbar and other non-QCD backgrounds.</li>
+  </ul>
+  <h3>Glossary</h3>
+  <dl class="gloss">
+    <dt>L1 (Level-1)</dt><dd>CMS's hardware trigger: FPGA boards, 12.5 µs latency, 40 MHz in, 750 kHz out in Phase-2. Closest ATLAS Phase-2 analogue: L0 (1 MHz, 10 µs, no ITk tracking in the decision).</dd>
+    <dt>HLT</dt><dd>High-level trigger: the software farm after L1, storing about 7.5 kHz. ATLAS: Event Filter.</dd>
+    <dt>Seed</dt><dd>One L1 trigger condition (for example "HT above 450 GeV"); the menu is the list of seeds sharing the 750 kHz.</dd>
+    <dt>HT</dt><dd>Scalar sum of jet pT (here L1 jets above 30 GeV, |η| &lt; 2.4).</dd>
+    <dt>L1 tracks</dt><dd>Tracks found in FPGAs for every crossing from the outer tracker's paired-sensor ("pT") modules, which keep only hit pairs consistent with pT &gt; 2 GeV.</dd>
+    <dt>p̂<sub>T</sub></dt><dd>Transverse momentum of the hard 2→2 scattering in the generator, used to bin QCD samples.</dd>
+    <dt>m<sub>HH</sub>, m<sub>4j</sub></dt><dd>Generator-level Higgs-pair mass; reconstructed four-jet mass used in the fits.</dd>
+    <dt>PUPPI</dt><dd>Pileup-per-particle identification: weights particles by their likelihood to come from pileup; used offline and in the L1 correlator.</dd>
+    <dt>L1 NN b-tagger</dt><dd>A small neural network on the particle candidates of an L1 jet (including displaced L1 tracks) that outputs b, c, light and gluon scores.</dd>
+    <dt>Inner tracker / pixels</dt><dd>The CMS Phase-2 pixel detector (4 barrel layers at 3–16 cm, forward and endcap disks), read out by CROC chips only on L1 accept.</dd>
+    <dt>CROC / ITkPix / RD53</dt><dd>The CMS and ATLAS pixel readout chips from the joint RD53 development (production versions: RD53C).</dd>
+    <dt>40 MHz L1 scouting</dt><dd>A CMS system that acquires and processes L1 trigger objects for every crossing, independent of the L1 accept.</dd>
+    <dt>UParT</dt><dd>CMS's offline transformer-based flavour tagger (ATLAS analogue: GN2).</dd>
+    <dt>Offline-selectable</dt><dd>Events a mock offline HH→4b selection would keep: four offline jets above 30 GeV, four medium or three medium plus one loose b-tags (UParT; 1% and 10% light mistag), both Higgs candidates in the mass window.</dd>
+    <dt>Perfect b tag</dt><dd>Generator-labelled b-jets with no inefficiency or mistag; b-jets from pileup collisions carry no label.</dd>
+  </dl>
+  <details><summary>Code and data</summary><div class="body">
+    <p>Code: branch <span class="mono">17_0_X_pixelTracks</span>, directory <span class="mono">FastPUPPI/NtupleProducer/test_pixels</span> (analysis scripts in <span class="mono">analysis/</span>, production in <span class="mono">production/</span>, internal notes in <span class="mono">studies/</span>). Derived data on the MIT subMIT cluster under <span class="mono">/scratch/submit/cms/novaka/l1pixels/derived</span>.</p></div></details>
+</section>
+
+</div></main>
+
+<script>
+(() => {
+  const tabs = [...document.querySelectorAll('nav.tabs [role="tab"]')];
+  const show = (id, push) => {
+    if (!document.getElementById(id)) id = 'summary';
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t.getAttribute('aria-controls') === id)));
+    document.querySelectorAll('section.tab').forEach(s => { s.hidden = s.id !== id; });
+    if (push && location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+  };
+  tabs.forEach(t => t.addEventListener('click', () => { show(t.getAttribute('aria-controls'), true); window.scrollTo({ top: 0 }); }));
+  tabs.forEach((t, i) => t.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); n.click();
+    }
+  }));
+  const fromHash = () => show(location.hash.slice(1) || 'summary', false);
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+})();
+</script>

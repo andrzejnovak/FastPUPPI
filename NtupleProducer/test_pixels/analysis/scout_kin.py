@@ -189,7 +189,7 @@ def main():
             else:
                 sh, wk, sq, QQ = ~hmenu & hmenu_has, w_kl_m, ~Q["menu"] & Q["has_menu"], QM
             coef = SC.templates(wk, [hw * sh * (nh == 4), hw * sh * (nh == 3)], hh["m4j"])
-            b = SCK.bkg(QQ, [(qw & sq, (nq == 4).astype(float)), (qw & sq, (nq == 3).astype(float))], "direct")
+            b = SCK.bkg(QQ, [(qw & sq, (nq == 4).astype(float)), (qw & sq, (nq == 3).astype(float))], os.environ.get("BKG_MODE", "direct"))
             r = SCK.fit(coef, *b)
             r["B4"] = float((QQ["w"] * qw * sq * (nq == 4)).sum())
             r["B4_raw"] = int((qw & sq & (nq == 4)).sum())
