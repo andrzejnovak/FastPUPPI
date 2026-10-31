@@ -17,7 +17,6 @@
     "algorithm",
     "tagging",
     "seed",
-    "robust",
     "chip",
     "scouting",
     "scout_result",
@@ -25,15 +24,17 @@
     "other",
     "summary",
     "glossary",
+    "recovery_full",
+    "robust",
     "bandwidth",
-    "rate",
     "menu",
+    "rate",
     "bkg",
     "scout_method",
     "offline",
     "vbf",
-    "boosted",
     "charm",
+    "boosted",
     "samples"
   ],
   "sections": {
@@ -42,15 +43,15 @@
       "start": "cover"
     },
     "s2": {
-      "description": "Idea A: pixel hits in the hardware b-tag",
+      "description": "Route A: pixel hits in the hardware trigger decision",
       "start": "btag"
     },
     "s3": {
-      "description": "Idea B: 40 MHz scouting",
+      "description": "Route B: 40 MHz scouting of rejected collisions",
       "start": "scouting"
     },
     "s4": {
-      "description": "What works, and summary",
+      "description": "Route C: b-tagging with the planned tracks; other channels; summary",
       "start": "nnseed"
     },
     "s5": {
